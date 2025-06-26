@@ -61,4 +61,9 @@ public class ProjectDto {
      * Timestamp of when the project was created.
      */
     private LocalDateTime createdAt;
+
+    /**
+     * Timestamp of when the project was last updated.
+     */
+    private LocalDateTime updatedAt;
 }

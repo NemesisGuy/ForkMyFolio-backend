@@ -38,6 +38,11 @@ public class JwtTokenProvider {
      */
     @jakarta.annotation.PostConstruct
     public void init() {
+        if (jwtSecret == null || jwtSecret.isBlank()) {
+            logger.error("JWT secret is null or empty. Please check property 'jwt.secret'.");
+            throw new IllegalArgumentException("JWT secret cannot be null or empty.");
+        }
+        logger.info("Initializing JwtTokenProvider with secret: '{}...'", jwtSecret.substring(0, Math.min(jwtSecret.length(), 10))); // Log first 10 chars
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }

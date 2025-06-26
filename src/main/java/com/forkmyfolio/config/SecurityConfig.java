@@ -18,11 +18,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.config.Customizer;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Main security configuration class for the application.
@@ -30,13 +33,16 @@ import java.util.Arrays;
  * and HTTP security rules.
  */
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity // debug = true removed
 @EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true) // Enables @RolesAllowed, @Secured
 public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtAuthenticationEntryPoint unauthorizedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Value("${app.cors.allowed-origins}")
+    private String[] allowedOrigins;
 
     private static final String[] PUBLIC_MATCHERS = {
             "/auth/**",
@@ -99,8 +105,12 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*"); // Allow all origins for now - TODO: Restrict in prod
-        config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
+        // config.addAllowedOriginPattern("*"); // Replaced by specific origins
+        if (allowedOrigins != null && allowedOrigins.length > 0) {
+            config.setAllowedOrigins(Arrays.asList(allowedOrigins));
+        }
+        config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
+        config.setExposedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
@@ -118,14 +128,19 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable) // Disable CSRF as we are using JWT
-            .cors(cors -> cors.configurationSource(request -> { // Apply CORS globally
-                CorsConfiguration config = new CorsConfiguration();
-                config.setAllowCredentials(true);
-                config.addAllowedOriginPattern("*"); // TODO: Restrict in production
-                config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
-                config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-                return config;
-            }))
+            // .cors(cors -> cors.configurationSource(request -> { // Apply CORS globally - replaced by CorsFilter bean
+            //     CorsConfiguration config = new CorsConfiguration();
+            //     config.setAllowCredentials(true);
+            //     if (allowedOrigins != null && allowedOrigins.length > 0) {
+            //         config.setAllowedOrigins(Arrays.asList(allowedOrigins));
+            //     } else {
+            //         config.addAllowedOriginPattern("*"); // Fallback if property not set, though ideally it should always be set
+            //     }
+            //     config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
+            //     config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+            //     return config;
+            // }))
+            .cors(Customizer.withDefaults()) // This will use the CorsFilter bean if available
             .exceptionHandling(exception -> exception
                 .authenticationEntryPoint(unauthorizedHandler) // Handle unauthorized attempts
             )

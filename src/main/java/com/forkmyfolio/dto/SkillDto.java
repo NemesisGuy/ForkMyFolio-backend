@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 /**
  * Data Transfer Object for representing Skill information in API responses.
  */
@@ -34,4 +36,14 @@ public class SkillDto {
      * The ID of the user who possesses this skill.
      */
     private Long userId; // To associate skill with a user
+
+    /**
+     * Timestamp of when the skill record was created.
+     */
+    private LocalDateTime createdAt;
+
+    /**
+     * Timestamp of when the skill record was last updated.
+     */
+    private LocalDateTime updatedAt;
 }

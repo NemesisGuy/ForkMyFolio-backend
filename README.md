@@ -29,7 +29,7 @@ This project provides the backend services for ForkMyFolio. It handles user auth
 
 ## Features
 
-- User registration and JWT-based authentication (Login/Logout).
+- User registration and JWT-based authentication with short-lived access tokens and long-lived, HttpOnly refresh tokens (Login, Logout, Token Refresh).
 - Role-based access control (USER, ADMIN).
 - CRUD operations for Projects (Admin only for CUD).
 - CRUD operations for Skills (Admin only for CUD).
@@ -115,56 +115,120 @@ Once the application is running, the Swagger UI documentation can be accessed at
 The OpenAPI specification (JSON) is available at:
 [http://localhost:8080/api-docs](http://localhost:8080/api-docs)
 
-You can use the "Authorize" button on Swagger UI (top right) to authenticate using a JWT token obtained from the `/auth/login` or `/auth/register` endpoints. The format is `Bearer <your_jwt_token>`.
+You can use the "Authorize" button on Swagger UI (top right) to authenticate using a JWT access token obtained from the `/auth/login` or `/auth/register` endpoints. The format is `Bearer <your_jwt_token>`. The refresh token mechanism is handled via HttpOnly cookies and the `/auth/refresh-token` endpoint.
+
+## Authentication Flow
+
+The application uses JWTs for authentication, with a system of short-lived access tokens and long-lived refresh tokens.
+
+1.  **Login/Registration (`/auth/login`, `/auth/register`)**:
+    *   Upon successful authentication or registration, the server returns:
+        *   A short-lived JWT **access token** in the JSON response body. This token should be stored by the client (e.g., in memory) and sent in the `Authorization: Bearer <token>` header for subsequent requests to protected endpoints.
+        *   A long-lived **refresh token** set in an `HttpOnly`, `Secure` (in production), `SameSite=Lax` cookie. This cookie is automatically handled by the browser and is not accessible to JavaScript.
+
+2.  **Accessing Protected Resources**:
+    *   The client includes the JWT access token in the `Authorization` header.
+    *   The server validates this token.
+
+3.  **Token Refresh (`/auth/refresh-token`)**:
+    *   If an access token expires, the client will receive a 401 Unauthorized status.
+    *   The client should then make a `POST` request to `/auth/refresh-token`. No request body is needed; the browser will automatically send the refresh token cookie.
+    *   If the refresh token is valid and not expired:
+        *   The server issues a new short-lived access token (returned in the JSON response body).
+        *   A new refresh token is generated (rolling refresh tokens) and set in a new HttpOnly cookie, invalidating the previous one.
+    *   The client then uses the new access token for subsequent requests.
+
+4.  **Logout (`/auth/logout`)**:
+    *   The client makes a `POST` request to `/auth/logout`.
+    *   The server invalidates the refresh token (deletes it from the database) and sends back an instruction to clear the refresh token cookie (by setting an expired cookie).
+    *   The client should also clear its stored access token.
 
 ## Docker
 
-This section will be updated with Docker build and run instructions once the `Dockerfile` is finalized.
+The project includes a `Dockerfile` for containerization.
 
 ### Building the Docker Image
+
+To build the Docker image, navigate to the project root directory (where the `Dockerfile` is located) and run:
 ```bash
-# Placeholder: Instructions to come
+docker build -t forkmyfolio-backend .
+```
+Or, to specify a version:
+```bash
+docker build -t forkmyfolio-backend:0.0.1 .
 ```
 
 ### Running with Docker
+
+To run the application using Docker:
+
+**Development Profile (using H2 in-memory database):**
 ```bash
-# Placeholder: Instructions to come
+docker run -d -p 8080:8080 --name forkmyfolio-backend-dev forkmyfolio-backend
 ```
+*(The default profile in the Docker image is `dev`)*
+
+**Production Profile (requires external PostgreSQL and environment variables):**
+```bash
+docker run -d -p 8080:8080 \
+  -e SPRING_PROFILES_ACTIVE=prod \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://your-db-host:5432/your-db-name \
+  -e SPRING_DATASOURCE_USERNAME=your-db-user \
+  -e SPRING_DATASOURCE_PASSWORD=your-db-password \
+  -e JWT_SECRET=your-super-strong-base64-encoded-jwt-secret \
+  -e APP_CORS_ALLOWED_ORIGINS=https://your-frontend-domain.com \
+  --name forkmyfolio-backend-prod \
+  forkmyfolio-backend
+```
+Replace placeholder values for database connection, JWT secret, and CORS origins with your actual production values.
 
 ## Environment Variables
 
-For the **production profile**, the following environment variables should be configured:
+The application uses the following environment variables, primarily for the **production profile**:
 
+*   `SPRING_PROFILES_ACTIVE`: Set to `prod` to activate production configurations. Defaults to `dev` if not set (especially in Docker).
 *   `SPRING_DATASOURCE_URL`: The JDBC URL for your PostgreSQL database.
     *   Example: `jdbc:postgresql://your-db-host:5432/your-db-name`
 *   `SPRING_DATASOURCE_USERNAME`: The username for your PostgreSQL database.
 *   `SPRING_DATASOURCE_PASSWORD`: The password for your PostgreSQL database.
-*   `JWT_SECRET`: A strong, base64-encoded secret key for signing JWTs. This **MUST** be overridden from the default.
-    *   You can generate a suitable secret using various tools. Ensure it's sufficiently long and random.
-*   `JWT_EXPIRATION_MS`: (Optional) JWT expiration time in milliseconds. Defaults to `86400000` (24 hours).
+*   `JWT_SECRET`: A strong, base64-encoded secret key for signing JWT **access tokens**. This **MUST** be overridden from the default for production.
+    *   *Security Note*: Generate a cryptographically strong secret.
+*   `JWT_ACCESS_TOKEN_EXPIRATION_MS`: Expiration time for JWT access tokens in milliseconds. Default is 1 hour (`3600000`).
+*   `JWT_REFRESH_TOKEN_EXPIRATION_MS`: Expiration time for refresh tokens in milliseconds. Default is 7 days (`604800000`).
+*   `APP_JWT_REFRESH_COOKIE_NAME`: Name of the HttpOnly cookie used to store the refresh token. Default is `refreshToken`.
+*   `APP_COOKIE_SECURE`: Boolean (`true`/`false`) to set the `Secure` flag on cookies. Should be `true` in production (requires HTTPS). Default is `true` for prod profile, `false` for dev.
+*   `APP_COOKIE_SAMESITE`: `SameSite` attribute for cookies (e.g., `Lax`, `Strict`, `None`). Default is `Lax`.
+*   `APP_CORS_ALLOWED_ORIGINS`: Comma-separated list of allowed origins for CORS.
+    *   Example for production: `https://www.yourfrontend.com,https://another-frontend.com`
+    *   Example for development (if not using default from `application.properties`): `http://localhost:3001,http://localhost:3002`
 
-These variables can be set directly in your deployment environment or using a `.env` file if your deployment method supports it (Docker Compose, etc.).
+These variables can be set directly in your deployment environment or using a `.env` file if your deployment method supports it (e.g., Docker Compose).
 
-For the **development profile**, these are not strictly necessary as it defaults to H2 and a default JWT secret (which is insecure and for development only).
+For the **development profile** (when `SPRING_PROFILES_ACTIVE=dev` or not set), the application defaults to an H2 in-memory database and uses default values from `application.properties` (including an insecure JWT secret intended only for development).
 
 ## Code Structure
 
-*(A brief overview of the main packages will be added here)*
-- `com.forkmyfolio.config`: Spring configuration classes (Security, OpenAPI).
-- `com.forkmyfolio.controller`: REST API controllers.
-- `com.forkmyfolio.dto`: Data Transfer Objects for API requests/responses.
-- `com.forkmyfolio.exception`: Custom exceptions and global exception handler.
-- `com.forkmyfolio.model`: JPA entities representing the domain model.
-- `com.forkmyfolio.repository`: Spring Data JPA repositories.
-- `com.forkmyfolio.security`: JWT utilities, UserDetailsService, security filters.
-- `com.forkmyfolio.service`: Service layer interfaces and implementations.
+The project follows a standard Maven project structure:
+- `src/main/java/com/forkmyfolio`: Root package for all Java source code.
+  - `config`: Spring configuration classes (SecurityConfig, OpenApiConfig).
+  - `controller`: REST API controllers that handle incoming HTTP requests.
+  - `dto`: Data Transfer Objects used for API request and response payloads.
+  - `exception`: Custom exception classes and the global exception handler.
+  - `model`: JPA entities representing the application's domain model (User, Project, etc.).
+  - `repository`: Spring Data JPA repositories for database interactions.
+  - `security`: Classes related to Spring Security, JWT handling, and custom UserDetailsService.
+  - `service`: Service layer interfaces.
+    - `impl`: Implementations of the service interfaces, containing business logic.
+- `src/main/resources`: Application properties (`application.properties`, `application-prod.properties`), and other resources.
+- `src/test/java`: Unit and integration tests.
 
 ## Testing
 
-*(Information on how to run unit and integration tests will be added here)*
+To run all unit and integration tests, use the following Maven command from the project root:
 ```bash
 mvn test
 ```
+Test reports can be found in the `target/surefire-reports` directory.
 
 ## Contributing
 

@@ -1,24 +1,110 @@
-# Compiled class file
-*.class
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+# If you're not committing the wrapper scripts:
+# mvnw
+# mvnw.cmd
 
-# Log file
+# IDE - IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+shelf/
+
+# IDE - Eclipse
+.classpath
+.project
+.settings/
+bin/
+tmp/
+.metadata
+*.tmp
+
+# IDE - NetBeans
+nbproject/
+*.nbattrs
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# IDE - VSCode
+.vscode/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Log files
 *.log
+logs/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
-# BlueJ files
-*.ctxt
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+# Other
+*.swp
+*~
+`*.bak`
+`*.old`
 
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
+# Secrets - generally good to ignore, manage them outside the repo
+*.env
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+application-*.yml
+application-*.properties
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# Node modules (if you ever use frontend tools within the same project)
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn.lock
+package-lock.json
+
+# Specific to avoid issues with test reports or build caches being committed
+# if they somehow end up outside 'target' (though they shouldn't with Maven)
+.gradle
+build/
+.scannerwork/
+dependency-check-report.*
+dependency-check-data/
+owasp-dependency-check-report.*
+owasp-dependency-check-data/
+spotbugs*.html
+findbugs*.html
+checkstyle-result.xml
+pmd.xml
+cpd.xml
+failsafe-reports/
+surefire-reports/ # Covered by target/ but explicit can't hurt
+
+# If using Spring Boot devtools, they create a .spring-boot-devtools.properties file
+.spring-boot-devtools.properties

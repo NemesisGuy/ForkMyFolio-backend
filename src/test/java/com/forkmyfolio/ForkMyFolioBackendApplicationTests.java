@@ -4,13 +4,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType; // Added import
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath; // Added static import
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is; // Added static import
 
 
 /**
@@ -79,6 +82,10 @@ public class ForkMyFolioBackendApplicationTests {
     @Test
     void accessSecuredEndpointWithoutAuthShouldReturnUnauthorized() throws Exception {
         mockMvc.perform(get("/api/v1/users/me/profile"))
-               .andExpect(status().isUnauthorized());
+               .andExpect(status().isUnauthorized())
+               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+               .andExpect(jsonPath("$.status", is("unauthorized")))
+               .andExpect(jsonPath("$.errors[0].field", is("authentication")))
+               .andExpect(jsonPath("$.errors[0].message", containsString("Full authentication is required")));
     }
 }

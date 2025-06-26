@@ -1,7 +1,10 @@
 package com.forkmyfolio.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.forkmyfolio.dto.ApiResponse;
+import com.forkmyfolio.dto.response.ApiResponseWrapper;
+import com.forkmyfolio.dto.response.FieldErrorDto;
+import jakarta.servlet.ServletException;
+import com.forkmyfolio.dto.response.FieldErrorDto;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,6 +17,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
+
 
 /**
  * Component that handles unauthorized (401) errors for JWT authentication.
@@ -43,11 +48,12 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        ApiResponse apiResponse = new ApiResponse(false, "Unauthorized: " + authException.getMessage());
+        FieldErrorDto errorDto = new FieldErrorDto("authentication", "Unauthorized: " + authException.getMessage());
+        ApiResponseWrapper<Object> apiResponseWrapper = new ApiResponseWrapper<>(Collections.singletonList(errorDto), "unauthorized");
 
         OutputStream out = response.getOutputStream();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(out, apiResponse);
+        ObjectMapper mapper = new ObjectMapper(); // Consider injecting this ObjectMapper if it's customized elsewhere
+        mapper.writeValue(out, apiResponseWrapper);
         out.flush();
     }
 }

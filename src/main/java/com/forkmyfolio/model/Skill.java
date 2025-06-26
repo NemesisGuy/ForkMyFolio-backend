@@ -8,6 +8,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 /**
  * Represents a skill that a user possesses, along with their proficiency level.
@@ -53,6 +57,22 @@ public class Skill {
     @ManyToOne(fetch = FetchType.LAZY) // Many skills can belong to one user
     @JoinColumn(name = "user_id") // Foreign key in the skills table
     private User user;
+
+    /**
+     * Timestamp of when the skill record was created.
+     * Automatically set by Hibernate.
+     */
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    /**
+     * Timestamp of when the skill record was last updated.
+     * Automatically set by Hibernate on update.
+     */
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
 
     /**
      * Enum defining the possible proficiency levels for a skill.

@@ -23,16 +23,14 @@ public class UpdateProjectRequest {
 
     /**
      * New title for the project.
-     * If provided, must be between 3 and 100 characters.
+     * If provided, must be between 3 and 100 characters. (Validation on entity)
      */
-    @Size(min = 3, max = 100, message = "Project title must be between 3 and 100 characters")
     private Optional<String> title = Optional.empty();
 
     /**
      * New detailed description for the project.
-     * If provided, must be between 10 and 2000 characters.
+     * If provided, must be between 10 and 2000 characters. (Validation on entity)
      */
-    @Size(min = 10, max = 2000, message = "Project description must be between 10 and 2000 characters")
     private Optional<String> description = Optional.empty();
 
     /**
@@ -43,22 +41,19 @@ public class UpdateProjectRequest {
 
     /**
      * New URL to the project's code repository.
-     * If provided, must be a valid URL.
+     * If provided, must be a valid URL. (Validation on entity)
      */
-    @URL(message = "Repository URL must be a valid URL")
     private Optional<String> repoUrl = Optional.empty();
 
     /**
      * New URL to the live deployment of the project.
-     * If provided, must be a valid URL.
+     * If provided, must be a valid URL. (Validation on entity)
      */
-    @URL(message = "Live URL must be a valid URL")
     private Optional<String> liveUrl = Optional.empty();
 
     /**
      * New URL to an image representing the project.
-     * If provided, must be a valid URL.
+     * If provided, must be a valid URL. (Validation on entity)
      */
-    @URL(message = "Image URL must be a valid URL")
     private Optional<String> imageUrl = Optional.empty();
 }
