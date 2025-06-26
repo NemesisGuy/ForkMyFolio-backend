@@ -57,9 +57,8 @@ public class ProjectController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved list of projects",
                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
     })
-    public ResponseEntity<com.forkmyfolio.dto.response.ApiResponseWrapper<List<ProjectDto>>> getAllProjects() {
-        List<ProjectDto> projects = projectService.getAllProjects();
-        return ResponseEntity.ok(new com.forkmyfolio.dto.response.ApiResponseWrapper<>(projects));
+    public List<ProjectDto> getAllProjects() {
+        return projectService.getAllProjects();
     }
 
     /**
@@ -75,9 +74,8 @@ public class ProjectController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Project not found",
                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
     })
-    public ResponseEntity<com.forkmyfolio.dto.response.ApiResponseWrapper<ProjectDto>> getProjectById(@Parameter(description = "ID of the project to be retrieved") @PathVariable Long id) {
-        ProjectDto projectDto = projectService.getProjectById(id);
-        return ResponseEntity.ok(new com.forkmyfolio.dto.response.ApiResponseWrapper<>(projectDto));
+    public ProjectDto getProjectById(@Parameter(description = "ID of the project to be retrieved") @PathVariable Long id) {
+        return projectService.getProjectById(id);
     }
 
     /**
@@ -98,10 +96,10 @@ public class ProjectController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized - JWT token is missing or invalid"),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden - User does not have ADMIN role")
     })
-    public ResponseEntity<com.forkmyfolio.dto.response.ApiResponseWrapper<ProjectDto>> createProject(@Valid @RequestBody CreateProjectRequest createProjectRequest) {
+    @ResponseStatus(HttpStatus.CREATED) // Indicate 201 status
+    public ProjectDto createProject(@Valid @RequestBody CreateProjectRequest createProjectRequest) {
         User currentUser = userService.getCurrentAuthenticatedUser();
-        ProjectDto createdProject = projectService.createProject(createProjectRequest, currentUser);
-        return new ResponseEntity<>(new com.forkmyfolio.dto.response.ApiResponseWrapper<>(createdProject), HttpStatus.CREATED);
+        return projectService.createProject(createProjectRequest, currentUser);
     }
 
     /**
@@ -125,11 +123,10 @@ public class ProjectController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Project not found",
                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
     })
-    public ResponseEntity<com.forkmyfolio.dto.response.ApiResponseWrapper<ProjectDto>> updateProject(@Parameter(description = "ID of the project to be updated") @PathVariable Long id,
+    public ProjectDto updateProject(@Parameter(description = "ID of the project to be updated") @PathVariable Long id,
                                                     @Valid @RequestBody UpdateProjectRequest updateProjectRequest) {
         User currentUser = userService.getCurrentAuthenticatedUser(); // For authorization context if needed in service
-        ProjectDto updatedProject = projectService.updateProject(id, updateProjectRequest, currentUser);
-        return ResponseEntity.ok(new com.forkmyfolio.dto.response.ApiResponseWrapper<>(updatedProject));
+        return projectService.updateProject(id, updateProjectRequest, currentUser);
     }
 
     /**
@@ -143,16 +140,21 @@ public class ProjectController {
                description = "Deletes a project by its ID. Requires ADMIN role.",
                security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Project deleted successfully",
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "Project deleted successfully"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized",
                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden",
+                           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Project not found",
                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
     })
-    public ResponseEntity<com.forkmyfolio.dto.response.ApiResponseWrapper<Object>> deleteProject(@Parameter(description = "ID of the project to be deleted") @PathVariable Long id) {
+    public ResponseEntity<Void> deleteProject(@Parameter(description = "ID of the project to be deleted") @PathVariable Long id) {
         User currentUser = userService.getCurrentAuthenticatedUser(); // For authorization context
         projectService.deleteProject(id, currentUser);
-        return ResponseEntity.ok(new com.forkmyfolio.dto.response.ApiResponseWrapper<>(Collections.singletonMap("message", "Project deleted successfully.")));
+        // For DELETE operations, typically a 204 No Content is returned if successful without a body.
+        // If a message is strictly required, the previous approach of returning a Map was okay,
+        // but 204 is more standard for DELETE success.
+        // The ApiResponseWrapperAdvice is configured to ignore Void/ResponseEntity<Void> return types.
+        return ResponseEntity.noContent().build();
     }
 }

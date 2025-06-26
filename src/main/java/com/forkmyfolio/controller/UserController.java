@@ -57,9 +57,8 @@ public class UserController {
                                 content = @Content(mediaType = "application/json",
                                                    schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
                })
-    public ResponseEntity<com.forkmyfolio.dto.response.ApiResponseWrapper<UserDto>> getCurrentUserProfile() {
+    public UserDto getCurrentUserProfile() {
         User currentUser = userService.getCurrentAuthenticatedUser();
-        UserDto userDto = userService.convertToDto(currentUser);
-        return ResponseEntity.ok(new com.forkmyfolio.dto.response.ApiResponseWrapper<>(userDto));
+        return userService.convertToDto(currentUser);
     }
 }

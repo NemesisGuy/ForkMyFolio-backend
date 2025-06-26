@@ -126,9 +126,7 @@ public class SkillControllerTest {
         doNothing().when(skillService).deleteSkill(eq(1L), eq(adminUser));
 
         mockMvc.perform(delete("/api/v1/skills/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("success")))
-                .andExpect(jsonPath("$.data.message", is("Skill deleted successfully.")));
+                .andExpect(status().isNoContent());
     }
 
     @Test

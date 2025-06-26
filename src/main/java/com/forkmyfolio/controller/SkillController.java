@@ -58,7 +58,7 @@ public class SkillController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved list of skills",
                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
     })
-    public ResponseEntity<com.forkmyfolio.dto.response.ApiResponseWrapper<List<SkillDto>>> getAllSkills() {
+    public List<SkillDto> getAllSkills() {
         // Note: Requirement says GET /api/v1/skills. If this should be user-specific,
         // it would need to fetch current user and then get skills by user ID.
         // For now, interpreting as "all skills available in the system" (e.g. for an admin to see, or a public list of skill types).
@@ -66,8 +66,7 @@ public class SkillController {
         // For now, let's assume it lists all skills from all users for public view, or it might be skills of current logged in user
         // If no user logged in, it could be all skills in the system.
         // To be simple and align with "admin only for POST/DELETE", this public GET could list all skills.
-        List<SkillDto> skills = skillService.getAllSkills();
-        return ResponseEntity.ok(new com.forkmyfolio.dto.response.ApiResponseWrapper<>(skills));
+        return skillService.getAllSkills();
     }
 
     /**
@@ -83,9 +82,8 @@ public class SkillController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Skill not found",
                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
     })
-    public ResponseEntity<com.forkmyfolio.dto.response.ApiResponseWrapper<SkillDto>> getSkillById(@Parameter(description = "ID of the skill to be retrieved") @PathVariable Long id) {
-        SkillDto skillDto = skillService.getSkillById(id);
-        return ResponseEntity.ok(new com.forkmyfolio.dto.response.ApiResponseWrapper<>(skillDto));
+    public SkillDto getSkillById(@Parameter(description = "ID of the skill to be retrieved") @PathVariable Long id) {
+        return skillService.getSkillById(id);
     }
 
     /**
@@ -107,10 +105,10 @@ public class SkillController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden")
     })
-    public ResponseEntity<com.forkmyfolio.dto.response.ApiResponseWrapper<SkillDto>> createSkill(@Valid @RequestBody CreateSkillRequest createSkillRequest) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public SkillDto createSkill(@Valid @RequestBody CreateSkillRequest createSkillRequest) {
         User currentUser = userService.getCurrentAuthenticatedUser();
-        SkillDto createdSkill = skillService.createSkill(createSkillRequest, currentUser);
-        return new ResponseEntity<>(new com.forkmyfolio.dto.response.ApiResponseWrapper<>(createdSkill), HttpStatus.CREATED);
+        return skillService.createSkill(createSkillRequest, currentUser);
     }
 
     /**
@@ -124,16 +122,17 @@ public class SkillController {
                description = "Deletes a skill by its ID. Requires ADMIN role.",
                security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Skill deleted successfully",
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "Skill deleted successfully"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized",
                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden",
+                           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Skill not found",
                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
     })
-    public ResponseEntity<com.forkmyfolio.dto.response.ApiResponseWrapper<Object>> deleteSkill(@Parameter(description = "ID of the skill to be deleted") @PathVariable Long id) {
+    public ResponseEntity<Void> deleteSkill(@Parameter(description = "ID of the skill to be deleted") @PathVariable Long id) {
         User currentUser = userService.getCurrentAuthenticatedUser(); // For authorization context
         skillService.deleteSkill(id, currentUser);
-        return ResponseEntity.ok(new com.forkmyfolio.dto.response.ApiResponseWrapper<>(Collections.singletonMap("message", "Skill deleted successfully.")));
+        return ResponseEntity.noContent().build(); // Standard 204 No Content for successful DELETE
     }
 }

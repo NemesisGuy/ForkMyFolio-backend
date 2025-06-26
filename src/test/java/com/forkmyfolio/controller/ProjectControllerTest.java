@@ -160,9 +160,7 @@ public class ProjectControllerTest {
         doNothing().when(projectService).deleteProject(eq(1L), eq(adminUser));
 
         mockMvc.perform(delete("/api/v1/projects/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("success")))
-                .andExpect(jsonPath("$.data.message", is("Project deleted successfully.")));
+                .andExpect(status().isNoContent());
     }
 
     @Test

@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus; // Added import
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections; // Added import
@@ -55,9 +56,9 @@ public class ContactMessageController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input",
                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
     })
-    public ResponseEntity<com.forkmyfolio.dto.response.ApiResponseWrapper<Object>> submitContactMessage(@Valid @RequestBody CreateContactMessageRequest createContactMessageRequest) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public java.util.Map<String, String> submitContactMessage(@Valid @RequestBody CreateContactMessageRequest createContactMessageRequest) {
         contactMessageService.saveMessage(createContactMessageRequest);
-        // Use ApiResponseWrapper for success response
-        return new ResponseEntity<>(new com.forkmyfolio.dto.response.ApiResponseWrapper<>(Collections.singletonMap("message", "Contact message submitted successfully.")), HttpStatus.CREATED);
+        return Collections.singletonMap("message", "Contact message submitted successfully.");
     }
 }
