@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 /**
  * Exception thrown when the refresh token cookie is missing from the request.
  */
-@ResponseStatus(HttpStatus.UNAUTHORIZED)
+// @ResponseStatus(HttpStatus.UNAUTHORIZED) // Removed to let GlobalExceptionHandler fully control the response
 public class MissingRefreshTokenCookieException extends RuntimeException {
 
     /**
