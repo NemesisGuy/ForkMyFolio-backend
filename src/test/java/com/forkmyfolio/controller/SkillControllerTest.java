@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow; // Added import
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.is;
@@ -65,6 +66,36 @@ public class SkillControllerTest {
 
         skillDto1 = new SkillDto(1L, "Java", Skill.SkillLevel.EXPERT, 1L, now.minusDays(2), now.minusHours(1));
         skillDto2 = new SkillDto(2L, "Spring Boot", Skill.SkillLevel.INTERMEDIATE, 1L, now.minusDays(1), now);
+    }
+
+    @Test
+    @WithMockUser(username = "admin@example.com", roles = {"ADMIN"})
+    void createSkill_asAdmin_withInvalidData_shouldReturnBadRequest() throws Exception {
+        // CreateSkillRequest has @NotBlank on name and @NotNull on level
+        CreateSkillRequest createRequest = new CreateSkillRequest(null, null); // Invalid: null name and level
+
+        mockMvc.perform(post("/api/v1/skills")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is("validation_failed")))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.errors", hasSize(2))) // Expecting errors for name and level
+                .andExpect(jsonPath("$.errors[?(@.field == 'name')].message").exists())
+                .andExpect(jsonPath("$.errors[?(@.field == 'level')].message").exists());
+    }
+
+    @Test
+    void getSkillById_whenSkillNotFound_shouldReturnNotFound() throws Exception {
+        given(skillService.getSkillById(99L)).willThrow(new com.forkmyfolio.exception.ResourceNotFoundException("Skill not found with id 99"));
+
+        mockMvc.perform(get("/api/v1/skills/99"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status", is("fail")))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.errors[0].field", is("resource")))
+                .andExpect(jsonPath("$.errors[0].message", is("Skill not found with id 99")));
     }
 
     @Test
@@ -116,7 +147,11 @@ public class SkillControllerTest {
         mockMvc.perform(post("/api/v1/skills")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status", is("forbidden")))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.errors[0].field", is("authorization")))
+                .andExpect(jsonPath("$.errors[0].message", is("Access Denied: You do not have permission to access this resource.")));
     }
 
     @Test
@@ -133,6 +168,25 @@ public class SkillControllerTest {
     @WithMockUser(username = "user@example.com", roles = {"USER"})
     void deleteSkill_asUser_shouldReturnForbidden() throws Exception {
         mockMvc.perform(delete("/api/v1/skills/1"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status", is("forbidden")))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.errors[0].field", is("authorization")))
+                .andExpect(jsonPath("$.errors[0].message", is("Access Denied: You do not have permission to access this resource.")));
+    }
+
+    @Test
+    @WithMockUser(username = "admin@example.com", roles = {"ADMIN"})
+    void deleteSkill_asAdmin_whenSkillNotFound_shouldReturnNotFound() throws Exception {
+        given(userService.getCurrentAuthenticatedUser()).willReturn(adminUser);
+        doThrow(new com.forkmyfolio.exception.ResourceNotFoundException("Skill not found with id 99"))
+            .when(skillService).deleteSkill(eq(99L), eq(adminUser));
+
+        mockMvc.perform(delete("/api/v1/skills/99"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status", is("fail")))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.errors[0].field", is("resource")))
+                .andExpect(jsonPath("$.errors[0].message", is("Skill not found with id 99")));
     }
 }

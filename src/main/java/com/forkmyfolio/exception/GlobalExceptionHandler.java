@@ -32,7 +32,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles {@link ResourceNotFoundException}.
      * @param ex The exception.
-     * @return A ResponseEntity with 404 Not Found status and wrapped error details.
+     * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with error details and an HTTP 404 Not Found status.
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponseWrapper<Object>> handleResourceNotFoundException(ResourceNotFoundException ex) {
@@ -44,7 +44,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles {@link EmailAlreadyExistsException}.
      * @param ex The exception.
-     * @return A ResponseEntity with 400 Bad Request status and wrapped error details.
+     * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with error details and an HTTP 400 Bad Request status.
      */
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ApiResponseWrapper<Object>> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex) {
@@ -56,7 +56,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles {@link UsernameNotFoundException} from Spring Security.
      * @param ex The exception.
-     * @return A ResponseEntity with 404 Not Found status and wrapped error details.
+     * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with error details and an HTTP 404 Not Found status.
      */
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ApiResponseWrapper<Object>> handleUsernameNotFoundException(UsernameNotFoundException ex) {
@@ -68,7 +68,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles {@link AccessDeniedException} from Spring Security (authorization failure).
      * @param ex The exception.
-     * @return A ResponseEntity with 403 Forbidden status and wrapped error details.
+     * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with error details and an HTTP 403 Forbidden status.
      */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponseWrapper<Object>> handleAccessDeniedException(AccessDeniedException ex) {
@@ -80,7 +80,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles {@link TokenRefreshException} for issues with refresh tokens.
      * @param ex The exception.
-     * @return A ResponseEntity with 401 Unauthorized status and wrapped error details.
+     * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with error details and an HTTP 401 Unauthorized status.
      */
     @ExceptionHandler(TokenRefreshException.class)
     public ResponseEntity<ApiResponseWrapper<Object>> handleTokenRefreshException(TokenRefreshException ex) {
@@ -93,7 +93,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * Handles {@link AuthenticationException} which is a base class for authentication failures.
      * This can catch issues like BadCredentialsException.
      * @param ex The exception.
-     * @return A ResponseEntity with 401 Unauthorized status and wrapped error details.
+     * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with error details and an HTTP 401 Unauthorized status.
      */
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiResponseWrapper<Object>> handleAuthenticationException(AuthenticationException ex) {
@@ -110,7 +110,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * @param headers The headers to be written to the response.
      * @param status The selected response status.
      * @param request The current request.
-     * @return A ResponseEntity with 400 Bad Request status and detailed validation errors in ApiResponseWrapper.
+     * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with detailed validation errors and an HTTP 400 Bad Request status.
      */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
@@ -129,7 +129,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * Handles any other unhandled {@link Exception}.
      * This acts as a fallback for unexpected errors.
      * @param ex The exception.
-     * @return A ResponseEntity with 500 Internal Server Error status and wrapped error details.
+     * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with error details and an HTTP 500 Internal Server Error status.
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponseWrapper<Object>> handleGlobalException(Exception ex, WebRequest request) {
@@ -145,7 +145,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      *
      * @param ex      The MissingRefreshTokenCookieException instance.
      * @param request The current web request.
-     * @return A ResponseEntity containing ApiResponseWrapper with error details.
+     * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with error details and an HTTP 401 Unauthorized status.
      */
     @ExceptionHandler(MissingRefreshTokenCookieException.class)
     public ResponseEntity<ApiResponseWrapper<Object>> handleMissingRefreshTokenCookieException(MissingRefreshTokenCookieException ex, WebRequest request) {

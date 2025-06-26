@@ -91,6 +91,10 @@ public class UserControllerTest {
         // No @WithMockUser, so request is anonymous
         mockMvc.perform(get("/api/v1/users/me/profile")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status", is("unauthorized")))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.errors[0].field", is("authentication")))
+                .andExpect(jsonPath("$.errors[0].message").value(org.hamcrest.Matchers.containsString("Full authentication is required")));
     }
 }

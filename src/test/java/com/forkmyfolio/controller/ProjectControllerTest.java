@@ -69,6 +69,90 @@ public class ProjectControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin@example.com", roles = {"ADMIN"})
+    void updateProject_asAdmin_withInvalidData_shouldReturnBadRequest() throws Exception {
+        UpdateProjectRequest updateRequest = new UpdateProjectRequest();
+        // Assuming title and description have @NotBlank or @Size constraints
+        // To make it invalid, let's try setting an empty title if it's not allowed
+        // Or a description that's too short if there's a @Size(min=...)
+        // For this example, let's assume an empty title is invalid if title is Optional<String>
+        // but the DTO has @NotBlank on the String field itself.
+        // Let's use a DTO that would be invalid if title was mandatory and missing from Optional
+        // For UpdateProjectRequest, fields are Optional. If we want to test validation
+        // on the *content* of the Optional, the DTO's internal validation (if any) would apply.
+        // For this example, let's simulate a constraint on title length if present.
+        // The UpdateProjectRequest has Optional<String> title. Validation is on the String inside Optional if @Valid is used on Optional content.
+        // Let's assume a direct (non-optional) String field in a hypothetical validated DTO to show concept:
+        // Create an invalid request, e.g. if description was mandatory and set to empty.
+        // For UpdateProjectRequest, all fields are optional.
+        // Let's create a request that is valid in structure but might fail other business validation IF those were in place
+        // For now, testing basic validation on UpdateProjectRequest as defined might be limited if all fields are optional.
+        // Let's assume we add a @Size(min=3) to UpdateProjectRequest.titleContent if it were a String.
+        // Since UpdateProjectRequest has Optional<String> fields, most @NotBlank style validation won't apply unless the Optional itself is validated or its content.
+        // Let's test with a value that might be invalid for a field like repoUrl (if it expects URL format)
+
+        UpdateProjectRequest invalidUpdateRequest = new UpdateProjectRequest();
+        invalidUpdateRequest.setRepoUrl(Optional.of("not-a-url")); // Assuming @URL or similar on Project.repoUrl
+
+        // For this to work, Project entity's repoUrl would need @URL
+        // and UpdateProjectRequest.repoUrl would need @Valid on the Optional or its content.
+        // Let's assume the DTO itself has validation like @Size for a title if present.
+        // If UpdateProjectRequest had: Optional<@Size(min = 10) String> title;
+        // then this would be invalid:
+        invalidUpdateRequest.setTitle(Optional.of("short"));
+
+
+        // Given the current DTO (all Optionals, no explicit validation annotations within UpdateProjectRequest for the Optional's content)
+        // it's hard to make it fail validation directly unless we add such annotations.
+        // Let's simulate a case where the *payload* is malformed instead, or a field type is wrong.
+        // This is more of a generic 400 test rather than specific field validation.
+        // For a more targeted validation test, UpdateProjectRequest would need internal constraints.
+
+        String malformedJsonRequest = "{\"title\":\"New Title\", \"description\": \"Valid Description\", \"techStack\": \"not-a-list\"}";
+
+
+        mockMvc.perform(put("/api/v1/projects/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(malformedJsonRequest))
+                .andExpect(status().isBadRequest()) // Expecting a 400 due to malformed JSON for techStack
+                .andExpect(jsonPath("$.status", is("error"))) // Or validation_failed depending on how Spring handles deserialization error
+                .andExpect(jsonPath("$.errors").isNotEmpty());
+    }
+
+    @Test
+    @WithMockUser(username = "admin@example.com", roles = {"ADMIN"})
+    void updateProject_asAdmin_whenProjectNotFound_shouldReturnNotFound() throws Exception {
+        UpdateProjectRequest updateRequest = new UpdateProjectRequest();
+        updateRequest.setTitle(Optional.of("Valid Title"));
+
+        given(userService.getCurrentAuthenticatedUser()).willReturn(adminUser);
+        given(projectService.updateProject(eq(99L), any(UpdateProjectRequest.class), eq(adminUser)))
+                .willThrow(new com.forkmyfolio.exception.ResourceNotFoundException("Project not found with id 99"));
+
+        mockMvc.perform(put("/api/v1/projects/99")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status", is("fail")))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.errors[0].field", is("resource")))
+                .andExpect(jsonPath("$.errors[0].message", is("Project not found with id 99")));
+    }
+
+    @Test
+    void getProjectById_whenProjectNotFound_shouldReturnNotFound() throws Exception {
+        given(projectService.getProjectById(99L)).willThrow(new com.forkmyfolio.exception.ResourceNotFoundException("Project not found with id 99"));
+
+        mockMvc.perform(get("/api/v1/projects/99"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status", is("fail")))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.errors[0].field", is("resource")))
+                .andExpect(jsonPath("$.errors[0].message", is("Project not found with id 99")));
+    }
+
+    @Test
     void getAllProjects_shouldReturnListOfProjects() throws Exception {
         given(projectService.getAllProjects()).willReturn(Arrays.asList(projectDto1, projectDto2));
 
@@ -118,9 +202,30 @@ public class ProjectControllerTest {
         mockMvc.perform(post("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status", is("forbidden")))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.errors[0].field", is("authorization")))
+                .andExpect(jsonPath("$.errors[0].message", is("Access Denied: You do not have permission to access this resource.")));
     }
 
+    @Test
+    @WithMockUser(username = "admin@example.com", roles = {"ADMIN"})
+    void createProject_asAdmin_withInvalidData_shouldReturnBadRequest() throws Exception {
+        CreateProjectRequest createRequest = new CreateProjectRequest(null, "Short", null, null, null, null); // Invalid: null title, short description
+
+        // No need to mock userService or projectService as validation should prevent service calls
+
+        mockMvc.perform(post("/api/v1/projects")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is("validation_failed")))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.errors", hasSize(2))) // Expecting errors for title and description
+                .andExpect(jsonPath("$.errors[?(@.field == 'title')].message").exists())
+                .andExpect(jsonPath("$.errors[?(@.field == 'description')].message").exists());
+    }
 
     @Test
     @WithMockUser(username = "admin@example.com", roles = {"ADMIN"})
@@ -150,7 +255,11 @@ public class ProjectControllerTest {
         mockMvc.perform(put("/api/v1/projects/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status", is("forbidden")))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.errors[0].field", is("authorization")))
+                .andExpect(jsonPath("$.errors[0].message", is("Access Denied: You do not have permission to access this resource.")));
     }
 
     @Test
@@ -167,6 +276,28 @@ public class ProjectControllerTest {
     @WithMockUser(username = "user@example.com", roles = {"USER"})
     void deleteProject_asUser_shouldReturnForbidden() throws Exception {
         mockMvc.perform(delete("/api/v1/projects/1"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status", is("forbidden")))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.errors[0].field", is("authorization")))
+                .andExpect(jsonPath("$.errors[0].message", is("Access Denied: You do not have permission to access this resource.")));
+    }
+
+    @Test
+    @WithMockUser(username = "admin@example.com", roles = {"ADMIN"})
+    void deleteProject_asAdmin_whenProjectNotFound_shouldReturnNotFound() throws Exception {
+        given(userService.getCurrentAuthenticatedUser()).willReturn(adminUser);
+        // Simulate service throwing ResourceNotFoundException
+        doNothing().when(projectService).deleteProject(eq(99L), eq(adminUser)); // This mock needs to throw
+        org.mockito.Mockito.doThrow(new com.forkmyfolio.exception.ResourceNotFoundException("Project not found with id 99"))
+            .when(projectService).deleteProject(eq(99L), eq(adminUser));
+
+
+        mockMvc.perform(delete("/api/v1/projects/99"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status", is("fail")))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.errors[0].field", is("resource")))
+                .andExpect(jsonPath("$.errors[0].message", is("Project not found with id 99")));
     }
 }

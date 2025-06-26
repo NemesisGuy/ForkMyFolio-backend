@@ -38,6 +38,24 @@ This project provides the backend services for ForkMyFolio. It handles user auth
 - Docker support for containerization.
 - Separate configurations for Development (H2) and Production (PostgreSQL) environments.
 
+## API Response Structure
+
+All API responses (both for successful requests and errors) are wrapped in a standardized JSON structure:
+
+```json
+{
+  "status": "success", // Possible values: "success", "fail", "unauthorized", "forbidden", "validation_failed", "error"
+  "data": "<T>",       // The actual data payload for the request, or null if not applicable (e.g., for some errors or 204 No Content). The type 'T' varies per endpoint.
+  "errors": [          // An array of error details, typically empty for successful responses.
+    {
+      "field": "fieldName", // Name of the field that caused the error (especially for validation). Can be "general" or "authentication" for other errors.
+      "message": "A descriptive error message."
+    }
+  ]
+}
+```
+This consistent structure helps in simplifying client-side handling of API responses. The specific type for the `data` field for each endpoint is detailed in the [API_Endpoints.md](./API_Endpoints.md) and can be seen in the Swagger UI schemas.
+
 ## Built With
 
 *   [Spring Boot](https://spring.io/projects/spring-boot) (v3.2.5)
@@ -107,15 +125,19 @@ Or, after building the JAR:
 java -jar -Dspring.profiles.active=prod target/forkmyfolio-backend-0.0.1-SNAPSHOT.jar
 ```
 
-## API Documentation (Swagger UI)
+## API Documentation
 
-Once the application is running, the Swagger UI documentation can be accessed at:
+### Swagger UI (Interactive)
+Once the application is running, the interactive Swagger UI documentation can be accessed at:
 [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
 The OpenAPI specification (JSON) is available at:
 [http://localhost:8080/api-docs](http://localhost:8080/api-docs)
 
 You can use the "Authorize" button on Swagger UI (top right) to authenticate using a JWT access token obtained from the `/auth/login` or `/auth/register` endpoints. The format is `Bearer <your_jwt_token>`. The refresh token mechanism is handled via HttpOnly cookies and the `/auth/refresh-token` endpoint.
+
+### Static Endpoint Summary
+For a quick human-readable summary of all API endpoints, their request/response structures, and authentication requirements, see the [API_Endpoints.md](./API_Endpoints.md) file.
 
 ## Authentication Flow
 
