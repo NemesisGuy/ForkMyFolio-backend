@@ -1,0 +1,159 @@
+package com.forkmyfolio.config;
+
+import com.forkmyfolio.security.CustomUserDetailsService;
+import com.forkmyfolio.security.JwtAuthenticationEntryPoint;
+import com.forkmyfolio.security.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+
+import java.util.Arrays;
+
+/**
+ * Main security configuration class for the application.
+ * Configures Spring Security, including password encoding, JWT authentication,
+ * and HTTP security rules.
+ */
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true) // Enables @RolesAllowed, @Secured
+public class SecurityConfig {
+
+    private final CustomUserDetailsService customUserDetailsService;
+    private final JwtAuthenticationEntryPoint unauthorizedHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    private static final String[] PUBLIC_MATCHERS = {
+            "/auth/**",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/api-docs/**",
+            "/h2-console/**", // Allow H2 console access for development
+            // Publicly accessible GET requests for projects and skills
+            "/api/v1/projects",
+            "/api/v1/skills",
+            // Publicly accessible POST for contact messages
+            "/api/v1/contact-messages"
+    };
+
+    /**
+     * Constructs the SecurityConfig with necessary custom components.
+     * @param customUserDetailsService Service to load user-specific data.
+     * @param unauthorizedHandler Handles unauthorized access attempts.
+     * @param jwtAuthenticationFilter Filter to process JWT tokens.
+     */
+    @Autowired
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService,
+                          JwtAuthenticationEntryPoint unauthorizedHandler,
+                          JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.customUserDetailsService = customUserDetailsService;
+        this.unauthorizedHandler = unauthorizedHandler;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
+    /**
+     * Provides a PasswordEncoder bean for hashing passwords.
+     * Uses BCrypt algorithm.
+     * @return A BCryptPasswordEncoder instance.
+     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    /**
+     * Provides an AuthenticationManager bean.
+     * @param authenticationConfiguration The authentication configuration.
+     * @return An AuthenticationManager instance.
+     * @throws Exception If an error occurs while getting the authentication manager.
+     */
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    /**
+     * Configures a CorsFilter bean for handling Cross-Origin Resource Sharing (CORS).
+     * Allows all origins, headers, and methods for simplicity during development.
+     * This should be restricted in a production environment.
+     * @return A CorsFilter instance.
+     */
+    @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOriginPattern("*"); // Allow all origins for now - TODO: Restrict in prod
+        config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
+    }
+
+
+    /**
+     * Defines the security filter chain for HTTP requests.
+     * Configures CSRF, session management, exception handling, and authorization rules.
+     * @param http The HttpSecurity object to configure.
+     * @return The configured SecurityFilterChain.
+     * @throws Exception If an error occurs during configuration.
+     */
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(AbstractHttpConfigurer::disable) // Disable CSRF as we are using JWT
+            .cors(cors -> cors.configurationSource(request -> { // Apply CORS globally
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowCredentials(true);
+                config.addAllowedOriginPattern("*"); // TODO: Restrict in production
+                config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
+                config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+                return config;
+            }))
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint(unauthorizedHandler) // Handle unauthorized attempts
+            )
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Use stateless sessions
+            )
+            .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers(PUBLIC_MATCHERS).permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/projects/**").permitAll() // Allow GET for single project
+                .requestMatchers(HttpMethod.GET, "/api/v1/skills/**").permitAll()   // Allow GET for single skill
+                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN") // Example for admin-specific path
+                .requestMatchers("/api/v1/users/me/profile").authenticated()
+                // Specific rules for admin-only modification endpoints based on requirements
+                .requestMatchers(HttpMethod.POST, "/api/v1/projects").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/v1/projects/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/projects/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/v1/skills").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/skills/**").hasRole("ADMIN")
+                .anyRequest().authenticated() // All other requests require authentication
+            );
+
+        // Add JWT token filter before UsernamePasswordAuthenticationFilter
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // For H2 console frame options if Spring Security is enabled
+        http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
+
+
+        return http.build();
+    }
+}
