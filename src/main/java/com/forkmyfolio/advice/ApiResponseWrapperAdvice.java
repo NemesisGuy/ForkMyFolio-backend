@@ -43,40 +43,61 @@ import java.util.Objects;
 })
 public class ApiResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
 
+    private static final org.apache.commons.logging.Log logger = org.apache.commons.logging.LogFactory.getLog(ApiResponseWrapperAdvice.class);
+
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+        String controllerName = returnType.getContainingClass().getName();
+        // String methodName = returnType.getMethod().getName(); // Corrected for logging previously
+        String returnTypeName = returnType.getParameterType().getName();
+        // logger.info("ApiResponseWrapperAdvice.supports called for: " + controllerName + "#" + methodName + ", returnType: " + returnTypeName);
+
         // Do not wrap if the method already returns ApiResponseWrapper or ResponseEntity<ApiResponseWrapper>
         if (returnType.getParameterType().isAssignableFrom(ApiResponseWrapper.class)) {
+            // logger.info("ApiResponseWrapperAdvice: supports=false (already ApiResponseWrapper)");
             return false;
         }
         if (returnType.getParameterType().isAssignableFrom(ResponseEntity.class)) {
-            // Check if ResponseEntity's generic type is ApiResponseWrapper
             if (returnType.getGenericParameterType().getTypeName().contains(ApiResponseWrapper.class.getName())) {
+                // logger.info("ApiResponseWrapperAdvice: supports=false (already ResponseEntity<ApiResponseWrapper>)");
                 return false;
             }
         }
         // Do not wrap if the controller is GlobalExceptionHandler
         if (Objects.equals(returnType.getContainingClass(), GlobalExceptionHandler.class)) {
+            // logger.info("ApiResponseWrapperAdvice: supports=false (GlobalExceptionHandler)");
             return false;
         }
         // Do not wrap Springdoc OpenAPI endpoints
-        if (Objects.equals(returnType.getContainingClass(), OpenApiWebMvcResource.class)) {
+        if (Objects.equals(returnType.getContainingClass(), OpenApiWebMvcResource.class) ||
+            controllerName.startsWith("org.springdoc")) { // Broader check for springdoc
+            // logger.info("ApiResponseWrapperAdvice: supports=false (Springdoc OpenAPI endpoint)");
             return false;
         }
-        // Do not wrap Actuator endpoints (basic check, could be more specific)
-        if (returnType.getContainingClass().getName().startsWith("org.springframework.boot.actuate")) {
+        // Do not wrap Actuator endpoints
+        if (controllerName.startsWith("org.springframework.boot.actuate")) {
+            // logger.info("ApiResponseWrapperAdvice: supports=false (Actuator endpoint)");
             return false;
         }
-        // Do not wrap if return type is void
-        if (returnType.getParameterType().isAssignableFrom(Void.TYPE) || returnType.getParameterType().isAssignableFrom(Void.class) ) {
+        // Do not wrap if return type is void or ResponseEntity<Void>
+        if (returnTypeName.equals("void") || returnType.getParameterType().isAssignableFrom(Void.class)) {
+             // logger.info("ApiResponseWrapperAdvice: supports=false (Void return type)");
             return false;
         }
-        // For ResponseEntity<Void>, the body will be null, handle in beforeBodyWrite
         if (returnType.getParameterType().isAssignableFrom(ResponseEntity.class) &&
             returnType.getGenericParameterType().getTypeName().contains(Void.class.getName())) {
+            // logger.info("ApiResponseWrapperAdvice: supports=false (ResponseEntity<Void>)");
+            return false;
+        }
+        // Do not wrap if body is ProblemDetail (RFC 7807)
+        // This check is more effective in beforeBodyWrite, but we can try to infer from returnType if it's ResponseEntity<ProblemDetail>
+        if (returnType.getParameterType().isAssignableFrom(ResponseEntity.class) &&
+            returnType.getGenericParameterType().getTypeName().contains(ProblemDetail.class.getName())) {
+            // logger.info("ApiResponseWrapperAdvice: supports=false (ResponseEntity<ProblemDetail>)");
             return false;
         }
 
+        // logger.info("ApiResponseWrapperAdvice: supports=true for " + controllerName + "#" + methodName);
         return true;
     }
 
@@ -85,27 +106,32 @@ public class ApiResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request, ServerHttpResponse response) {
 
-        // If the body is null (e.g. ResponseEntity<Void>.build()), don't wrap.
-        // The 'supports' method should already filter out most Void cases.
+        // String controllerName = returnType.getContainingClass().getName();
+        // String methodName = returnType.getMethod().getName(); // Corrected for logging previously
+        // logger.info("ApiResponseWrapperAdvice.beforeBodyWrite called for: " + controllerName + "#" + methodName + ", body type: " + (body != null ? body.getClass().getName() : "null"));
+
         if (body == null) {
-            // If it's a ResponseEntity, it might have status codes (e.g. 204 No Content)
-            // that should be preserved without a body wrapper.
-            if (returnType.getParameterType().isAssignableFrom(ResponseEntity.class)) {
-                return null;
+            // This case for ResponseEntity<Void> should ideally be caught by `supports` method.
+            // If somehow it reaches here and body is null for a non-void ResponseEntity,
+            // or a raw null DTO was returned, wrapping it as {data: null} is reasonable.
+            if (!(returnType.getParameterType().isAssignableFrom(ResponseEntity.class) &&
+                  returnType.getGenericParameterType().getTypeName().contains(Void.class.getName()))) {
+                logger.warn("ApiResponseWrapperAdvice: body is null for a type that was expected to be wrapped: " + returnType.getParameterType().getName() + ". Wrapping with null data.");
             }
+            return new ApiResponseWrapper<>(null); // Wrap null body if not ResponseEntity<Void>
         }
 
-        // Do not wrap if body is already an ApiResponseWrapper (double-check, though 'supports' should catch this)
         if (body instanceof ApiResponseWrapper) {
+            // logger.info("ApiResponseWrapperAdvice: body is already ApiResponseWrapper, not wrapping again.");
             return body;
         }
 
-        // Do not wrap ProblemDetail instances (used by Spring Boot for default error responses)
         if (body instanceof ProblemDetail) {
+            // logger.info("ApiResponseWrapperAdvice: body is ProblemDetail, not wrapping.");
             return body;
         }
 
-        // For other successful responses, wrap them
+        // logger.info("ApiResponseWrapperAdvice: Wrapping body of type " + body.getClass().getName());
         return new ApiResponseWrapper<>(body);
     }
 }

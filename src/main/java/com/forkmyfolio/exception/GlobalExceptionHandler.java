@@ -133,7 +133,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponseWrapper<Object>> handleGlobalException(Exception ex, WebRequest request) {
-        logger.error("An unexpected error occurred: Path: " + request.getDescription(false), ex);
+        logger.error("An unexpected error occurred: Path: " + request.getDescription(false) + " Exception: " + ex.getClass().getName(), ex);
         FieldErrorDto error = new FieldErrorDto("general", "An unexpected internal server error occurred. Please try again later.");
         ApiResponseWrapper<Object> apiResponse = new ApiResponseWrapper<>(Collections.singletonList(error), "error");
         return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -149,9 +149,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(MissingRefreshTokenCookieException.class)
     public ResponseEntity<ApiResponseWrapper<Object>> handleMissingRefreshTokenCookieException(MissingRefreshTokenCookieException ex, WebRequest request) {
-        logger.warn("Missing refresh token cookie: " + ex.getMessage()); // Switched to concatenation for logger
+        logger.warn("Entered handleMissingRefreshTokenCookieException for: " + ex.getMessage(), ex);
         List<FieldErrorDto> errors = Collections.singletonList(new FieldErrorDto("refreshToken", ex.getMessage()));
-        ApiResponseWrapper<Object> apiResponse = new ApiResponseWrapper<>(errors, "unauthorized"); // Used errors-only constructor
+        ApiResponseWrapper<Object> apiResponse = new ApiResponseWrapper<>(errors, "unauthorized");
         return new ResponseEntity<>(apiResponse, HttpStatus.UNAUTHORIZED);
     }
 }
