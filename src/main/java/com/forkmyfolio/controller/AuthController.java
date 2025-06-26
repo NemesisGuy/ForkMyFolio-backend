@@ -2,6 +2,7 @@ package com.forkmyfolio.controller;
 
 import com.forkmyfolio.dto.*;
 import com.forkmyfolio.dto.response.ApiResponseWrapper;
+import com.forkmyfolio.exception.MissingRefreshTokenCookieException; // Added import
 import com.forkmyfolio.exception.TokenRefreshException;
 import com.forkmyfolio.model.RefreshToken;
 import com.forkmyfolio.model.User;
@@ -87,16 +88,14 @@ public class AuthController {
     @Operation(summary = "Register a new user",
                responses = {
                    @ApiResponse(responseCode = "201", description = "User registered successfully",
-                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))),
+                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseWrapper.class))),
                    @ApiResponse(responseCode = "400", description = "Invalid input or email already exists",
-                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.ApiResponse.class)))
+                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseWrapper.class)))
                })
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
-        if (userService.existsByEmail(registerRequest.getEmail())) {
-            return new ResponseEntity<>(new com.forkmyfolio.dto.ApiResponse(false, "Email address already in use!"),
-                                      HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<ApiResponseWrapper<AuthResponse>> registerUser(@Valid @RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
+        // userService.registerUser will throw EmailAlreadyExistsException if email is in use,
+        // which will be handled by GlobalExceptionHandler and wrapped into ApiResponseWrapper.
 
         User registeredUser = userService.registerUser(registerRequest);
 
@@ -136,12 +135,12 @@ public class AuthController {
                description = "Authenticates user and returns JWT access token in response body, and refresh token in an HttpOnly cookie. The cookie path is /api/v1/auth.",
                responses = {
                    @ApiResponse(responseCode = "200", description = "User logged in successfully",
-                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))),
+                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseWrapper.class))),
                    @ApiResponse(responseCode = "401", description = "Invalid credentials",
-                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.ApiResponse.class)))
+                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseWrapper.class)))
                })
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<ApiResponseWrapper<AuthResponse>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),
@@ -183,14 +182,14 @@ public class AuthController {
                              "Implements a rolling refresh token strategy: a new refresh token is also issued and set in an HttpOnly cookie.",
                responses = {
                    @ApiResponse(responseCode = "200", description = "Access token refreshed successfully. New access token in body, new refresh token in HttpOnly cookie.",
-                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))),
+                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseWrapper.class))),
                    @ApiResponse(responseCode = "401", description = "Unauthorized - Refresh token cookie is missing, invalid, or expired.",
-                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.ApiResponse.class)))
+                                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseWrapper.class)))
                })
-    public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<ApiResponseWrapper<AuthResponse>> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         Cookie cookie = WebUtils.getCookie(request, refreshTokenCookieName);
         if (cookie == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new com.forkmyfolio.dto.ApiResponse(false, "Refresh token cookie not found."));
+            throw new MissingRefreshTokenCookieException("Refresh token cookie not found.");
         }
 
         String requestRefreshToken = cookie.getValue();

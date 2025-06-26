@@ -243,8 +243,10 @@ public class AuthControllerTest {
     void refreshToken_withMissingCookie_shouldReturnUnauthorized() throws Exception {
         mockMvc.perform(post("/api/v1/auth/refresh-token"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.success", is(false)))
-                .andExpect(jsonPath("$.message", is("Refresh token cookie not found.")));
+                .andExpect(jsonPath("$.status", is("unauthorized")))
+                .andExpect(jsonPath("$.data").doesNotExist())
+                .andExpect(jsonPath("$.errors[0].field", is("refreshToken")))
+                .andExpect(jsonPath("$.errors[0].message", is("Refresh token cookie not found.")));
     }
 
     @Test
