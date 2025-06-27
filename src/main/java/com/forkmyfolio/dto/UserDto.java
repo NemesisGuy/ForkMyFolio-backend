@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Data Transfer Object for representing User information in API responses.
@@ -22,7 +23,7 @@ public class UserDto {
     /**
      * Unique identifier for the user.
      */
-    private Long id;
+    private UUID id;
 
     /**
      * User's email address.

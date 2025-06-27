@@ -5,20 +5,19 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-/**
- * Utility class for generating, parsing, and validating JSON Web Tokens (JWTs).
- */
 @Component
 public class JwtTokenProvider {
 
@@ -32,78 +31,91 @@ public class JwtTokenProvider {
 
     private SecretKey key;
 
-    /**
-     * Initializes the secret key after properties are set.
-     * This method is called by Spring after dependency injection.
-     */
-    @jakarta.annotation.PostConstruct
+    @PostConstruct
     public void init() {
         if (jwtSecret == null || jwtSecret.isBlank()) {
             logger.error("JWT secret is null or empty. Please check property 'jwt.secret'.");
             throw new IllegalArgumentException("JWT secret cannot be null or empty.");
         }
-        logger.info("Initializing JwtTokenProvider with secret: '{}...'", jwtSecret.substring(0, Math.min(jwtSecret.length(), 10))); // Log first 10 chars
+        logger.info("Initializing JwtTokenProvider with secret: '{}...'", jwtSecret.substring(0, Math.min(jwtSecret.length(), 10)));
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
     /**
-     * Generates a JWT for the given authentication principal (user).
-     *
-     * @param authentication The authentication object containing principal details.
-     * @return A JWT string.
+     * Generates a JWT token from Authentication (safe now).
      */
     public String generateToken(Authentication authentication) {
-        User userPrincipal = (User) authentication.getPrincipal();
-        return generateToken(userPrincipal);
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return generateToken(userDetails);
     }
 
     /**
-     * Generates a JWT for the given User object.
-     *
-     * @param user The User object for whom the token is generated.
-     * @return A JWT string.
+     * Preferred method: generates a JWT token from UserDetails.
+     * Uses the user's unique identifier (email or username) as subject.
      */
-    public String generateToken(User user) {
+    public String generateToken(UserDetails userDetails) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
-        String authorities = user.getAuthorities().stream()
-                                .map(GrantedAuthority::getAuthority)
-                                .collect(Collectors.joining(","));
+        String authorities = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+        String email = userDetails.getUsername();
+        Long userId = (userDetails instanceof User) ? ((User) userDetails).getId() : null;
 
         return Jwts.builder()
-                .subject(Long.toString(user.getId()))
-                .claim("email", user.getEmail())
+                .subject(userDetails.getUsername()) // username is typically email
+                .claim("userId", userId)
                 .claim("roles", authorities)
-                .issuedAt(new Date())
+                .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key, Jwts.SIG.HS512)
                 .compact();
     }
 
 
-    /**
-     * Retrieves the user ID from the JWT.
-     *
-     * @param token The JWT string.
-     * @return The user ID extracted from the token.
-     */
-    public Long getUserIdFromJWT(String token) {
+
+
+    /*  *//**
+     * Extracts username (subject) from JWT token.
+     * Note: Since you used username/email as subject, this returns the username string.
+     *//*
+    public String getUsernameFromJWT(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+        return claims.getSubject();
+    }*/
 
-        return Long.parseLong(claims.getSubject());
+    /**
+     * Extracts the username/email (subject) from the JWT token.
+     * The subject was set to the user's email during token creation.
+     *
+     * @param token The JWT token.
+     * @return The email/username from the token subject.
+     */
+    public String getUsernameFromJWT(String token) {
+        Claims claims = getClaimsFromJWT(token);
+        return claims.getSubject(); // which is the email
     }
 
     /**
-     * Retrieves the claims from the JWT.
+     * Extracts the user ID from the JWT token claims.
      *
-     * @param token The JWT string.
-     * @return The Claims object extracted from the token.
+     * @param token The JWT token.
+     * @return The user ID (as Long).
+     */
+    public Long getUserIdFromJWT(String token) {
+        Claims claims = getClaimsFromJWT(token);
+        return claims.get("userId", Long.class);
+    }
+
+
+    /**
+     * Retrieves claims from the JWT token.
      */
     public Claims getClaimsFromJWT(String token) {
         return Jwts.parser()
@@ -113,16 +125,15 @@ public class JwtTokenProvider {
                 .getPayload();
     }
 
-
     /**
-     * Validates the given JWT.
-     *
-     * @param authToken The JWT string to validate.
-     * @return {@code true} if the token is valid, {@code false} otherwise.
+     * Validates JWT token.
      */
     public boolean validateToken(String authToken) {
         try {
-            Jwts.parser().verifyWith(key).build().parseSignedClaims(authToken);
+            Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(authToken);
             return true;
         } catch (SignatureException ex) {
             logger.error("Invalid JWT signature");

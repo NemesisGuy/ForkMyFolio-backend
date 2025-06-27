@@ -19,6 +19,7 @@ public interface ContactMessageService {
 
     /**
      * Converts a {@link ContactMessage} entity to a {@link ContactMessageDto}.
+     *
      * @param messageEntity The contact message entity.
      * @return The corresponding DTO.
      */
@@ -26,6 +27,7 @@ public interface ContactMessageService {
 
     /**
      * Converts a {@link CreateContactMessageRequest} DTO to a {@link ContactMessage} entity.
+     *
      * @param request The DTO.
      * @return The contact message entity.
      */

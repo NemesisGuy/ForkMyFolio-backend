@@ -52,7 +52,7 @@ public interface SkillService {
      * Creates a new skill and associates it with the provided user.
      *
      * @param createSkillRequest DTO containing the details for the new skill.
-     * @param currentUser The user to whom the skill will be associated.
+     * @param currentUser        The user to whom the skill will be associated.
      * @return The created {@link SkillDto}.
      */
     SkillDto createSkill(CreateSkillRequest createSkillRequest, User currentUser);
@@ -62,15 +62,16 @@ public interface SkillService {
      * Requires authorization to ensure the user (e.g., an admin or the skill owner)
      * has permission to delete it.
      *
-     * @param id The ID of the skill to delete.
+     * @param id          The ID of the skill to delete.
      * @param currentUser The user attempting to delete the skill.
-     * @throws com.forkmyfolio.exception.ResourceNotFoundException if the skill with the given ID is not found.
+     * @throws com.forkmyfolio.exception.ResourceNotFoundException       if the skill with the given ID is not found.
      * @throws org.springframework.security.access.AccessDeniedException if the user is not authorized to delete the skill.
      */
     void deleteSkill(Long id, User currentUser);
 
     /**
      * Converts a {@link Skill} entity to a {@link SkillDto}.
+     *
      * @param skill The skill entity.
      * @return The corresponding DTO.
      */
@@ -78,8 +79,9 @@ public interface SkillService {
 
     /**
      * Converts a {@link CreateSkillRequest} DTO to a {@link Skill} entity.
+     *
      * @param request The DTO.
-     * @param owner The user who will own the skill.
+     * @param owner   The user who will own the skill.
      * @return The skill entity.
      */
     Skill convertCreateRequestToEntity(CreateSkillRequest request, User owner);

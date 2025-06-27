@@ -9,7 +9,6 @@ import com.forkmyfolio.model.User;
 import com.forkmyfolio.repository.ProjectRepository;
 import com.forkmyfolio.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException; // For authorization checks
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +26,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     /**
      * Constructs a {@code ProjectServiceImpl} with the necessary {@link ProjectRepository}.
+     *
      * @param projectRepository The repository for accessing project data.
      */
     @Autowired

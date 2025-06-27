@@ -57,8 +57,9 @@ public class RefreshToken {
 
     /**
      * Constructs a new RefreshToken.
-     * @param user The user associated with this token.
-     * @param token The token string.
+     *
+     * @param user       The user associated with this token.
+     * @param token      The token string.
      * @param expiryDate The expiry date of the token.
      */
     public RefreshToken(User user, String token, Instant expiryDate) {

@@ -3,13 +3,11 @@ package com.forkmyfolio.service.impl;
 import com.forkmyfolio.dto.CreateSkillRequest;
 import com.forkmyfolio.dto.SkillDto;
 import com.forkmyfolio.exception.ResourceNotFoundException;
-import com.forkmyfolio.model.Role;
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.repository.SkillRepository;
 import com.forkmyfolio.service.SkillService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +25,7 @@ public class SkillServiceImpl implements SkillService {
 
     /**
      * Constructs a {@code SkillServiceImpl} with the necessary {@link SkillRepository}.
+     *
      * @param skillRepository The repository for accessing skill data.
      */
     @Autowired
@@ -77,7 +76,7 @@ public class SkillServiceImpl implements SkillService {
     @Override
     @Transactional(readOnly = true)
     public Skill findSkillEntityById(Long id) {
-         return skillRepository.findById(id)
+        return skillRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Skill not found with id: " + id));
     }
 

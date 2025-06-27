@@ -17,7 +17,8 @@ public class TokenRefreshException extends RuntimeException {
 
     /**
      * Constructs a new TokenRefreshException with the specified refresh token and detail message.
-     * @param token The refresh token that caused the error.
+     *
+     * @param token   The refresh token that caused the error.
      * @param message The detail message.
      */
     public TokenRefreshException(String token, String message) {
@@ -26,6 +27,7 @@ public class TokenRefreshException extends RuntimeException {
 
     /**
      * Constructs a new TokenRefreshException with the specified detail message.
+     *
      * @param message The detail message.
      */
     public TokenRefreshException(String message) {

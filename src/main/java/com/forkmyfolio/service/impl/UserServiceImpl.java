@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
             return null;
         }
         return new UserDto(
-                user.getId(),
+                user.getUuid(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
@@ -160,7 +160,7 @@ public class UserServiceImpl implements UserService {
             String username = ((UserDetails) principal).getUsername();
             return findByEmail(username);
         } else {
-             // If principal is just a String (e.g. username), try to fetch our User entity
+            // If principal is just a String (e.g. username), try to fetch our User entity
             return findByEmail(principal.toString());
         }
     }

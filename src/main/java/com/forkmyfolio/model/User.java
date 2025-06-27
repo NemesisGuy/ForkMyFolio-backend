@@ -4,12 +4,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.UuidGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -26,7 +28,7 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Table(name = "users", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "email")
+        @UniqueConstraint(columnNames = "email")
 })
 @Getter
 @Setter
@@ -40,6 +42,10 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @UuidGenerator
+    @Column(name = "uuid", nullable = false, updatable = false, unique = true)
+    private UUID uuid;
 
     /**
      * User's email address. Must be unique and a valid email format.
@@ -107,6 +113,7 @@ public class User implements UserDetails {
     /**
      * Returns the authorities granted to the user.
      * Converts roles to Spring Security's GrantedAuthority.
+     *
      * @return A collection of granted authorities.
      */
     @Override
@@ -118,6 +125,7 @@ public class User implements UserDetails {
 
     /**
      * Returns the username used to authenticate the user. In this case, it's the email.
+     *
      * @return The user's email.
      */
     @Override
@@ -127,6 +135,7 @@ public class User implements UserDetails {
 
     /**
      * Indicates whether the user's account has expired.
+     *
      * @return true if the account is valid (not expired), false otherwise.
      */
     @Override
@@ -136,6 +145,7 @@ public class User implements UserDetails {
 
     /**
      * Indicates whether the user is locked or unlocked.
+     *
      * @return true if the user is not locked, false otherwise.
      */
     @Override
@@ -145,6 +155,7 @@ public class User implements UserDetails {
 
     /**
      * Indicates whether the user's credentials (password) has expired.
+     *
      * @return true if the credentials are valid (not expired), false otherwise.
      */
     @Override
@@ -154,6 +165,7 @@ public class User implements UserDetails {
 
     /**
      * Indicates whether the user is enabled or disabled.
+     *
      * @return true if the user is enabled, false otherwise.
      */
     @Override

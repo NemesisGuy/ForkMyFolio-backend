@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -31,6 +30,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
      * Handles {@link ResourceNotFoundException}.
+     *
      * @param ex The exception.
      * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with error details and an HTTP 404 Not Found status.
      */
@@ -43,6 +43,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
      * Handles {@link EmailAlreadyExistsException}.
+     *
      * @param ex The exception.
      * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with error details and an HTTP 400 Bad Request status.
      */
@@ -55,6 +56,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
      * Handles {@link UsernameNotFoundException} from Spring Security.
+     *
      * @param ex The exception.
      * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with error details and an HTTP 404 Not Found status.
      */
@@ -67,6 +69,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
      * Handles {@link AccessDeniedException} from Spring Security (authorization failure).
+     *
      * @param ex The exception.
      * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with error details and an HTTP 403 Forbidden status.
      */
@@ -79,6 +82,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
      * Handles {@link TokenRefreshException} for issues with refresh tokens.
+     *
      * @param ex The exception.
      * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with error details and an HTTP 401 Unauthorized status.
      */
@@ -92,6 +96,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles {@link AuthenticationException} which is a base class for authentication failures.
      * This can catch issues like BadCredentialsException.
+     *
      * @param ex The exception.
      * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with error details and an HTTP 401 Unauthorized status.
      */
@@ -106,9 +111,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Customizes the response for {@link MethodArgumentNotValidException} (validation failures).
      * This method is overridden from {@link ResponseEntityExceptionHandler}.
-     * @param ex The exception.
+     *
+     * @param ex      The exception.
      * @param headers The headers to be written to the response.
-     * @param status The selected response status.
+     * @param status  The selected response status.
      * @param request The current request.
      * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with detailed validation errors and an HTTP 400 Bad Request status.
      */
@@ -128,6 +134,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles any other unhandled {@link Exception}.
      * This acts as a fallback for unexpected errors.
+     *
      * @param ex The exception.
      * @return A {@link ResponseEntity} containing an {@link ApiResponseWrapper} with error details and an HTTP 500 Internal Server Error status.
      */

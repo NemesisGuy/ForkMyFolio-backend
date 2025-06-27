@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.forkmyfolio.dto.response.ApiResponseWrapper;
 import com.forkmyfolio.dto.response.FieldErrorDto;
 import jakarta.servlet.ServletException;
-import com.forkmyfolio.dto.response.FieldErrorDto;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -36,7 +34,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
      * @param request       that resulted in an <code>AuthenticationException</code>
      * @param response      so that the user agent can begin authentication
      * @param authException that caused the invocation
-     * @throws IOException if an input or output error is detected when the servlet handles the request
+     * @throws IOException      if an input or output error is detected when the servlet handles the request
      * @throws ServletException if the request for the GET could not be handled
      */
     @Override

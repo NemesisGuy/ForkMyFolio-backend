@@ -44,7 +44,7 @@ public interface ProjectService {
      * Creates a new project.
      *
      * @param createProjectRequest DTO containing the details for the new project.
-     * @param currentUser The user creating the project.
+     * @param currentUser          The user creating the project.
      * @return The created {@link ProjectDto}.
      */
     ProjectDto createProject(CreateProjectRequest createProjectRequest, User currentUser);
@@ -52,11 +52,11 @@ public interface ProjectService {
     /**
      * Updates an existing project.
      *
-     * @param id The ID of the project to update.
+     * @param id                   The ID of the project to update.
      * @param updateProjectRequest DTO containing the updated details for the project.
-     * @param currentUser The user attempting to update the project.
+     * @param currentUser          The user attempting to update the project.
      * @return The updated {@link ProjectDto}.
-     * @throws com.forkmyfolio.exception.ResourceNotFoundException if the project with the given ID is not found.
+     * @throws com.forkmyfolio.exception.ResourceNotFoundException       if the project with the given ID is not found.
      * @throws org.springframework.security.access.AccessDeniedException if the user is not authorized to update the project.
      */
     ProjectDto updateProject(Long id, UpdateProjectRequest updateProjectRequest, User currentUser);
@@ -64,15 +64,16 @@ public interface ProjectService {
     /**
      * Deletes a project by its ID.
      *
-     * @param id The ID of the project to delete.
+     * @param id          The ID of the project to delete.
      * @param currentUser The user attempting to delete the project.
-     * @throws com.forkmyfolio.exception.ResourceNotFoundException if the project with the given ID is not found.
+     * @throws com.forkmyfolio.exception.ResourceNotFoundException       if the project with the given ID is not found.
      * @throws org.springframework.security.access.AccessDeniedException if the user is not authorized to delete the project.
      */
     void deleteProject(Long id, User currentUser);
 
     /**
      * Converts a {@link Project} entity to a {@link ProjectDto}.
+     *
      * @param project The project entity.
      * @return The corresponding DTO.
      */
@@ -80,8 +81,9 @@ public interface ProjectService {
 
     /**
      * Converts a {@link CreateProjectRequest} DTO to a {@link Project} entity.
+     *
      * @param request The DTO.
-     * @param owner The user who will own the project.
+     * @param owner   The user who will own the project.
      * @return The project entity.
      */
     Project convertCreateRequestToEntity(CreateProjectRequest request, User owner);

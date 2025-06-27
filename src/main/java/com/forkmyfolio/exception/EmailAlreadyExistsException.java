@@ -13,6 +13,7 @@ public class EmailAlreadyExistsException extends RuntimeException {
 
     /**
      * Constructs a new EmailAlreadyExistsException with the specified detail message.
+     *
      * @param message the detail message.
      */
     public EmailAlreadyExistsException(String message) {
@@ -21,8 +22,9 @@ public class EmailAlreadyExistsException extends RuntimeException {
 
     /**
      * Constructs a new EmailAlreadyExistsException with the specified detail message and cause.
+     *
      * @param message the detail message.
-     * @param cause the cause.
+     * @param cause   the cause.
      */
     public EmailAlreadyExistsException(String message, Throwable cause) {
         super(message, cause);

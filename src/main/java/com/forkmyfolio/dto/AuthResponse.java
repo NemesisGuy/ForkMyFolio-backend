@@ -8,6 +8,7 @@ import lombok.Setter;
 /**
  * Data Transfer Object for authentication responses.
  * Contains the JWT access token and basic user information upon successful login or registration.
+ * Returned after login/register. Contains the token and user DTO.
  */
 @Getter
 @Setter
@@ -34,8 +35,9 @@ public class AuthResponse {
     /**
      * Constructor for creating an AuthResponse with only an access token and user DTO.
      * The tokenType defaults to "Bearer".
+     *
      * @param accessToken The JWT access token.
-     * @param user The DTO representing the authenticated user.
+     * @param user        The DTO representing the authenticated user.
      */
     public AuthResponse(String accessToken, UserDto user) {
         this.accessToken = accessToken;

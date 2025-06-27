@@ -2,7 +2,6 @@ package com.forkmyfolio.controller;
 
 import com.forkmyfolio.dto.CreateProjectRequest;
 import com.forkmyfolio.dto.ProjectDto;
-import com.forkmyfolio.dto.response.ApiResponseWrapper;
 import com.forkmyfolio.dto.UpdateProjectRequest;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.service.ProjectService;
@@ -21,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,8 +36,9 @@ public class ProjectController {
 
     /**
      * Constructs a ProjectController with necessary services.
+     *
      * @param projectService Service for project-related operations.
-     * @param userService Service for user-related operations.
+     * @param userService    Service for user-related operations.
      */
     @Autowired
     public ProjectController(ProjectService projectService, UserService userService) {
@@ -49,13 +48,14 @@ public class ProjectController {
 
     /**
      * Retrieves all projects. Publicly accessible.
+     *
      * @return ResponseEntity containing a list of {@link ProjectDto}.
      */
     @GetMapping
     @Operation(summary = "Get all projects", description = "Retrieves a list of all projects.")
     @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved list of projects",
-                           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved list of projects",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
     })
     public List<ProjectDto> getAllProjects() {
         return projectService.getAllProjects();
@@ -63,16 +63,17 @@ public class ProjectController {
 
     /**
      * Retrieves a specific project by its ID. Publicly accessible.
+     *
      * @param id The ID of the project to retrieve.
      * @return ResponseEntity containing the {@link ProjectDto} or 404 if not found.
      */
     @GetMapping("/{id}")
     @Operation(summary = "Get project by ID", description = "Retrieves a specific project by its ID.")
     @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved project",
-                           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Project not found",
-                           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successfully retrieved project",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Project not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
     })
     public ProjectDto getProjectById(@Parameter(description = "ID of the project to be retrieved") @PathVariable Long id) {
         return projectService.getProjectById(id);
@@ -80,21 +81,22 @@ public class ProjectController {
 
     /**
      * Creates a new project. Admin access required.
+     *
      * @param createProjectRequest DTO containing details for the new project.
      * @return ResponseEntity containing the created {@link ProjectDto} and HTTP status 201.
      */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create a new project (Admin only)",
-               description = "Creates a new project. Requires ADMIN role.",
-               security = @SecurityRequirement(name = "bearerAuth"))
+            description = "Creates a new project. Requires ADMIN role.",
+            security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Project created successfully",
-                           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input",
-                           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized - JWT token is missing or invalid"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden - User does not have ADMIN role")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Project created successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized - JWT token is missing or invalid"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden - User does not have ADMIN role")
     })
     @ResponseStatus(HttpStatus.CREATED) // Indicate 201 status
     public ProjectDto createProject(@Valid @RequestBody CreateProjectRequest createProjectRequest) {
@@ -104,49 +106,51 @@ public class ProjectController {
 
     /**
      * Updates an existing project. Admin access required.
-     * @param id The ID of the project to update.
+     *
+     * @param id                   The ID of the project to update.
      * @param updateProjectRequest DTO containing updated details for the project.
      * @return ResponseEntity containing the updated {@link ProjectDto}.
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update an existing project (Admin only)",
-               description = "Updates an existing project by its ID. Requires ADMIN role.",
-               security = @SecurityRequirement(name = "bearerAuth"))
+            description = "Updates an existing project by its ID. Requires ADMIN role.",
+            security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Project updated successfully",
-                           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input",
-                           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Project not found",
-                           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Project updated successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Project not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
     })
     public ProjectDto updateProject(@Parameter(description = "ID of the project to be updated") @PathVariable Long id,
-                                                    @Valid @RequestBody UpdateProjectRequest updateProjectRequest) {
+                                    @Valid @RequestBody UpdateProjectRequest updateProjectRequest) {
         User currentUser = userService.getCurrentAuthenticatedUser(); // For authorization context if needed in service
         return projectService.updateProject(id, updateProjectRequest, currentUser);
     }
 
     /**
      * Deletes a project by its ID. Admin access required.
+     *
      * @param id The ID of the project to delete.
      * @return ResponseEntity with HTTP status 200 and a success message.
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete a project (Admin only)",
-               description = "Deletes a project by its ID. Requires ADMIN role.",
-               security = @SecurityRequirement(name = "bearerAuth"))
+            description = "Deletes a project by its ID. Requires ADMIN role.",
+            security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "Project deleted successfully"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized",
-                           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden",
-                           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Project not found",
-                           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "Project deleted successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Project not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
     })
     public ResponseEntity<Void> deleteProject(@Parameter(description = "ID of the project to be deleted") @PathVariable Long id) {
         User currentUser = userService.getCurrentAuthenticatedUser(); // For authorization context

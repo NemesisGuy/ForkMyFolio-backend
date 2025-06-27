@@ -1,8 +1,7 @@
 package com.forkmyfolio.controller;
 
-import com.forkmyfolio.dto.ApiResponse;
+
 import com.forkmyfolio.dto.CreateContactMessageRequest;
-// import com.forkmyfolio.dto.ContactMessageDto; // If we decide to return the DTO
 import com.forkmyfolio.service.ContactMessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,14 +11,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus; // Added import
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections; // Added import
+import java.util.Collections;
 
 /**
  * Controller for handling incoming contact messages.
@@ -33,6 +27,7 @@ public class ContactMessageController {
 
     /**
      * Constructs a ContactMessageController with the necessary service.
+     *
      * @param contactMessageService Service for contact message operations.
      */
     @Autowired
@@ -49,12 +44,12 @@ public class ContactMessageController {
      */
     @PostMapping
     @Operation(summary = "Submit a new contact message",
-               description = "Allows users to submit a contact message. This endpoint is publicly accessible.")
+            description = "Allows users to submit a contact message. This endpoint is publicly accessible.")
     @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Message submitted successfully",
-                           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input",
-                           content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Message submitted successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
     })
     @ResponseStatus(HttpStatus.CREATED)
     public java.util.Map<String, String> submitContactMessage(@Valid @RequestBody CreateContactMessageRequest createContactMessageRequest) {

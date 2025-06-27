@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +27,7 @@ public class UserController {
 
     /**
      * Constructs a UserController with the necessary UserService.
+     *
      * @param userService The service for user-related business logic.
      */
     @Autowired
@@ -44,19 +44,19 @@ public class UserController {
     @GetMapping("/me/profile")
     @PreAuthorize("isAuthenticated()") // Ensures the user is authenticated
     @Operation(summary = "Get current user profile",
-               description = "Fetches the profile information for the currently authenticated user. Excludes sensitive data like password.",
-               security = @SecurityRequirement(name = "bearerAuth"), // References the security scheme in OpenApiConfig
-               responses = {
-                   @ApiResponse(responseCode = "200", description = "Successfully retrieved user profile",
-                                content = @Content(mediaType = "application/json",
-                                                   schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
-                   @ApiResponse(responseCode = "401", description = "Unauthorized - JWT token is missing or invalid",
-                                content = @Content(mediaType = "application/json",
-                                                   schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
-                   @ApiResponse(responseCode = "404", description = "User not found (should not happen if authenticated)",
-                                content = @Content(mediaType = "application/json",
-                                                   schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
-               })
+            description = "Fetches the profile information for the currently authenticated user. Excludes sensitive data like password.",
+            security = @SecurityRequirement(name = "bearerAuth"), // References the security scheme in OpenApiConfig
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Successfully retrieved user profile",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized - JWT token is missing or invalid",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
+                    @ApiResponse(responseCode = "404", description = "User not found (should not happen if authenticated)",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
+            })
     public UserDto getCurrentUserProfile() {
         User currentUser = userService.getCurrentAuthenticatedUser();
         return userService.convertToDto(currentUser);

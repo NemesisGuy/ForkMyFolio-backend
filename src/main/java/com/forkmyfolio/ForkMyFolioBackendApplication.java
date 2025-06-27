@@ -13,6 +13,7 @@ public class ForkMyFolioBackendApplication {
 
     /**
      * Main method to start the Spring Boot application.
+     *
      * @param args command line arguments
      */
     public static void main(String[] args) {

@@ -17,43 +17,43 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @OpenAPIDefinition(
-    info = @Info(
-        title = "ForkMyFolio API",
-        version = "v1.0.0",
-        description = "This API provides backend services for the ForkMyFolio platform, enabling users to manage their digital portfolios including projects, skills, and contact messages. It features JWT-based authentication and role-based access control.",
-        contact = @Contact(
-            name = "ForkMyFolio Support",
-            email = "support@forkmyfolio.com",
-            url = "https://forkmyfolio.com/support"
+        info = @Info(
+                title = "ForkMyFolio API",
+                version = "v1.0.0",
+                description = "This API provides backend services for the ForkMyFolio platform, enabling users to manage their digital portfolios including projects, skills, and contact messages. It features JWT-based authentication and role-based access control.",
+                contact = @Contact(
+                        name = "ForkMyFolio Support",
+                        email = "support@forkmyfolio.com",
+                        url = "https://forkmyfolio.com/support"
+                ),
+                license = @License(
+                        name = "Apache License 2.0",
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.html"
+                )
         ),
-        license = @License(
-            name = "Apache License 2.0",
-            url = "https://www.apache.org/licenses/LICENSE-2.0.html"
-        )
-    ),
-    servers = {
-        @Server(
-            description = "Local Development Server",
-            url = "http://localhost:8080"
-        ),
-        @Server(
-            description = "Production Server (Example)",
-            url = "https://api.forkmyfolio.com"
-        )
-    },
-    // Apply the "bearerAuth" security scheme globally to all operations
-    security = {
-        @SecurityRequirement(name = "bearerAuth")
-    }
+        servers = {
+                @Server(
+                        description = "Local Development Server",
+                        url = "http://localhost:8080"
+                ),
+                @Server(
+                        description = "Production Server (Example)",
+                        url = "https://api.forkmyfolio.com"
+                )
+        },
+        // Apply the "bearerAuth" security scheme globally to all operations
+        security = {
+                @SecurityRequirement(name = "bearerAuth")
+        }
 )
 // Define the JWT Bearer token security scheme
 @SecurityScheme(
-    name = "bearerAuth", // Can be any name, used to reference this scheme in @SecurityRequirement
-    description = "JWT Bearer token authentication. Enter your token in the format: Bearer <token>",
-    scheme = "bearer",
-    type = SecuritySchemeType.HTTP,
-    bearerFormat = "JWT",
-    in = SecuritySchemeIn.HEADER // Where the token is located
+        name = "bearerAuth", // Can be any name, used to reference this scheme in @SecurityRequirement
+        description = "JWT Bearer token authentication. Enter your token in the format: Bearer <token>",
+        scheme = "bearer",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        in = SecuritySchemeIn.HEADER // Where the token is located
 )
 public class OpenApiConfig {
     // This class can be empty if all configuration is done via annotations.

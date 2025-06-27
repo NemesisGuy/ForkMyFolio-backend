@@ -19,7 +19,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      *
      * @param userId The ID of the user whose projects are to be retrieved.
      * @return A list of {@link Project} entities belonging to the specified user.
-     *         Returns an empty list if the user has no projects or the user does not exist.
+     * Returns an empty list if the user has no projects or the user does not exist.
      */
     List<Project> findByUserId(Long userId);
 

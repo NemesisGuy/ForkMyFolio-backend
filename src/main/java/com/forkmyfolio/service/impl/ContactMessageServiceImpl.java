@@ -20,6 +20,7 @@ public class ContactMessageServiceImpl implements ContactMessageService {
 
     /**
      * Constructs a {@code ContactMessageServiceImpl} with the necessary repository.
+     *
      * @param contactMessageRepository The repository for contact message data.
      */
     @Autowired

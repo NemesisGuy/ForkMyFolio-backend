@@ -1,8 +1,8 @@
 package com.forkmyfolio.service;
 
+import com.forkmyfolio.exception.TokenRefreshException;
 import com.forkmyfolio.model.RefreshToken;
 import com.forkmyfolio.model.User;
-import com.forkmyfolio.exception.TokenRefreshException;
 
 import java.util.Optional;
 
@@ -51,6 +51,7 @@ public interface RefreshTokenService {
 
     /**
      * Deletes a specific refresh token by its string value.
+     *
      * @param token The refresh token string.
      */
     void deleteByToken(String token);

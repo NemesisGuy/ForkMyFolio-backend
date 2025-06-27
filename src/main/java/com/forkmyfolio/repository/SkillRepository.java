@@ -19,7 +19,7 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
      *
      * @param userId The ID of the user whose skills are to be retrieved.
      * @return A list of {@link Skill} entities belonging to the specified user.
-     *         Returns an empty list if the user has no skills or the user does not exist.
+     * Returns an empty list if the user has no skills or the user does not exist.
      */
     List<Skill> findByUserId(Long userId);
 }

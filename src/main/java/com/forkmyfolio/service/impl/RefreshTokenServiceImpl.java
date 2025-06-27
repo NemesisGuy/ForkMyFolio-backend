@@ -21,16 +21,16 @@ import java.util.UUID;
 @Service
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
     @Value("${jwt.refresh.expiration.ms}")
     private Long refreshTokenDurationMs;
 
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final UserRepository userRepository;
-
     /**
      * Constructs a {@code RefreshTokenServiceImpl}.
+     *
      * @param refreshTokenRepository Repository for refresh token data.
-     * @param userRepository Repository for user data.
+     * @param userRepository         Repository for user data.
      */
     @Autowired
     public RefreshTokenServiceImpl(RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {

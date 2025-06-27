@@ -27,7 +27,7 @@ public interface UserService extends UserDetailsService {
      *
      * @param email The email address to search for.
      * @return The {@link User} entity if found, otherwise null or throws an exception.
-     *         (Behavior depends on implementation, typically throws UserNotFoundException via UserDetailsService)
+     * (Behavior depends on implementation, typically throws UserNotFoundException via UserDetailsService)
      */
     User findByEmail(String email);
 
@@ -54,7 +54,7 @@ public interface UserService extends UserDetailsService {
      *
      * @return The {@link User} object representing the current user.
      * @throws org.springframework.security.core.userdetails.UsernameNotFoundException if no user is authenticated
-     *         or the authenticated principal is not a User instance.
+     *                                                                                 or the authenticated principal is not a User instance.
      */
     User getCurrentAuthenticatedUser();
 }
