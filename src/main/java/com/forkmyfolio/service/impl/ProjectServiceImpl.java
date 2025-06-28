@@ -7,6 +7,7 @@ import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.model.Project;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.repository.ProjectRepository;
+import com.forkmyfolio.repository.UserRepository;
 import com.forkmyfolio.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,8 @@ import java.util.stream.Collectors;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
+
 
     /**
      * Constructs a {@code ProjectServiceImpl} with the necessary {@link ProjectRepository}.
@@ -30,8 +33,9 @@ public class ProjectServiceImpl implements ProjectService {
      * @param projectRepository The repository for accessing project data.
      */
     @Autowired
-    public ProjectServiceImpl(ProjectRepository projectRepository) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, UserRepository userRepository) {
         this.projectRepository = projectRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -158,5 +162,18 @@ public class ProjectServiceImpl implements ProjectService {
         project.setUser(owner); // Associate the project with the owner
         // createdAt and updatedAt will be handled by Hibernate
         return project;
+    }
+    @Transactional(readOnly = true)
+    @Override
+    public List<ProjectDto> getPublicProjects() {
+        // Find the first user created in the database.
+        User owner = userRepository.findFirstByOrderByIdAsc()
+                .orElseThrow(() -> new IllegalStateException("Portfolio owner not found in database."));
+
+        // Return the projects belonging to that user.
+        return projectRepository.findByUser(owner)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 }

@@ -42,6 +42,10 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    /**
+     * Unique identifier for the user.     * Universally unique identifier for the user.
+     *
+     */
 
     @UuidGenerator
     @Column(name = "uuid", nullable = false, updatable = false, unique = true)

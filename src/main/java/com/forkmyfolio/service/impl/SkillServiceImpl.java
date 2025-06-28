@@ -6,6 +6,7 @@ import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.repository.SkillRepository;
+import com.forkmyfolio.repository.UserRepository;
 import com.forkmyfolio.service.SkillService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ import java.util.stream.Collectors;
 public class SkillServiceImpl implements SkillService {
 
     private final SkillRepository skillRepository;
+    private final UserRepository userRepository;
+
 
     /**
      * Constructs a {@code SkillServiceImpl} with the necessary {@link SkillRepository}.
@@ -29,8 +32,9 @@ public class SkillServiceImpl implements SkillService {
      * @param skillRepository The repository for accessing skill data.
      */
     @Autowired
-    public SkillServiceImpl(SkillRepository skillRepository) {
+    public SkillServiceImpl(SkillRepository skillRepository, UserRepository userRepository) {
         this.skillRepository = skillRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -113,6 +117,17 @@ public class SkillServiceImpl implements SkillService {
         // However, the current requirement is admin-only deletion for skills.
 
         skillRepository.delete(skill);
+    }
+    @Transactional(readOnly = true)
+    @Override
+    public List<SkillDto> getPublicSkills() {
+        User owner = userRepository.findFirstByOrderByIdAsc()
+                .orElseThrow(() -> new IllegalStateException("Portfolio owner not found in database."));
+
+        List<Skill> skills = skillRepository.findByUser(owner); // Add findByUser to SkillRepository
+        return skills.stream()
+                .map(this::convertToDto) // Assuming you have a DTO converter
+                .collect(Collectors.toList());
     }
 
     /**

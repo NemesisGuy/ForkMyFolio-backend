@@ -1,8 +1,7 @@
 package com.forkmyfolio.service.impl;
 
-import com.forkmyfolio.dto.RegisterRequest;
-import com.forkmyfolio.dto.UserDto;
 import com.forkmyfolio.exception.EmailAlreadyExistsException;
+import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.model.Role;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.repository.UserRepository;
@@ -11,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,19 +22,14 @@ import java.util.Set;
 /**
  * Implementation of the {@link UserService} interface.
  * Handles business logic related to users, including registration and retrieval.
+ * This service operates solely on domain models (e.g., User) and is DTO-agnostic.
  */
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * Constructs a {@code UserServiceImpl} with necessary dependencies.
-     *
-     * @param userRepository  The repository for accessing user data.
-     * @param passwordEncoder The encoder for hashing passwords.
-     */
     @Autowired
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -42,34 +37,37 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Registers a new user in the system.
-     * Hashes the password and assigns default roles if none are provided.
+     * Registers a new user. The request data should be mapped to primitive types
+     * or a domain model before calling this method.
      *
-     * @param registerRequest DTO containing registration details.
+     * @param email The user's email.
+     * @param password The user's raw password.
+     * @param firstName The user's first name.
+     * @param lastName The user's last name.
+     * @param profileImageUrl The user's profile image URL.
+     * @param roles The set of roles for the user.
      * @return The saved {@link User} entity.
      * @throws EmailAlreadyExistsException if the email is already in use.
      */
-    @Override
     @Transactional
-    public User registerUser(RegisterRequest registerRequest) {
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
+    @Override
+    public User registerUser(String email, String password, String firstName, String lastName, String profileImageUrl, Set<Role> roles) {
+        if (userRepository.existsByEmail(email)) {
             throw new EmailAlreadyExistsException("Error: Email is already taken!");
         }
 
         User user = new User();
-        user.setEmail(registerRequest.getEmail());
-        user.setFirstName(registerRequest.getFirstName());
-        user.setLastName(registerRequest.getLastName());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setProfileImageUrl(registerRequest.getProfileImageUrl());
+        user.setEmail(email);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setProfileImageUrl(profileImageUrl);
 
-        Set<Role> roles = new HashSet<>();
-        if (registerRequest.getRoles() == null || registerRequest.getRoles().isEmpty()) {
-            roles.add(Role.USER); // Default role
+        if (roles == null || roles.isEmpty()) {
+            user.setRoles(Set.of(Role.USER)); // Default role
         } else {
-            roles.addAll(registerRequest.getRoles());
+            user.setRoles(new HashSet<>(roles));
         }
-        user.setRoles(roles);
 
         return userRepository.save(user);
     }
@@ -88,6 +86,13 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User"));
+    }
+
     /**
      * Checks if a user exists with the given email address.
      *
@@ -101,67 +106,75 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Converts a {@link User} entity to a {@link UserDto}.
+     * Retrieves the portfolio owner's profile.
      *
-     * @param user The user entity to convert.
-     * @return The corresponding DTO.
+     * @return The {@link User} entity of the portfolio owner.
      */
     @Override
-    public UserDto convertToDto(User user) {
-        if (user == null) {
-            return null;
-        }
-        return new UserDto(
-                user.getUuid(),
-                user.getEmail(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getProfileImageUrl(),
-                user.getRoles(),
-                user.getCreatedAt()
-        );
+    @Transactional(readOnly = true)
+    public User getPublicProfile() {
+        return userRepository.findFirstByOrderByIdAsc()
+                .orElseThrow(() -> new ResourceNotFoundException("User"));
+    }
+
+    /**
+     * Updates an existing user's profile information.
+     *
+     * @param userId The ID of the user to update.
+     * @param firstName The new first name.
+     * @param lastName The new last name.
+     * @param profileImageUrl The new profile image URL.
+     * @return The updated {@link User} entity.
+     */
+    @Transactional
+    @Override
+    public User updateUser(Long userId, String firstName, String lastName, String profileImageUrl) {
+        User userToUpdate = getUserById(userId);
+
+        userToUpdate.setFirstName(firstName);
+        userToUpdate.setLastName(lastName);
+        userToUpdate.setProfileImageUrl(profileImageUrl);
+
+        return userRepository.save(userToUpdate);
     }
 
     /**
      * Loads a user by their username (email for this application).
-     * This method is part of the {@link org.springframework.security.core.userdetails.UserDetailsService} interface.
-     *
-     * @param email The email (username) of the user to load.
-     * @return UserDetails object.
-     * @throws UsernameNotFoundException if the user is not found.
+     * This method is part of the {@link UserDetailsService} interface.
      */
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email : " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
 
     /**
      * Retrieves the currently authenticated user from the Spring Security context.
      *
      * @return The authenticated {@link User} object.
-     * @throws UsernameNotFoundException if no user is authenticated or the principal is not a User instance.
+     * @throws UsernameNotFoundException if no user is authenticated or the principal cannot be resolved to a User.
      */
     @Override
     @Transactional(readOnly = true)
     public User getCurrentAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
             throw new UsernameNotFoundException("No authenticated user found in security context.");
         }
 
         Object principal = authentication.getPrincipal();
         if (principal instanceof User) {
-            // If principal is already our User object (e.g. after our JwtAuthenticationFilter)
             return (User) principal;
-        } else if (principal instanceof UserDetails) {
-            // If principal is a UserDetails object, try to fetch our User entity by username
-            String username = ((UserDetails) principal).getUsername();
-            return findByEmail(username);
-        } else {
-            // If principal is just a String (e.g. username), try to fetch our User entity
-            return findByEmail(principal.toString());
         }
+
+        String username;
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+
+        return findByEmail(username);
     }
 }

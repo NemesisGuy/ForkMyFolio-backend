@@ -6,21 +6,21 @@ import com.forkmyfolio.dto.RegisterRequest;
 import com.forkmyfolio.dto.UserDto;
 import com.forkmyfolio.dto.response.ApiResponseWrapper;
 import com.forkmyfolio.exception.TokenRefreshException;
+import com.forkmyfolio.mapper.UserMapper; // <-- IMPORT MAPPER
 import com.forkmyfolio.model.RefreshToken;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.security.JwtTokenProvider;
 import com.forkmyfolio.service.RefreshTokenService;
 import com.forkmyfolio.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -44,241 +44,182 @@ import java.util.Collections;
  * Controller for handling user authentication requests, including registration and login.
  */
 @RestController
-@RequestMapping("/api/v1/auth") // Ensure consistent base path with other /api/v1 controllers if desired, or keep /auth
-@Tag(name = "Authentication", description = "Endpoints for user registration, login, logout, and token refresh. Authentication uses JWT access tokens (short-lived, in response body) and Refresh Tokens (long-lived, in HttpOnly cookies).")
+@RequestMapping("/api/v1/auth")
+@Tag(name = "Authentication", description = "Endpoints for user registration, login, logout, and token refresh.")
 public class AuthController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final JwtTokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
+    private final UserMapper userMapper; // <-- 1. INJECT MAPPER
 
     @Value("${app.jwt.refresh-cookie-name}")
     private String refreshTokenCookieName;
-
     @Value("${jwt.refresh.expiration.ms}")
     private Long refreshTokenDurationMs;
-
-    @Value("${app.cookie.secure}") // new property: true in prod, false in dev for http testing
+    @Value("${app.cookie.secure}")
     private boolean cookieSecure;
-
-    @Value("${app.cookie.samesite}") // new property: "Strict" or "Lax"
+    @Value("${app.cookie.samesite}")
     private String cookieSameSite;
 
-
-    /**
-     * Constructs an AuthController with necessary dependencies.
-     *
-     * @param authenticationManager Manages the authentication process.
-     * @param userService           Service for user-related operations.
-     * @param tokenProvider         Utility for JWT generation and validation.
-     * @param refreshTokenService   Service for managing refresh tokens.
-     */
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager,
-                          UserService userService,
-                          JwtTokenProvider tokenProvider,
-                          RefreshTokenService refreshTokenService) {
+    public AuthController(AuthenticationManager authenticationManager, UserService userService, JwtTokenProvider tokenProvider, RefreshTokenService refreshTokenService, UserMapper userMapper) { // <-- 2. ADD TO CONSTRUCTOR
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.tokenProvider = tokenProvider;
         this.refreshTokenService = refreshTokenService;
+        this.userMapper = userMapper; // <-- 2. ADD TO CONSTRUCTOR
     }
 
     /**
      * Registers a new user in the system.
-     *
-     * @param registerRequest DTO containing user registration details.
-     * @return ResponseEntity containing an {@link AuthResponse} with JWT and user details on success,
-     * or an error message if registration fails (e.g., email already exists).
      */
-    @Operation(summary = "Register a new user",
-            responses = {
-                    @ApiResponse(responseCode = "201", description = "User registered successfully",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))),
-                    @ApiResponse(responseCode = "400", description = "Invalid input or email already exists",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
-            })
     @PostMapping("/register")
+    @Operation(summary = "Register a new user")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
+        logger.info("Received registration request for email: {}", registerRequest.getEmail());
+        logger.debug("Registration request details: {}", registerRequest);
+
         if (userService.existsByEmail(registerRequest.getEmail())) {
-            return new ResponseEntity<>(
-                    new ApiResponseWrapper<>(null, "Email address already in use!"),
-                    HttpStatus.BAD_REQUEST
-            );
+            logger.warn("Registration failed: Email '{}' already in use.", registerRequest.getEmail());
+            return new ResponseEntity<>(new ApiResponseWrapper<>(null, "Email address already in use!"), HttpStatus.BAD_REQUEST);
         }
 
-        // 1. Register and save user
-        User registeredUser = userService.registerUser(registerRequest);
-
-        // 2. Manually authenticate without hitting AuthenticationManager
-        UserDetails userDetails = userService.loadUserByUsername(registeredUser.getEmail());
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
+        // 3. FIX: Call the DTO-less service method with primitive values from the DTO
+        User registeredUser = userService.registerUser(
+                registerRequest.getEmail(),
+                registerRequest.getPassword(),
+                registerRequest.getFirstName(),
+                registerRequest.getLastName(),
+                registerRequest.getProfileImageUrl(),
+                registerRequest.getRoles()
         );
+        logger.info("User with email '{}' registered successfully with ID: {}", registeredUser.getEmail(), registeredUser.getId());
+
+        // --- The rest of the logic remains the same until the final conversion ---
+        UserDetails userDetails = (UserDetails) registeredUser; // The User model implements UserDetails
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        logger.info("User '{}' authenticated programmatically after registration.", registeredUser.getEmail());
 
-        // 3. Generate access token
-        //String jwt = tokenProvider.generateToken(authentication); ❌
-        //String jwt = tokenProvider.generateToken((UserDetails) userPrincipal); // ✅ safe!
-        String jwt = tokenProvider.generateToken(authentication);// ✅ safe!
-
-
-        // 4. Create and send refresh token cookie
+        String jwt = tokenProvider.generateToken(authentication);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(registeredUser);
-        ResponseCookie refreshTokenCookie = ResponseCookie.from(refreshTokenCookieName, refreshToken.getToken())
-                .httpOnly(true)
-                .secure(cookieSecure) // Should be true in production
-                .path("/api/v1/auth") // Scope cookie to auth paths
-                .maxAge(refreshTokenDurationMs / 1000) // convert ms to seconds
-                .sameSite(cookieSameSite) // "Strict" or "Lax"
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+        logger.info("Generated new JWT and refresh token for user '{}'.", registeredUser.getEmail());
 
-        // 5. Return AuthResponse
-        UserDto userDto = userService.convertToDto(registeredUser);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new ApiResponseWrapper<>(new AuthResponse(jwt, userDto)));
+        ResponseCookie refreshTokenCookie = ResponseCookie.from(refreshTokenCookieName, refreshToken.getToken())
+                .httpOnly(true).secure(cookieSecure).path("/api/v1/auth")
+                .maxAge(refreshTokenDurationMs / 1000).sameSite(cookieSameSite).build();
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+        logger.info("Set refresh token cookie for user '{}'.", registeredUser.getEmail());
+
+        // 4. FIX: Use the mapper to convert the User entity to a UserDto for the response
+        UserDto userDto = userMapper.toDto(registeredUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseWrapper<>(new AuthResponse(jwt, userDto)));
     }
 
-
     /**
-     * Authenticates an existing user, returns a JWT access token in the body,
-     * and a refresh token in an HTTP-only cookie.
-     *
-     * @param loginRequest DTO containing user login credentials.
-     * @param response     HttpServletResponse to set the cookie.
-     * @return ResponseEntity containing an {@link AuthResponse} with JWT and user details.
+     * Authenticates an existing user.
      */
-    @Operation(summary = "Login an existing user",
-            description = "Authenticates user and returns JWT access token in response body, and refresh token in an HttpOnly cookie. The cookie path is /api/v1/auth.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "User logged in successfully",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))),
-                    @ApiResponse(responseCode = "401", description = "Invalid credentials",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
-            })
     @PostMapping("/login")
+    @Operation(summary = "Login an existing user")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+        logger.info("Received login request for email: {}", loginRequest.getEmail());
+        logger.debug("Login request details: {}", loginRequest);
+
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                )
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
         );
+        logger.info("Authentication successful for user '{}'.", loginRequest.getEmail());
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken(authentication);
         User userPrincipal = (User) authentication.getPrincipal();
+        logger.info("Generated new JWT for user '{}'.", userPrincipal.getEmail());
 
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userPrincipal);
         ResponseCookie refreshTokenCookie = ResponseCookie.from(refreshTokenCookieName, refreshToken.getToken())
-                .httpOnly(true)
-                .secure(cookieSecure) // Should be true in production
-                .path("/api/v1/auth") // Scope cookie to auth paths
-                .maxAge(refreshTokenDurationMs / 1000) // convert ms to seconds
-                .sameSite(cookieSameSite) // "Strict" or "Lax"
-                .build();
+                .httpOnly(true).secure(cookieSecure).path("/api/v1/auth")
+                .maxAge(refreshTokenDurationMs / 1000).sameSite(cookieSameSite).build();
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+        logger.info("Created new refresh token and set cookie for user '{}'.", userPrincipal.getEmail());
 
-        UserDto userDto = userService.convertToDto(userPrincipal);
-
+        // 5. FIX: Use the mapper to convert the User principal to a UserDto
+        UserDto userDto = userMapper.toDto(userPrincipal);
         return ResponseEntity.ok(new ApiResponseWrapper<>(new AuthResponse(jwt, userDto)));
     }
 
     /**
-     * Refreshes an access token using a refresh token provided in an HTTP-only cookie.
-     * The refresh token cookie is expected to be sent automatically by the browser.
-     * This endpoint implements a rolling refresh token strategy.
-     *
-     * @param request  HttpServletRequest to retrieve the cookie.
-     * @param response HttpServletResponse to set the new refresh token cookie if rotated.
-     * @return ResponseEntity containing a new {@link AuthResponse} (with new access token) or an error.
+     * Refreshes an access token.
      */
     @PostMapping("/refresh-token")
-    @Operation(summary = "Refresh access token",
-            description = "Uses the refresh token (sent as an HttpOnly cookie by the browser from the /api/v1/auth path) to issue a new JWT access token. " +
-                    "Implements a rolling refresh token strategy: a new refresh token is also issued and set in an HttpOnly cookie.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Access token refreshed successfully. New access token in body, new refresh token in HttpOnly cookie.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized - Refresh token cookie is missing, invalid, or expired.",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
-            })
+    @Operation(summary = "Refresh access token")
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        logger.info("Received request to refresh token.");
         Cookie cookie = WebUtils.getCookie(request, refreshTokenCookieName);
+
         if (cookie == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new com.forkmyfolio.dto.response.ApiResponseWrapper(null, "Refresh token cookie not found."));
+            logger.warn("Token refresh request failed: No refresh token cookie found.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponseWrapper<>(null, "Refresh token cookie not found."));
         }
 
         String requestRefreshToken = cookie.getValue();
+        logger.debug("Found refresh token cookie. Token value (first 8 chars): {}", requestRefreshToken.substring(0, Math.min(requestRefreshToken.length(), 8)));
 
         return refreshTokenService.findByToken(requestRefreshToken)
                 .map(refreshTokenService::verifyExpiration)
                 .map(verifiedRefreshToken -> {
                     User user = verifiedRefreshToken.getUser();
-                    // Generate new access token
-                    String newAccessToken = tokenProvider.generateToken(user); // generateToken needs to accept User or UserDetails
+                    logger.info("Refresh token verified for user '{}'. Generating new tokens.", user.getEmail());
 
-                    // Implement rolling refresh token: delete old, create new
+                    String newAccessToken = tokenProvider.generateToken(user);
+
                     refreshTokenService.deleteByToken(verifiedRefreshToken.getToken());
                     RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
+                    logger.info("Rolled refresh token for user '{}'.", user.getEmail());
 
                     ResponseCookie newRefreshTokenCookie = ResponseCookie.from(refreshTokenCookieName, newRefreshToken.getToken())
-                            .httpOnly(true)
-                            .secure(cookieSecure)
-                            .path("/api/v1/auth")
-                            .maxAge(refreshTokenDurationMs / 1000)
-                            .sameSite(cookieSameSite)
-                            .build();
+                            .httpOnly(true).secure(cookieSecure).path("/api/v1/auth")
+                            .maxAge(refreshTokenDurationMs / 1000).sameSite(cookieSameSite).build();
                     response.addHeader(HttpHeaders.SET_COOKIE, newRefreshTokenCookie.toString());
+                    logger.info("Set new refresh token cookie for user '{}'.", user.getEmail());
 
-                    UserDto userDto = userService.convertToDto(user); // Or fetch fresh user details if needed
+                    // 6. FIX: Use the mapper to convert the User to a UserDto
+                    UserDto userDto = userMapper.toDto(user);
                     return ResponseEntity.ok(new ApiResponseWrapper<>(new AuthResponse(newAccessToken, userDto)));
                 })
                 .orElseThrow(() -> new TokenRefreshException(requestRefreshToken, "Refresh token not found in database!"));
     }
 
     /**
-     * Logs out the current user by invalidating their refresh token and clearing the cookie.
-     *
-     * @param request  HttpServletRequest to retrieve refresh token cookie if needed.
-     * @param response HttpServletResponse to clear the cookie.
-     * @return ResponseEntity indicating logout success, wrapped in ApiResponseWrapper.
+     * Logs out the current user.
      */
-    @Operation(summary = "Logout the current user",
-            description = "Invalidates the user's refresh token on the server and clears the refresh token cookie.",
-            security = @SecurityRequirement(name = "bearerAuth"),
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "User logged out successfully",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseWrapper.class))),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized if called without valid session/token for some strategies",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseWrapper.class)))
-            })
     @PostMapping("/logout")
+    @Operation(summary = "Logout the current user")
     public ResponseEntity<ApiResponseWrapper<Object>> logoutUser(HttpServletRequest request, HttpServletResponse response) {
+        // ... This method does not deal with DTOs, so no changes are needed here. It remains correct.
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = (authentication != null && !"anonymousUser".equals(authentication.getPrincipal())) ? authentication.getName() : "anonymous";
+        logger.info("Received logout request from user: {}", userEmail);
+
         Cookie cookie = WebUtils.getCookie(request, refreshTokenCookieName);
         if (cookie != null && cookie.getValue() != null) {
             refreshTokenService.deleteByToken(cookie.getValue());
+            logger.info("Deleted refresh token from database for user '{}'.", userEmail);
+        } else {
+            logger.warn("Logout request for user '{}' did not have a refresh token cookie to invalidate.", userEmail);
         }
 
-        ResponseCookie emptyCookie = ResponseCookie.from(refreshTokenCookieName, "")
-                .httpOnly(true)
-                .secure(cookieSecure)
-                .path("/api/v1/auth")
-                .maxAge(0) // Expire immediately
-                .sameSite(cookieSameSite)
-                .build();
+        ResponseCookie emptyCookie = ResponseCookie.from(refreshTokenCookieName, "").httpOnly(true)
+                .secure(cookieSecure).path("/api/v1/auth").maxAge(0).sameSite(cookieSameSite).build();
         response.addHeader(HttpHeaders.SET_COOKIE, emptyCookie.toString());
+        logger.info("Cleared refresh token cookie for user '{}'.", userEmail);
 
         SecurityContextHolder.clearContext();
-        // Using Collections.singletonMap for a simple structured message in the 'data' field.
-        // Or could return ApiResponseWrapper<String> with data="User logged out successfully."
-        // Or ApiResponseWrapper<Object> with data=null and rely on status="success".
-        // For consistency, let's use a map for the message.
+        logger.info("Cleared SecurityContext for user '{}'. Logout complete.", userEmail);
+
         return ResponseEntity.ok(new ApiResponseWrapper<>(Collections.singletonMap("message", "User logged out successfully.")));
     }
 }

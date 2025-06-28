@@ -1,5 +1,6 @@
 package com.forkmyfolio.repository;
 
+import com.forkmyfolio.model.Role;
 import com.forkmyfolio.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -30,4 +31,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return {@code true} if a user with the email exists, {@code false} otherwise.
      */
     Boolean existsByEmail(String email);
+
+    Optional<User> findFirstByOrderByIdAsc();
+
+    boolean existsByRolesContains(Role role);
 }

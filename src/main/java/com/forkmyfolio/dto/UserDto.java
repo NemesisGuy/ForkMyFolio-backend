@@ -54,4 +54,9 @@ public class UserDto {
      * Timestamp of when the user account was created.
      */
     private LocalDateTime createdAt;
+
+    /**
+     * Timestamp of when the user account was last updated.
+     */
+    private LocalDateTime updatedAt;
 }

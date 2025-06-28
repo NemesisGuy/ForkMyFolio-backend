@@ -4,6 +4,7 @@ import com.forkmyfolio.dto.CreateSkillRequest;
 import com.forkmyfolio.dto.SkillDto;
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.User;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -68,6 +69,9 @@ public interface SkillService {
      * @throws org.springframework.security.access.AccessDeniedException if the user is not authorized to delete the skill.
      */
     void deleteSkill(Long id, User currentUser);
+
+    @Transactional(readOnly = true)
+    List<SkillDto> getPublicSkills();
 
     /**
      * Converts a {@link Skill} entity to a {@link SkillDto}.

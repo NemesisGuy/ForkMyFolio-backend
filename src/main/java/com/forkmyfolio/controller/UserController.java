@@ -1,6 +1,7 @@
 package com.forkmyfolio.controller;
 
 import com.forkmyfolio.dto.UserDto;
+import com.forkmyfolio.mapper.UserMapper;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,6 +60,7 @@ public class UserController {
             })
     public UserDto getCurrentUserProfile() {
         User currentUser = userService.getCurrentAuthenticatedUser();
-        return userService.convertToDto(currentUser);
+        UserMapper mapper = new UserMapper();
+        return mapper.toDto(currentUser);
     }
 }

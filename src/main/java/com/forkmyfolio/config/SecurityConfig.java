@@ -8,16 +8,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -72,7 +68,6 @@ public class SecurityConfig {
     }
 
 
-
     /**
      * Configures a CorsFilter bean for handling Cross-Origin Resource Sharing (CORS).
      * Allows all origins, headers, and methods for simplicity during development.
@@ -108,19 +103,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF as we are using JWT
-                // .cors(cors -> cors.configurationSource(request -> { // Apply CORS globally - replaced by CorsFilter bean
-                //     CorsConfiguration config = new CorsConfiguration();
-                //     config.setAllowCredentials(true);
-                //     if (allowedOrigins != null && allowedOrigins.length > 0) {
-                //         config.setAllowedOrigins(Arrays.asList(allowedOrigins));
-                //     } else {
-                //         config.addAllowedOriginPattern("*"); // Fallback if property not set, though ideally it should always be set
-                //     }
-                //     config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
-                //     config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-                //     return config;
-                // }))
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults()) // This will use the CorsFilter bean if available
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(unauthorizedHandler) // Handle unauthorized attempts
@@ -129,21 +112,19 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Use stateless sessions
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(PUBLIC_MATCHERS).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/projects/**").permitAll() // Allow GET for single project
-                        .requestMatchers(HttpMethod.GET, "/api/v1/skills/**").permitAll()   // Allow GET for single skill
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN") // Example for admin-specific path
-                        .requestMatchers("/api/v1/users/me/profile").authenticated()
-                        // Specific rules for admin-only modification endpoints based on requirements
-                        .requestMatchers(HttpMethod.POST, "/api/v1/projects").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/projects/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/projects/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/skills").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/skills/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll() // Allow registration
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll() // Allow login
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll() // Allow other auth-related endpoints
-                        .anyRequest().authenticated() // All other requests require authentication
+                        // --- Rule Order: Most Specific to Most General ---
+
+                        // 1. PUBLIC endpoints that anyone can access.
+                        .requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/h2-console/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/profile", "/api/v1/projects/**", "/api/v1/skills/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/contact").permitAll()
+
+                        // 2. ADMIN endpoints. Only users with the 'ADMIN' role can access these.
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+
+                        // 3. ANY OTHER request that hasn't been matched yet must be authenticated.
+                        //    This rule MUST BE LAST.
+                        .anyRequest().authenticated()
                 );
 
         // Add JWT token filter before UsernamePasswordAuthenticationFilter

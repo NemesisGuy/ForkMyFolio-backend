@@ -5,6 +5,7 @@ import com.forkmyfolio.dto.ProjectDto;
 import com.forkmyfolio.dto.UpdateProjectRequest;
 import com.forkmyfolio.model.Project;
 import com.forkmyfolio.model.User;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -87,4 +88,7 @@ public interface ProjectService {
      * @return The project entity.
      */
     Project convertCreateRequestToEntity(CreateProjectRequest request, User owner);
+
+    @Transactional(readOnly = true)
+    List<ProjectDto> getPublicProjects();
 }

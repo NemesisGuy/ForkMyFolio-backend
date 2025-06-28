@@ -1,9 +1,14 @@
 package com.forkmyfolio.service;
 
 import com.forkmyfolio.dto.RegisterRequest;
+import com.forkmyfolio.dto.UpdateUserRequest;
 import com.forkmyfolio.dto.UserDto;
+import com.forkmyfolio.model.Role;
 import com.forkmyfolio.model.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 /**
  * Service interface for user-related operations.
@@ -20,7 +25,9 @@ public interface UserService extends UserDetailsService {
      * @return The created {@link User} entity.
      * @throws com.forkmyfolio.exception.EmailAlreadyExistsException if the email is already in use.
      */
-    User registerUser(RegisterRequest registerRequest);
+
+    @Transactional
+    User registerUser(String email, String password, String firstName, String lastName, String profileImageUrl, Set<Role> roles);
 
     /**
      * Finds a user by their email address.
@@ -31,6 +38,9 @@ public interface UserService extends UserDetailsService {
      */
     User findByEmail(String email);
 
+    @Transactional(readOnly = true)
+    User getUserById(Long userId);
+
     /**
      * Checks if a user exists with the given email address.
      *
@@ -39,15 +49,9 @@ public interface UserService extends UserDetailsService {
      */
     boolean existsByEmail(String email);
 
-    /**
-     * Converts a {@link User} entity to a {@link UserDto}.
-     * This is useful for preparing user data for API responses, ensuring
-     * sensitive information like passwords are not exposed.
-     *
-     * @param user The {@link User} entity to convert.
-     * @return The corresponding {@link UserDto}.
-     */
-    UserDto convertToDto(User user);
+
+    @Transactional
+    User updateUser(Long userId, String firstName, String lastName, String profileImageUrl);
 
     /**
      * Retrieves the currently authenticated user from the security context.
@@ -57,4 +61,8 @@ public interface UserService extends UserDetailsService {
      *                                                                                 or the authenticated principal is not a User instance.
      */
     User getCurrentAuthenticatedUser();
+
+    User getPublicProfile();
+
+
 }
