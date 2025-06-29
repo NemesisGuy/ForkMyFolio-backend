@@ -116,6 +116,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.findFirstByOrderByIdAsc()
                 .orElseThrow(() -> new ResourceNotFoundException("User"));
     }
+    @Override
+    @Transactional
+    public User updateUserAccount(Long userId, String firstName, String lastName) {
+        User userToUpdate = getUserById(userId); // Reusing existing method
+
+
+        userToUpdate.setFirstName(firstName);
+        userToUpdate.setLastName(lastName);
+
+        return userRepository.save(userToUpdate);
+    }
 
     /**
      * Updates an existing user's profile information.

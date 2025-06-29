@@ -16,10 +16,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -82,10 +79,26 @@ public class User implements UserDetails {
     private String password;
 
     /**
-     * URL to the user's profile image.
+     * URL to the user's portfolioProfile image.
      */
     private String profileImageUrl;
 
+    // 'mappedBy = "user"' tells Hibernate that the `PortfolioProfile` entity owns the relationship
+    // (i.e., the `user_id` foreign key is in the 'profiles' table).
+    // 'cascade = CascadeType.ALL' means if you delete a User, their PortfolioProfile is also deleted.
+    // 'orphanRemoval = true' handles cases where the link is severed.
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private PortfolioProfile portfolioProfile;;
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Qualification> qualifications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Experience> experiences = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Testimonial> testimonials = new ArrayList<>();
     /**
      * Roles assigned to the user (e.g., ADMIN, USER).
      * Stored as a set of Role enums.

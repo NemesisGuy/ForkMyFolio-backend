@@ -2,6 +2,7 @@ package com.forkmyfolio.controller;
 
 import com.forkmyfolio.dto.ProjectDto;
 import com.forkmyfolio.mapper.ProjectMapper;
+import com.forkmyfolio.model.Project;
 import com.forkmyfolio.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -39,26 +41,32 @@ public class ProjectController {
      * Retrieves all public projects for the portfolio.
      */
     @GetMapping
-    @Operation(summary = "Get all public projects", description = "Retrieves a list of all projects for the portfolio.")
+    @Operation(summary = "Get all public projects")
     public List<ProjectDto> getPublicProjects() {
         logger.info("Received request to get all public projects.");
-        // Note: Your service method `getPublicProjects` already returns a List<ProjectDto>.
-        // For consistency with the DTO-less service principle, this should be refactored.
-        // I will assume for now it's refactored to return List<Project> and the controller does the mapping.
-        List<ProjectDto> projects = projectService.getPublicProjects();
-        logger.info("Successfully retrieved {} public projects.", projects.size());
-        return projects;
+
+        // FIX: Use the mapper to convert the list of entities to a list of DTOs
+        List<Project> projectEntities = projectService.getPublicProjects();
+        List<ProjectDto> projectDtos = projectEntities.stream()
+                .map(projectMapper::toDto)
+                .collect(Collectors.toList());
+
+        logger.info("Successfully retrieved {} public projects.", projectDtos.size());
+        return projectDtos;
     }
 
     /**
-     * Retrieves a specific public project by its ID.
+     * Retrieves a specific public project by its UUID.
      */
-    @GetMapping("/{id}")
-    @Operation(summary = "Get a public project by ID", description = "Retrieves a specific project by its ID.")
-    public ProjectDto getPublicProjectById(@Parameter(description = "ID of the project") @PathVariable Long id) {
-        logger.info("Received request to get public project by ID: {}", id);
-        ProjectDto project = projectMapper.toDto(projectService.findProjectEntityById(id));
-        logger.info("Successfully retrieved public project with ID: {}", id);
-        return project;
+    @GetMapping("/{uuid}")
+    @Operation(summary = "Get a public project by its UUID")
+    public ProjectDto getPublicProjectByUuid(@Parameter(description = "UUID of the project") @PathVariable UUID uuid) {
+        logger.info("Received request to get public project by UUID: {}", uuid);
+
+        // FIX: Call the correct service method and use the mapper
+        Project projectEntity = projectService.getProjectByUuid(uuid);
+
+        logger.info("Successfully retrieved public project with UUID: {}", uuid);
+        return projectMapper.toDto(projectEntity);
     }
 }

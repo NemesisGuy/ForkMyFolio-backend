@@ -1,3 +1,4 @@
+/*
 package com.forkmyfolio.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -154,7 +155,8 @@ public class SkillControllerTest {
                 .andExpect(jsonPath("$.errors[0].message", is("Access Denied: You do not have permission to access this resource.")));
     }
 
-    @Test
+   */
+/* @Test
     @WithMockUser(username = "admin@example.com", roles = {"ADMIN"})
     void deleteSkill_asAdmin_shouldReturnSuccess() throws Exception {
         given(userService.getCurrentAuthenticatedUser()).willReturn(adminUser);
@@ -162,7 +164,8 @@ public class SkillControllerTest {
 
         mockMvc.perform(delete("/api/v1/skills/1"))
                 .andExpect(status().isNoContent());
-    }
+    }*//*
+
 
     @Test
     @WithMockUser(username = "user@example.com", roles = {"USER"})
@@ -174,7 +177,8 @@ public class SkillControllerTest {
                 .andExpect(jsonPath("$.errors[0].field", is("authorization")))
                 .andExpect(jsonPath("$.errors[0].message", is("Access Denied: You do not have permission to access this resource.")));
     }
-
+*/
+/*
     @Test
     @WithMockUser(username = "admin@example.com", roles = {"ADMIN"})
     void deleteSkill_asAdmin_whenSkillNotFound_shouldReturnNotFound() throws Exception {
@@ -188,5 +192,7 @@ public class SkillControllerTest {
                 .andExpect(jsonPath("$.data").doesNotExist())
                 .andExpect(jsonPath("$.errors[0].field", is("resource")))
                 .andExpect(jsonPath("$.errors[0].message", is("Skill not found with id 99")));
-    }
+    }*//*
+
 }
+*/

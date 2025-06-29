@@ -21,7 +21,6 @@ public interface UserService extends UserDetailsService {
      * This involves creating a new {@link User} entity, hashing the password,
      * and saving it to the database.
      *
-     * @param registerRequest DTO containing the details for the new user.
      * @return The created {@link User} entity.
      * @throws com.forkmyfolio.exception.EmailAlreadyExistsException if the email is already in use.
      */
@@ -63,6 +62,9 @@ public interface UserService extends UserDetailsService {
     User getCurrentAuthenticatedUser();
 
     User getPublicProfile();
+
+    User updateUserAccount(Long userId, String firstName, String lastName);
+
 
 
 }

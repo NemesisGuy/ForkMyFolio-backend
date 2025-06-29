@@ -12,6 +12,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID; // <-- Import UUID
 
 /**
  * Represents a skill that a user possesses, along with their proficiency level.
@@ -24,73 +25,47 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Skill {
 
-    /**
-     * Unique identifier for the skill.
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * Name of the skill (e.g., "Java", "Spring Boot", "Project Management").
-     * Cannot be blank.
-     */
+    // --- ADD THIS UUID FIELD ---
+    @Column(unique = true, nullable = false, updatable = false)
+    private UUID uuid;
+
     @NotBlank(message = "Skill name cannot be blank")
     @Size(min = 2, max = 50, message = "Skill name must be between 2 and 50 characters")
     @Column(nullable = false)
     private String name;
 
-    /**
-     * Proficiency level of the skill.
-     * Defined by the {@link SkillLevel} enum.
-     */
     @NotNull(message = "Skill level cannot be null")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SkillLevel level;
 
-    /**
-     * The user who possesses this skill.
-     * This establishes a many-to-one relationship with the User entity.
-     * It is lazily fetched by default.
-     */
-    @ManyToOne(fetch = FetchType.LAZY) // Many skills can belong to one user
-    @JoinColumn(name = "user_id") // Foreign key in the skills table
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    /**
-     * Timestamp of when the skill record was created.
-     * Automatically set by Hibernate.
-     */
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    /**
-     * Timestamp of when the skill record was last updated.
-     * Automatically set by Hibernate on update.
-     */
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    /**
-     * Enum defining the possible proficiency levels for a skill.
-     */
+    // --- ADD THIS LIFECYCLE CALLBACK ---
+    @PrePersist
+    protected void onCreate() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID();
+        }
+    }
+
     public enum SkillLevel {
-        /**
-         * Basic understanding and ability to perform tasks with supervision.
-         */
         BEGINNER,
-
-        /**
-         * Good working knowledge and ability to perform tasks independently.
-         */
         INTERMEDIATE,
-
-        /**
-         * Advanced knowledge and ability to lead or teach others.
-         */
         EXPERT
     }
 }

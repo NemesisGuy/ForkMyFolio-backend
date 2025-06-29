@@ -76,8 +76,8 @@ Base Path: `/api/v1/users`
 
 ### 1. Get Current User Profile
 *   **Method:** `GET`
-*   **Path:** `/api/v1/users/me/profile`
-*   **Description:** Fetches the profile information for the currently authenticated user (excludes password).
+*   **Path:** `/api/v1/users/me/portfolioProfile`
+*   **Description:** Fetches the portfolioProfile information for the currently authenticated user (excludes password).
 *   **Authentication Required:** Yes (JWT Bearer token)
 *   **Success Status Code:** `200 OK`
 *   **`ApiResponseWrapper.data` Type:** `UserDto`

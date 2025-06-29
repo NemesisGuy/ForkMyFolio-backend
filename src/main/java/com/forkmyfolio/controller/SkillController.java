@@ -1,6 +1,8 @@
 package com.forkmyfolio.controller;
 
 import com.forkmyfolio.dto.SkillDto;
+import com.forkmyfolio.mapper.SkillMapper; // <-- 1. IMPORT MAPPER
+import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.service.SkillService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID; // <-- 2. IMPORT UUID
+import java.util.stream.Collectors;
 
 /**
  * Controller for PUBLICLY viewing portfolio skills.
@@ -25,10 +29,12 @@ public class SkillController {
 
     private static final Logger logger = LoggerFactory.getLogger(SkillController.class);
     private final SkillService skillService;
+    private final SkillMapper skillMapper; // <-- 3. INJECT MAPPER
 
     @Autowired
-    public SkillController(SkillService skillService) {
+    public SkillController(SkillService skillService, SkillMapper skillMapper) { // <-- 4. UPDATE CONSTRUCTOR
         this.skillService = skillService;
+        this.skillMapper = skillMapper;
     }
 
     /**
@@ -38,21 +44,31 @@ public class SkillController {
     @Operation(summary = "Get all public skills", description = "Retrieves a list of all skills for the portfolio.")
     public List<SkillDto> getPublicSkills() {
         logger.info("Received request to get all public skills.");
-        // This service method will need to be implemented to get the owner's skills
-        List<SkillDto> skills = skillService.getPublicSkills();
-        logger.info("Successfully retrieved {} public skills.", skills.size());
-        return skills;
+
+        // 5. FIX: Call the DTO-less service method and use the mapper
+        List<Skill> skillEntities = skillService.getPublicSkills();
+        List<SkillDto> skillDtos = skillEntities.stream()
+                .map(skillMapper::toDto)
+                .collect(Collectors.toList());
+
+        logger.info("Successfully retrieved {} public skills.", skillDtos.size());
+        return skillDtos;
     }
 
     /**
-     * Retrieves a specific public skill by its ID.
+     * Retrieves a specific public skill by its UUID.
      */
-    @GetMapping("/{id}")
-    @Operation(summary = "Get a public skill by ID", description = "Retrieves a specific skill by its ID.")
-    public SkillDto getSkillById(@Parameter(description = "ID of the skill to be retrieved") @PathVariable Long id) {
-        logger.info("Received request to get public skill by ID: {}", id);
-        SkillDto skill = skillService.getSkillById(id);
-        logger.info("Successfully retrieved public skill with ID: {}", id);
-        return skill;
+    // 6. FIX: Change endpoint to use UUID
+    @GetMapping("/{uuid}")
+    @Operation(summary = "Get a public skill by its UUID", description = "Retrieves a specific skill by its public UUID.")
+    public SkillDto getSkillByUuid(@Parameter(description = "UUID of the skill to be retrieved") @PathVariable UUID uuid) {
+        logger.info("Received request to get public skill by UUID: {}", uuid);
+
+        // 7. FIX: Call the correct UUID-based service method
+        Skill skillEntity = skillService.getSkillByUuid(uuid);
+        logger.info("Successfully retrieved public skill with UUID: {}", uuid);
+
+        // 8. FIX: Use the mapper for the response
+        return skillMapper.toDto(skillEntity);
     }
 }

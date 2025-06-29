@@ -5,8 +5,10 @@ import com.forkmyfolio.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
+
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Spring Data JPA repository for {@link Project} entities.
@@ -26,4 +28,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findByUserId(Long userId);
 
     List<Project>  findByUser(User owner);
+
+    Optional<Project> findByUuid(UUID uuid);
 }

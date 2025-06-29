@@ -30,8 +30,8 @@ public class UpdateUserRequest {
     @Schema(description = "The user's last name.", example = "Doe", requiredMode = Schema.RequiredMode.REQUIRED)
     private String lastName;
 
-    @URL(message = "Profile image must be a valid URL.")
-    @Size(max = 255, message = "Profile image URL must not exceed 255 characters.")
+    @URL(message = "PortfolioProfile image must be a valid URL.")
+    @Size(max = 255, message = "PortfolioProfile image URL must not exceed 255 characters.")
     @Schema(description = "URL of the user's profile image. Can be null or empty.",
             example = "https://example.com/path/to/profile-image.png")
     private String profileImageUrl;

@@ -115,7 +115,23 @@ public class SecurityConfig {
                         // --- Rule Order: Most Specific to Most General ---
 
                         // 1. PUBLIC endpoints that anyone can access.
-                        .requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/h2-console/**").permitAll()
+                        .requestMatchers(
+                                "/api/v1/auth/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/h2-console/**",
+                                "/api/v1/profile",
+                                "/api/v1/projects/**",
+                                "/api/v1/skills/**",
+                                "/api/v1/experience/**",
+                                "/api/v1/testimonials/**",
+                                "/api/v1/qualifications/**",
+                                "/api/v1/qualifications/**" ,
+                                "/api/v1/portfolio-profile" // <-- RENAMED from /api/v1/profile
+
+
+
+                        ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/profile", "/api/v1/projects/**", "/api/v1/skills/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/contact").permitAll()
 

@@ -1,7 +1,5 @@
 package com.forkmyfolio.service.impl;
 
-import com.forkmyfolio.dto.CreateSkillRequest;
-import com.forkmyfolio.dto.SkillDto;
 import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.User;
@@ -9,15 +7,17 @@ import com.forkmyfolio.repository.SkillRepository;
 import com.forkmyfolio.repository.UserRepository;
 import com.forkmyfolio.service.SkillService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 /**
  * Implementation of the {@link SkillService} interface.
  * Handles business logic related to user skills.
+ * This service operates solely on domain models and is DTO-agnostic.
  */
 @Service
 public class SkillServiceImpl implements SkillService {
@@ -25,12 +25,6 @@ public class SkillServiceImpl implements SkillService {
     private final SkillRepository skillRepository;
     private final UserRepository userRepository;
 
-
-    /**
-     * Constructs a {@code SkillServiceImpl} with the necessary {@link SkillRepository}.
-     *
-     * @param skillRepository The repository for accessing skill data.
-     */
     @Autowired
     public SkillServiceImpl(SkillRepository skillRepository, UserRepository userRepository) {
         this.skillRepository = skillRepository;
@@ -38,126 +32,65 @@ public class SkillServiceImpl implements SkillService {
     }
 
     /**
-     * {@inheritDoc}
+     * Retrieves the list of public skills for the portfolio owner.
+     *
+     * @return A list of {@link Skill} entities.
      */
     @Override
     @Transactional(readOnly = true)
-    public List<SkillDto> getAllSkills() {
-        // This currently returns all skills in the system.
-        // It could be adapted to return skills for a specific user if /api/v1/skills implies current user's skills
-        // or be an admin-only endpoint if it's meant to list all skills across all users.
-        // For now, keeping it simple as "all skills available".
-        return skillRepository.findAll().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public List<SkillDto> getAllSkillsByUserId(Long userId) {
-        return skillRepository.findByUserId(userId).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public SkillDto getSkillById(Long id) {
-        Skill skill = findSkillEntityById(id);
-        return convertToDto(skill);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Skill findSkillEntityById(Long id) {
-        return skillRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Skill not found with id: " + id));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional
-    public SkillDto createSkill(CreateSkillRequest createSkillRequest, User currentUser) {
-        // The skill is associated with the admin user who created it.
-        // This implies an admin might be adding skills to their own profile or a system-wide list.
-        // If skills are user-specific beyond just admin-managed, this logic might need adjustment.
-        Skill skill = convertCreateRequestToEntity(createSkillRequest, currentUser);
-        Skill savedSkill = skillRepository.save(skill);
-        return convertToDto(savedSkill);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional
-    public void deleteSkill(Long id, User currentUser) {
-        Skill skill = findSkillEntityById(id);
-
-        // Authorization: Check if the current user is an ADMIN
-        // OR if the skill belongs to the current user (if non-admins could manage their own skills).
-        // For this iteration, only ADMINs can delete, and they can delete any skill.
-        // The @PreAuthorize("hasRole('ADMIN')") on the controller handles the role check.
-        // A more granular check could be:
-        // if (!currentUser.getRoles().contains(Role.ADMIN) && !skill.getUser().getId().equals(currentUser.getId())) {
-        //    throw new AccessDeniedException("User does not have permission to delete this skill.");
-        // }
-        // However, the current requirement is admin-only deletion for skills.
-
-        skillRepository.delete(skill);
-    }
-    @Transactional(readOnly = true)
-    @Override
-    public List<SkillDto> getPublicSkills() {
+    public List<Skill> getPublicSkills() {
+        // Find the portfolio owner using our established "first user" strategy.
         User owner = userRepository.findFirstByOrderByIdAsc()
-                .orElseThrow(() -> new IllegalStateException("Portfolio owner not found in database."));
+                .orElseThrow(() -> new IllegalStateException("Portfolio owner user not found in the database."));
 
-        List<Skill> skills = skillRepository.findByUser(owner); // Add findByUser to SkillRepository
-        return skills.stream()
-                .map(this::convertToDto) // Assuming you have a DTO converter
-                .collect(Collectors.toList());
+        // Fetch their skills. Assumes a method `findByUser` exists in SkillRepository.
+        return skillRepository.findByUser(owner);
     }
 
     /**
-     * {@inheritDoc}
+     * Retrieves a single skill by its public UUID.
+     *
+     * @param uuid The UUID of the skill to find.
+     * @return The {@link Skill} entity.
      */
     @Override
-    public SkillDto convertToDto(Skill skill) {
-        if (skill == null) {
-            return null;
+    @Transactional(readOnly = true)
+    public Skill getSkillByUuid(UUID uuid) {
+        return skillRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Skill not found with UUID: " + uuid));
+    }
+
+    /**
+     * Creates and persists a new skill.
+     * The incoming Skill object should be pre-constructed by a mapper.
+     *
+     * @param skill The new skill entity to save.
+     * @return The persisted {@link Skill} entity with its generated ID and UUID.
+     */
+    @Override
+    @Transactional
+    public Skill createSkill(Skill skill) {
+        // The service's job is simply to persist the fully-formed entity.
+        return skillRepository.save(skill);
+    }
+
+    /**
+     * Deletes a skill by its public UUID, ensuring the user has permission.
+     *
+     * @param uuid The UUID of the skill to delete.
+     * @param currentUser The user performing the action.
+     */
+    @Override
+    @Transactional
+    public void deleteSkill(UUID uuid, User currentUser) {
+        Skill skillToDelete = getSkillByUuid(uuid);
+
+        // Authorization check: Ensure the skill belongs to the user trying to delete it.
+        // This is a crucial check even if the controller endpoint is secured by role.
+        if (!skillToDelete.getUser().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("User does not have permission to delete this skill.");
         }
-        return new SkillDto(
-                skill.getId(),
-                skill.getName(),
-                skill.getLevel(),
-                skill.getUser() != null ? skill.getUser().getId() : null,
-                skill.getCreatedAt(),
-                skill.getUpdatedAt()
-        );
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Skill convertCreateRequestToEntity(CreateSkillRequest request, User owner) {
-        Skill skill = new Skill();
-        skill.setName(request.getName());
-        skill.setLevel(request.getLevel());
-        skill.setUser(owner); // Associate the skill with the owner
-        // createdAt and updatedAt will be handled by Hibernate
-        return skill;
+        skillRepository.delete(skillToDelete);
     }
 }

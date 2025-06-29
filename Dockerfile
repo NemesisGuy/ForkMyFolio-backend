@@ -33,7 +33,7 @@ COPY --from=builder /app/target/forkmyfolio-backend-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
 
 # Set the entrypoint for the application
-# Default to 'dev' profile if SPRING_PROFILES_ACTIVE is not set.
+# Default to 'dev' portfolioProfile if SPRING_PROFILES_ACTIVE is not set.
 # For production, an environment variable SPRING_PROFILES_ACTIVE=prod should be passed.
 ENTRYPOINT ["java", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:dev}", "-jar", "app.jar"]
 

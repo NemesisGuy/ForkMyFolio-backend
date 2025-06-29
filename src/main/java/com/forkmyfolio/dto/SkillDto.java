@@ -1,49 +1,18 @@
 package com.forkmyfolio.dto;
 
-import com.forkmyfolio.model.Skill.SkillLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import com.forkmyfolio.model.Skill;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
-/**
- * Data Transfer Object for representing Skill information in API responses.
- */
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
-@AllArgsConstructor
+@Schema(name = "SkillDto", description = "Public representation of a single skill and its proficiency level.")
 public class SkillDto {
 
-    /**
-     * Unique identifier for the skill.
-     */
-    private Long id;
-
-    /**
-     * Name of the skill (e.g., "Java", "Spring Boot").
-     */
+    private UUID uuid;
     private String name;
-
-    /**
-     * Proficiency level of the skill (e.g., BEGINNER, INTERMEDIATE, EXPERT).
-     */
-    private SkillLevel level;
-
-    /**
-     * The ID of the user who possesses this skill.
-     */
-    private Long userId; // To associate skill with a user
-
-    /**
-     * Timestamp of when the skill record was created.
-     */
-    private LocalDateTime createdAt;
-
-    /**
-     * Timestamp of when the skill record was last updated.
-     */
-    private LocalDateTime updatedAt;
+    private Skill.SkillLevel level;
 }

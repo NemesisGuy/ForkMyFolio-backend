@@ -11,8 +11,8 @@ ForkMyFolio is a digital portfolio platform. This repository contains the source
   - [Prerequisites](#prerequisites)
   - [Installation & Setup](#installation--setup)
 - [Running the Application](#running-the-application)
-  - [Development Profile (H2 Database)](#development-profile-h2-database)
-  - [Production Profile (PostgreSQL)](#production-profile-postgresql)
+  - [Development Profile (H2 Database)](#development-portfolioProfile-h2-database)
+  - [Production Profile (PostgreSQL)](#production-portfolioProfile-postgresql)
 - [API Documentation (Swagger UI)](#api-documentation-swagger-ui)
 - [Docker](#docker)
   - [Building the Docker Image](#building-the-docker-image)
@@ -79,7 +79,7 @@ This section will guide you through setting up the project locally.
 *   Java JDK 21 or later (e.g., OpenJDK, Oracle JDK)
 *   Apache Maven 3.6.x or later
 *   Git
-*   (Optional for Production profile) PostgreSQL server running
+*   (Optional for Production portfolioProfile) PostgreSQL server running
 *   (Optional) Docker Desktop
 
 ### Installation & Setup
@@ -103,7 +103,7 @@ The application can be run using different Spring profiles.
 
 ### Development Profile (H2 Database)
 
-This is the default profile. It uses an in-memory H2 database.
+This is the default portfolioProfile. It uses an in-memory H2 database.
 ```bash
 mvn spring-boot:run
 ```
@@ -116,7 +116,7 @@ H2 Console: `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:forkmyfol
 
 ### Production Profile (PostgreSQL)
 
-This profile requires a running PostgreSQL instance and proper configuration (see [Environment Variables](#environment-variables)).
+This portfolioProfile requires a running PostgreSQL instance and proper configuration (see [Environment Variables](#environment-variables)).
 ```bash
 mvn spring-boot:run -Dspring-boot.run.profiles=prod
 ```
@@ -188,7 +188,7 @@ To run the application using Docker:
 ```bash
 docker run -d -p 8080:8080 --name forkmyfolio-backend-dev forkmyfolio-backend
 ```
-*(The default profile in the Docker image is `dev`)*
+*(The default portfolioProfile in the Docker image is `dev`)*
 
 **Production Profile (requires external PostgreSQL and environment variables):**
 ```bash
@@ -206,7 +206,7 @@ Replace placeholder values for database connection, JWT secret, and CORS origins
 
 ## Environment Variables
 
-The application uses the following environment variables, primarily for the **production profile**:
+The application uses the following environment variables, primarily for the **production portfolioProfile**:
 
 *   `SPRING_PROFILES_ACTIVE`: Set to `prod` to activate production configurations. Defaults to `dev` if not set (especially in Docker).
 *   `SPRING_DATASOURCE_URL`: The JDBC URL for your PostgreSQL database.
@@ -218,7 +218,7 @@ The application uses the following environment variables, primarily for the **pr
 *   `JWT_ACCESS_TOKEN_EXPIRATION_MS`: Expiration time for JWT access tokens in milliseconds. Default is 1 hour (`3600000`).
 *   `JWT_REFRESH_TOKEN_EXPIRATION_MS`: Expiration time for refresh tokens in milliseconds. Default is 7 days (`604800000`).
 *   `APP_JWT_REFRESH_COOKIE_NAME`: Name of the HttpOnly cookie used to store the refresh token. Default is `refreshToken`.
-*   `APP_COOKIE_SECURE`: Boolean (`true`/`false`) to set the `Secure` flag on cookies. Should be `true` in production (requires HTTPS). Default is `true` for prod profile, `false` for dev.
+*   `APP_COOKIE_SECURE`: Boolean (`true`/`false`) to set the `Secure` flag on cookies. Should be `true` in production (requires HTTPS). Default is `true` for prod portfolioProfile, `false` for dev.
 *   `APP_COOKIE_SAMESITE`: `SameSite` attribute for cookies (e.g., `Lax`, `Strict`, `None`). Default is `Lax`.
 *   `APP_CORS_ALLOWED_ORIGINS`: Comma-separated list of allowed origins for CORS.
     *   Example for production: `https://www.yourfrontend.com,https://another-frontend.com`
@@ -226,7 +226,7 @@ The application uses the following environment variables, primarily for the **pr
 
 These variables can be set directly in your deployment environment or using a `.env` file if your deployment method supports it (e.g., Docker Compose).
 
-For the **development profile** (when `SPRING_PROFILES_ACTIVE=dev` or not set), the application defaults to an H2 in-memory database and uses default values from `application.properties` (including an insecure JWT secret intended only for development).
+For the **development portfolioProfile** (when `SPRING_PROFILES_ACTIVE=dev` or not set), the application defaults to an H2 in-memory database and uses default values from `application.properties` (including an insecure JWT secret intended only for development).
 
 ## Code Structure
 

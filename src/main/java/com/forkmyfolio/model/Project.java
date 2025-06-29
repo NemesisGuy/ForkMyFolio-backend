@@ -9,10 +9,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Represents a project in a user's portfolio.
@@ -31,6 +33,10 @@ public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @UuidGenerator
+    @Column(name = "uuid", nullable = false, updatable = false, unique = true)
+    private UUID uuid;
 
     /**
      * Title of the project. Cannot be blank.
@@ -104,4 +110,14 @@ public class Project {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+    /**
+     * JPA lifecycle callback to generate a UUID before the entity is first persisted.
+     */
+    @PrePersist
+    protected void onCreate() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID();
+        }
+
+    }
 }

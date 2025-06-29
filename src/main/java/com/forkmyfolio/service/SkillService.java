@@ -1,92 +1,50 @@
 package com.forkmyfolio.service;
 
-import com.forkmyfolio.dto.CreateSkillRequest;
-import com.forkmyfolio.dto.SkillDto;
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.User;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Service interface for managing skills.
- * Defines operations such as creating, retrieving, and deleting skills.
+ * Defines business logic for creating, retrieving, and deleting skills.
+ * This service operates solely on domain models (e.g., Skill) and is DTO-agnostic.
  */
 public interface SkillService {
 
     /**
-     * Retrieves all skills, potentially across all users or for a specific context
-     * depending on implementation (for now, let's assume all skills in the system).
+     * Retrieves the list of public skills for the portfolio owner.
      *
-     * @return A list of {@link SkillDto} objects.
+     * @return A list of {@link Skill} entities.
      */
-    List<SkillDto> getAllSkills();
+    List<Skill> getPublicSkills();
 
     /**
-     * Retrieves all skills for a specific user.
+     * Retrieves a single skill by its public UUID.
      *
-     * @param userId The ID of the user.
-     * @return A list of {@link SkillDto} objects for the specified user.
+     * @param uuid The UUID of the skill to find.
+     * @return The {@link Skill} entity.
+     * @throws com.forkmyfolio.exception.ResourceNotFoundException if no skill is found with the given UUID.
      */
-    List<SkillDto> getAllSkillsByUserId(Long userId);
-
+    Skill getSkillByUuid(UUID uuid);
 
     /**
-     * Retrieves a skill by its ID.
+     * Creates and persists a new skill.
      *
-     * @param id The ID of the skill to retrieve.
-     * @return The {@link SkillDto} if found.
-     * @throws com.forkmyfolio.exception.ResourceNotFoundException if the skill with the given ID is not found.
+     * @param skill The skill entity to save. The owner (User) must be set before calling this method.
+     * @return The persisted {@link Skill} entity, including its generated ID and UUID.
      */
-    SkillDto getSkillById(Long id);
+    Skill createSkill(Skill skill);
 
     /**
-     * Retrieves a skill entity by its ID.
+     * Deletes a skill by its public UUID.
+     * Implementations of this method must perform an authorization check.
      *
-     * @param id The ID of the skill to retrieve.
-     * @return The {@link Skill} entity if found.
-     * @throws com.forkmyfolio.exception.ResourceNotFoundException if the skill with the given ID is not found.
-     */
-    Skill findSkillEntityById(Long id);
-
-    /**
-     * Creates a new skill and associates it with the provided user.
-     *
-     * @param createSkillRequest DTO containing the details for the new skill.
-     * @param currentUser        The user to whom the skill will be associated.
-     * @return The created {@link SkillDto}.
-     */
-    SkillDto createSkill(CreateSkillRequest createSkillRequest, User currentUser);
-
-    /**
-     * Deletes a skill by its ID.
-     * Requires authorization to ensure the user (e.g., an admin or the skill owner)
-     * has permission to delete it.
-     *
-     * @param id          The ID of the skill to delete.
-     * @param currentUser The user attempting to delete the skill.
-     * @throws com.forkmyfolio.exception.ResourceNotFoundException       if the skill with the given ID is not found.
+     * @param uuid The UUID of the skill to delete.
+     * @param currentUser The user performing the action, for authorization checks.
+     * @throws com.forkmyfolio.exception.ResourceNotFoundException if the skill is not found.
      * @throws org.springframework.security.access.AccessDeniedException if the user is not authorized to delete the skill.
      */
-    void deleteSkill(Long id, User currentUser);
-
-    @Transactional(readOnly = true)
-    List<SkillDto> getPublicSkills();
-
-    /**
-     * Converts a {@link Skill} entity to a {@link SkillDto}.
-     *
-     * @param skill The skill entity.
-     * @return The corresponding DTO.
-     */
-    SkillDto convertToDto(Skill skill);
-
-    /**
-     * Converts a {@link CreateSkillRequest} DTO to a {@link Skill} entity.
-     *
-     * @param request The DTO.
-     * @param owner   The user who will own the skill.
-     * @return The skill entity.
-     */
-    Skill convertCreateRequestToEntity(CreateSkillRequest request, User owner);
+    void deleteSkill(UUID uuid, User currentUser);
 }
