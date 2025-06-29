@@ -188,4 +188,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         return findByEmail(username);
     }
+    @Override
+    @Transactional
+    public User updateUserAccount(Long userId, String firstName, String lastName, String profileImageUrl) { // <-- ADD PARAMETER
+        User userToUpdate = getUserById(userId);
+
+        userToUpdate.setFirstName(firstName);
+        userToUpdate.setLastName(lastName);
+        userToUpdate.setProfileImageUrl(profileImageUrl); // <-- ADD THIS LINE
+
+        return userRepository.save(userToUpdate);
+    }
 }

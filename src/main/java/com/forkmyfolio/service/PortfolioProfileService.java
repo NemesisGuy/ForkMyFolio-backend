@@ -3,10 +3,6 @@ package com.forkmyfolio.service;
 import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.model.User;
 
-/**
- * Service interface for business logic related to the PortfolioProfile.
- * This service operates solely on domain models and is DTO-agnostic.
- */
 public interface PortfolioProfileService {
 
     /**
@@ -17,15 +13,23 @@ public interface PortfolioProfileService {
 
     /**
      * Retrieves the portfolio profile associated with a specific user.
-     * Creates a new, empty profile if one doesn't exist.
      * @param user The user whose profile is to be retrieved.
-     * @return The existing or newly created {@link PortfolioProfile} entity.
+     * @return The existing {@link PortfolioProfile} entity.
+     * @throws com.forkmyfolio.exception.ResourceNotFoundException if no profile exists for the user.
      */
-    PortfolioProfile getProfileForUser(User user);
+    PortfolioProfile getProfileByUser(User user);
 
     /**
-     * Saves a PortfolioProfile entity. Used for both create and update operations.
-     * @param portfolioProfile The profile entity to be saved.
+     * Creates and persists a new portfolio profile.
+     * Throws an exception if a profile already exists for the user.
+     * @param portfolioProfile The pre-constructed profile entity to save.
+     * @return The persisted {@link PortfolioProfile} entity.
+     */
+    PortfolioProfile createProfile(PortfolioProfile portfolioProfile);
+
+    /**
+     * Saves changes to an existing portfolio profile.
+     * @param portfolioProfile The profile entity with updated fields to be saved.
      * @return The persisted {@link PortfolioProfile} entity.
      */
     PortfolioProfile save(PortfolioProfile portfolioProfile);

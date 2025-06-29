@@ -2,10 +2,11 @@ package com.forkmyfolio.dto;
 
 import lombok.Data;
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Data
 public class ExperienceDto {
-    private Long id;
+    private UUID uuid;
     private String jobTitle;
     private String companyName;
     private String location;

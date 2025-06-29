@@ -93,4 +93,18 @@ public class SkillServiceImpl implements SkillService {
 
         skillRepository.delete(skillToDelete);
     }
+    @Override
+    @Transactional
+    public Skill updateSkill(UUID uuid, Skill updatedSkillDetails, User currentUser) {
+        Skill existingSkill = getSkillByUuid(uuid);
+        if (!existingSkill.getUser().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("User does not have permission to update this skill.");
+        }
+
+        // Update the level from the transient object
+        existingSkill.setLevel(updatedSkillDetails.getLevel());
+
+        return skillRepository.save(existingSkill);
+    }
+
 }

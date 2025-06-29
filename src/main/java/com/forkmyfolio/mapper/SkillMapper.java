@@ -2,6 +2,7 @@ package com.forkmyfolio.mapper;
 
 import com.forkmyfolio.dto.CreateSkillRequest;
 import com.forkmyfolio.dto.SkillDto;
+import com.forkmyfolio.dto.UpdateSkillRequest;
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.User;
 import org.springframework.stereotype.Component;
@@ -44,5 +45,18 @@ public class SkillMapper {
         skill.setLevel(request.getLevel());
         skill.setUser(owner);
         return skill;
+    }
+
+    /**
+     * Applies updates from an UpdateSkillRequest DTO to an existing Skill entity.
+     * @param request The DTO with the new level.
+     * @param skill The entity to be updated.
+     */
+    public void applyUpdateFromRequest(UpdateSkillRequest request, Skill skill) {
+        if (request == null || skill == null) return;
+
+        if (request.getLevel() != null) {
+            skill.setLevel(request.getLevel());
+        }
     }
 }

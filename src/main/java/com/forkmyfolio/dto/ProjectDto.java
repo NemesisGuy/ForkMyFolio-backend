@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Data Transfer Object for representing Project information in API responses.
@@ -20,7 +21,7 @@ public class ProjectDto {
     /**
      * Unique identifier for the project.
      */
-    private Long id;
+    private UUID uuid;
 
     /**
      * Title of the project.

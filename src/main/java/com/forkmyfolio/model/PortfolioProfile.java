@@ -22,9 +22,6 @@ public class PortfolioProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // The User this profile belongs to.
-    // This creates a foreign key `user_id` in the `profiles` table.
-    // The `mappedBy` in the User entity will complete the bidirectional link.
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -48,14 +45,18 @@ public class PortfolioProfile {
     private String githubUrl;
 
     @URL
-    private String resumeUrl; // URL to the canonical PDF resume
+    private String resumeUrl; // URL to the downloadable PDF resume
+
+    // --- ADD THIS NEW FIELD ---
+    @URL
+    private String resumeImageUrl; // URL to a preview image of the resume (e.g., a PNG/JPG)
 
     @Column(length = 50)
     private String location;
 
     @Column(columnDefinition = "TEXT")
     private String coverLetterTemplate;
-    // Timestamps
+
     @CreationTimestamp
     private Instant createdAt;
 

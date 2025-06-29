@@ -1,3 +1,4 @@
+/*
 package com.forkmyfolio.controller;
 
 import com.forkmyfolio.dto.*;
@@ -21,10 +22,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+*/
 /**
  * Controller for all administrative actions, secured for ADMIN role.
  * This is the central point for managing all portfolio content.
- */
+ *//*
+
 @RestController
 @RequestMapping("/api/v1/admin")
 @PreAuthorize("hasRole('ADMIN')")
@@ -103,7 +106,7 @@ public class AdminController {
         User currentUser = userService.getCurrentAuthenticatedUser();
         logger.info("ADMIN User '{}' is updating their public portfolio profile.", currentUser.getEmail());
 
-        PortfolioProfile existingProfile = portfolioProfileService.getProfileForUser(currentUser);
+        PortfolioProfile existingProfile = portfolioProfileService.getProfileByUser(currentUser);
         portfolioProfileMapper.applyUpdateFromRequest(request, existingProfile);
         portfolioProfileService.save(existingProfile);
 
@@ -264,4 +267,4 @@ public class AdminController {
         qualificationService.deleteQualification(uuid, currentUser);
         return ResponseEntity.noContent().build();
     }
-}
+}*/

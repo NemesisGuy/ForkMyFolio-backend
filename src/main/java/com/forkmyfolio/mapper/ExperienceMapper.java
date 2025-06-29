@@ -13,7 +13,7 @@ public class ExperienceMapper {
     public ExperienceDto toDto(Experience experience) {
         if (experience == null) return null;
         ExperienceDto dto = new ExperienceDto();
-        dto.setId(experience.getId());
+        dto.setUuid(experience.getUuid());
         dto.setJobTitle(experience.getJobTitle());
         dto.setCompanyName(experience.getCompanyName());
         dto.setLocation(experience.getLocation());

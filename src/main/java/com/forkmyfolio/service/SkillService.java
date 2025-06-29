@@ -47,4 +47,13 @@ public interface SkillService {
      * @throws org.springframework.security.access.AccessDeniedException if the user is not authorized to delete the skill.
      */
     void deleteSkill(UUID uuid, User currentUser);
+
+    /**
+     * Updates an existing skill.
+     * @param uuid The UUID of the skill to update.
+     * @param updatedSkillDetails A transient Skill object with the new details.
+     * @param currentUser The user performing the action.
+     * @return The updated Skill entity.
+     */
+    Skill updateSkill(UUID uuid, Skill updatedSkillDetails, User currentUser);
 }

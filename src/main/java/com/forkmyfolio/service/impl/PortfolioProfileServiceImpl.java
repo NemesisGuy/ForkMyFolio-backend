@@ -1,9 +1,10 @@
 package com.forkmyfolio.service.impl;
 
+import com.forkmyfolio.exception.ConflictException;
 import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.model.User;
-import com.forkmyfolio.repository.PortfolioProfileRepository; // Renamed repository
+import com.forkmyfolio.repository.PortfolioProfileRepository;
 import com.forkmyfolio.repository.UserRepository;
 import com.forkmyfolio.service.PortfolioProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PortfolioProfileServiceImpl implements PortfolioProfileService {
 
     private final UserRepository userRepository;
-    private final PortfolioProfileRepository portfolioProfileRepository; // Renamed repository
+    private final PortfolioProfileRepository portfolioProfileRepository;
 
     @Autowired
     public PortfolioProfileServiceImpl(UserRepository userRepository, PortfolioProfileRepository portfolioProfileRepository) {
@@ -27,27 +28,30 @@ public class PortfolioProfileServiceImpl implements PortfolioProfileService {
     public PortfolioProfile getPublicProfile() {
         User owner = userRepository.findFirstByOrderByIdAsc()
                 .orElseThrow(() -> new IllegalStateException("Portfolio owner user not found."));
-
-        return portfolioProfileRepository.findByUser(owner)
-                .orElseThrow(() -> new ResourceNotFoundException("PortfolioProfile not found for owner with ID: " + owner.getId()));
+        return getProfileByUser(owner);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PortfolioProfile getProfileForUser(User user) {
-        // Find the portfolioProfile for the given user, or create a new one if it doesn't exist.
+    public PortfolioProfile getProfileByUser(User user) {
         return portfolioProfileRepository.findByUser(user)
-                .orElseGet(() -> {
-                    PortfolioProfile newPortfolioProfile = new PortfolioProfile();
-                    newPortfolioProfile.setUser(user);
-                    return newPortfolioProfile;
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("PortfolioProfile not found for user with ID: " + user.getId()));
+    }
+
+    @Override
+    @Transactional
+    public PortfolioProfile createProfile(PortfolioProfile portfolioProfile) {
+        // Business rule: A user can only have one profile. Prevent duplicates.
+        portfolioProfileRepository.findByUser(portfolioProfile.getUser()).ifPresent(p -> {
+            throw new ConflictException("A portfolio profile already exists for this user. Use PUT to update.");
+        });
+        return portfolioProfileRepository.save(portfolioProfile);
     }
 
     @Override
     @Transactional
     public PortfolioProfile save(PortfolioProfile portfolioProfile) {
-        // The service's job is simply to persist the entity passed to it.
+        // This method is for updating an existing entity.
         return portfolioProfileRepository.save(portfolioProfile);
     }
 }

@@ -50,6 +50,9 @@ public class PortfolioProfileDto {
     @Schema(description = "URL to a downloadable PDF version of the user's resume.", example = "https://example.com/jane-doe-resume.pdf")
     private String resumeUrl;
 
+    @Schema(description = "URL to a preview image of the resume.", example = "https://example.com/resume-preview.png")
+    private String resumeImageUrl;
+
     @Schema(description = "A generic cover letter template that can be displayed on the portfolio.", example = "Dear Hiring Manager, I am excited to apply for...")
     private String coverLetterTemplate;
 }

@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Data Transfer Object for requests to update an existing project.
@@ -18,6 +19,8 @@ import java.util.Optional;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateProjectRequest {
+
+    private UUID uuid;
 
     /**
      * New title for the project.

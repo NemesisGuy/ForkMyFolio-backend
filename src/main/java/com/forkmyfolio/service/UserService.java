@@ -65,6 +65,7 @@ public interface UserService extends UserDetailsService {
 
     User updateUserAccount(Long userId, String firstName, String lastName);
 
+    User updateUserAccount(Long userId, String firstName, String lastName, String profileImageUrl); // <-- ADD THIS
 
 
 }

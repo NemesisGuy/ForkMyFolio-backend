@@ -20,7 +20,7 @@ public class ProjectMapper {
             return null;
         }
         return new ProjectDto(
-                project.getId(),
+                project.getUuid(),
                 project.getTitle(),
                 project.getDescription(),
                 project.getTechStack(),
