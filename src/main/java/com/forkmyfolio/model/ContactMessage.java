@@ -9,8 +9,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Represents a contact message submitted through the platform.
@@ -29,6 +31,14 @@ public class ContactMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /**
+     * Public-facing unique identifier for the contact message.
+     * Automatically generated.
+     */
+    @UuidGenerator
+    @Column(name = "uuid", nullable = false, updatable = false, unique = true)
+    private UUID uuid;
 
     /**
      * Name of the person who sent the message.

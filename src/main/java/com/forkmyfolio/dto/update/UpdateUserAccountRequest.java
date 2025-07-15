@@ -1,4 +1,4 @@
-package com.forkmyfolio.dto;
+package com.forkmyfolio.dto.update;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

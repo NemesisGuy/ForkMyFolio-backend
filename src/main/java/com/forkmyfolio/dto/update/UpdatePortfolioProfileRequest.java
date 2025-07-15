@@ -1,4 +1,4 @@
-package com.forkmyfolio.dto;
+package com.forkmyfolio.dto.update;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
@@ -39,4 +39,6 @@ public class UpdatePortfolioProfileRequest {
 
     @Size(max = 10000, message = "Cover letter template must not exceed 10000 characters.")
     private String coverLetterTemplate;
+
+
 }

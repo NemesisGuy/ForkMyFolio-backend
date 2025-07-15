@@ -1,8 +1,8 @@
 package com.forkmyfolio.controller.admin;
 
-import com.forkmyfolio.dto.CreateSkillRequest;
-import com.forkmyfolio.dto.SkillDto;
-import com.forkmyfolio.dto.UpdateSkillRequest; // Import the new DTO
+import com.forkmyfolio.dto.create.CreateSkillRequest;
+import com.forkmyfolio.dto.response.SkillDto;
+import com.forkmyfolio.dto.update.UpdateSkillRequest; // Import the new DTO
 import com.forkmyfolio.mapper.SkillMapper;
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.User;
@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 

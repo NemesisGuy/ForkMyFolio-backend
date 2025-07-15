@@ -1,8 +1,8 @@
 package com.forkmyfolio.mapper;
 
-import com.forkmyfolio.dto.CreatePortfolioProfileRequest;
-import com.forkmyfolio.dto.PortfolioProfileDto;
-import com.forkmyfolio.dto.UpdatePortfolioProfileRequest;
+import com.forkmyfolio.dto.create.CreatePortfolioProfileRequest;
+import com.forkmyfolio.dto.response.PortfolioProfileDto;
+import com.forkmyfolio.dto.update.UpdatePortfolioProfileRequest;
 import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.model.User;
 import org.springframework.stereotype.Component;

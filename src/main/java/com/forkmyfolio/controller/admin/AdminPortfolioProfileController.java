@@ -1,8 +1,8 @@
 package com.forkmyfolio.controller.admin;
 
-import com.forkmyfolio.dto.CreatePortfolioProfileRequest;
-import com.forkmyfolio.dto.PortfolioProfileDto;
-import com.forkmyfolio.dto.UpdatePortfolioProfileRequest;
+import com.forkmyfolio.dto.create.CreatePortfolioProfileRequest;
+import com.forkmyfolio.dto.response.PortfolioProfileDto;
+import com.forkmyfolio.dto.update.UpdatePortfolioProfileRequest;
 import com.forkmyfolio.mapper.PortfolioProfileMapper;
 import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.model.User;
@@ -71,6 +71,7 @@ public class AdminPortfolioProfileController {
 
     /**
      * UPDATE: Updates the entire state of the existing portfolio profile.
+     * https://api-forkmyfolio.nemesisnet.co.za/api/v1/admin/portfolio-profile
      */
     @PutMapping
     @Operation(summary = "Update public portfolio profile", description = "Updates the main public profile information. Fails if a profile does not yet exist.")

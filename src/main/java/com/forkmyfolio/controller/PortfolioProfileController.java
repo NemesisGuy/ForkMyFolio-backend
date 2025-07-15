@@ -1,6 +1,6 @@
 package com.forkmyfolio.controller;
 
-import com.forkmyfolio.dto.PortfolioProfileDto;
+import com.forkmyfolio.dto.response.PortfolioProfileDto;
 import com.forkmyfolio.mapper.PortfolioProfileMapper;
 import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.service.PortfolioProfileService;

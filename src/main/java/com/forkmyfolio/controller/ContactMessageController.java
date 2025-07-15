@@ -1,6 +1,8 @@
 package com.forkmyfolio.controller;
 
-import com.forkmyfolio.dto.CreateContactMessageRequest;
+import com.forkmyfolio.dto.create.CreateContactMessageRequest;
+import com.forkmyfolio.mapper.ContactMessageMapper;
+import com.forkmyfolio.model.ContactMessage;
 import com.forkmyfolio.service.ContactMessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -9,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -25,19 +26,20 @@ import java.util.Map;
 @Tag(name = "Contact Messages", description = "Endpoints for submitting contact messages")
 public class ContactMessageController {
 
-    // 1. Initialize a logger for this class
-    private static final Logger logger = LoggerFactory.getLogger(ContactMessageController.class);
-
     private final ContactMessageService contactMessageService;
+    private final ContactMessageMapper contactMessageMapper;
+    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(ContactMessageController.class);
 
     /**
      * Constructs a ContactMessageController with the necessary service.
      *
      * @param contactMessageService Service for contact message operations.
+     * @param contactMessageMapper  Mapper for converting between entities and DTOs.
      */
     @Autowired
-    public ContactMessageController(ContactMessageService contactMessageService) {
+    public ContactMessageController(ContactMessageService contactMessageService, ContactMessageMapper contactMessageMapper) {
         this.contactMessageService = contactMessageService;
+        this.contactMessageMapper = contactMessageMapper;
     }
 
     /**
@@ -66,8 +68,9 @@ public class ContactMessageController {
         // Log the full message content at DEBUG level for development troubleshooting
         logger.debug("Contact message details: {}", createContactMessageRequest);
 
-        // Call the service to save the message
-        contactMessageService.saveMessage(createContactMessageRequest);
+        // Convert DTO to entity and call the service to save the message
+        ContactMessage messageToSave = contactMessageMapper.toEntity(createContactMessageRequest);
+        contactMessageService.saveMessage(messageToSave);
 
         // Log the successful outcome at INFO level
         logger.info("Successfully saved contact message from '{}'.", createContactMessageRequest.getEmail());

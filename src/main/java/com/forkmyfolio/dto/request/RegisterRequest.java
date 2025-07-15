@@ -1,4 +1,4 @@
-package com.forkmyfolio.dto;
+package com.forkmyfolio.dto.request;
 
 import com.forkmyfolio.model.Role;
 import jakarta.validation.constraints.Email;

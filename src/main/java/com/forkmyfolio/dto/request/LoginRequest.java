@@ -1,4 +1,4 @@
-package com.forkmyfolio.dto;
+package com.forkmyfolio.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

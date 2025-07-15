@@ -1,6 +1,6 @@
 package com.forkmyfolio.controller;
 
-import com.forkmyfolio.dto.ProjectDto;
+import com.forkmyfolio.dto.response.ProjectDto;
 import com.forkmyfolio.mapper.ProjectMapper;
 import com.forkmyfolio.model.Project;
 import com.forkmyfolio.service.ProjectService;

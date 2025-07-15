@@ -1,6 +1,6 @@
 package com.forkmyfolio.controller;
 
-import com.forkmyfolio.dto.TestimonialDto;
+import com.forkmyfolio.dto.response.TestimonialDto;
 import com.forkmyfolio.mapper.TestimonialMapper;
 import com.forkmyfolio.service.TestimonialService;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -127,6 +127,9 @@ public class SecurityConfig {
                                 "/api/v1/testimonials/**",
                                 "/api/v1/qualifications/**",
                                 "/api/v1/qualifications/**" ,
+                                "/api/v1/contact-messages" ,
+                                "/api/v1/contact-messages/**" ,
+
                                 "/api/v1/portfolio-profile" // <-- RENAMED from /api/v1/profile
 
 

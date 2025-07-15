@@ -1,4 +1,4 @@
-package com.forkmyfolio.dto;
+package com.forkmyfolio.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Data Transfer Object for representing ContactMessage information in API responses.
@@ -19,7 +20,7 @@ public class ContactMessageDto {
     /**
      * Unique identifier for the contact message.
      */
-    private Long id;
+    private UUID uuid;
 
     /**
      * Name of the person who sent the message.

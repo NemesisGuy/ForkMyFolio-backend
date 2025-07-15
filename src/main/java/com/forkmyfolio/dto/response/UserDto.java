@@ -1,4 +1,4 @@
-package com.forkmyfolio.dto;
+package com.forkmyfolio.dto.response;
 
 import com.forkmyfolio.model.Role;
 import lombok.AllArgsConstructor;

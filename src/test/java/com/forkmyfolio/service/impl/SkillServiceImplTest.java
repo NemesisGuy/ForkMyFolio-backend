@@ -1,8 +1,8 @@
 /*
 package com.forkmyfolio.service.impl;
 
-import com.forkmyfolio.dto.CreateSkillRequest;
-import com.forkmyfolio.dto.SkillDto;
+import com.forkmyfolio.dto.create.CreateSkillRequest;
+import com.forkmyfolio.dto.response.SkillDto;
 import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.model.Role;
 import com.forkmyfolio.model.Skill;

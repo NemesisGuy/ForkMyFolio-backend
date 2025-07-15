@@ -1,11 +1,9 @@
 package com.forkmyfolio.mapper;
 
-import com.forkmyfolio.dto.UpdateUserRequest;
-import com.forkmyfolio.dto.UserDto;
+import com.forkmyfolio.dto.update.UpdateUserRequest;
+import com.forkmyfolio.dto.response.UserDto;
 import com.forkmyfolio.model.User;
 import org.springframework.stereotype.Component;
-
-import java.util.stream.Collectors;
 
 /**
  * Mapper class responsible for converting between User domain models and User-related DTOs.

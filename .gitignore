@@ -108,3 +108,6 @@ surefire-reports/ # Covered by target/ but explicit can't hurt
 
 # If using Spring Boot devtools, they create a .spring-boot-devtools.properties file
 .spring-boot-devtools.properties
+
+# Ignore sensitive configuration files
+secrets.properties

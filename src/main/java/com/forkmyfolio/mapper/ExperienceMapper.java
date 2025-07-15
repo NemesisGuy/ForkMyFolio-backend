@@ -1,8 +1,8 @@
 package com.forkmyfolio.mapper;
 
-import com.forkmyfolio.dto.CreateExperienceRequest;
-import com.forkmyfolio.dto.ExperienceDto;
-import com.forkmyfolio.dto.UpdateExperienceRequest;
+import com.forkmyfolio.dto.create.CreateExperienceRequest;
+import com.forkmyfolio.dto.response.ExperienceDto;
+import com.forkmyfolio.dto.update.UpdateExperienceRequest;
 import com.forkmyfolio.model.Experience;
 import com.forkmyfolio.model.User;
 import org.springframework.stereotype.Component;

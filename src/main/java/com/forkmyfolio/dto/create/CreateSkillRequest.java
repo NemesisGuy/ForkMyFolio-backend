@@ -1,4 +1,4 @@
-package com.forkmyfolio.dto;
+package com.forkmyfolio.dto.create;
 
 import com.forkmyfolio.model.Skill;
 import jakarta.validation.constraints.NotBlank;

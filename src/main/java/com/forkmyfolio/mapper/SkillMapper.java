@@ -1,8 +1,8 @@
 package com.forkmyfolio.mapper;
 
-import com.forkmyfolio.dto.CreateSkillRequest;
-import com.forkmyfolio.dto.SkillDto;
-import com.forkmyfolio.dto.UpdateSkillRequest;
+import com.forkmyfolio.dto.create.CreateSkillRequest;
+import com.forkmyfolio.dto.response.SkillDto;
+import com.forkmyfolio.dto.update.UpdateSkillRequest;
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.User;
 import org.springframework.stereotype.Component;

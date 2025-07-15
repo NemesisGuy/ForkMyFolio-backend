@@ -1,9 +1,9 @@
 package com.forkmyfolio.controller;
 
-import com.forkmyfolio.dto.AuthResponse;
-import com.forkmyfolio.dto.LoginRequest;
-import com.forkmyfolio.dto.RegisterRequest;
-import com.forkmyfolio.dto.UserDto;
+import com.forkmyfolio.dto.response.AuthResponse;
+import com.forkmyfolio.dto.request.LoginRequest;
+import com.forkmyfolio.dto.request.RegisterRequest;
+import com.forkmyfolio.dto.response.UserDto;
 import com.forkmyfolio.dto.response.ApiResponseWrapper;
 import com.forkmyfolio.exception.TokenRefreshException;
 import com.forkmyfolio.mapper.UserMapper; // <-- IMPORT MAPPER
@@ -13,7 +13,6 @@ import com.forkmyfolio.security.JwtTokenProvider;
 import com.forkmyfolio.service.RefreshTokenService;
 import com.forkmyfolio.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

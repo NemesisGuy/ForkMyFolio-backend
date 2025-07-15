@@ -1,6 +1,6 @@
 package com.forkmyfolio.controller;
 
-import com.forkmyfolio.dto.UserDto;
+import com.forkmyfolio.dto.response.UserDto;
 import com.forkmyfolio.mapper.UserMapper;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.service.UserService;

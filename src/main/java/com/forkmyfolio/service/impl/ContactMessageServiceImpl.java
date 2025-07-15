@@ -1,13 +1,15 @@
 package com.forkmyfolio.service.impl;
 
-import com.forkmyfolio.dto.ContactMessageDto;
-import com.forkmyfolio.dto.CreateContactMessageRequest;
 import com.forkmyfolio.model.ContactMessage;
 import com.forkmyfolio.repository.ContactMessageRepository;
 import com.forkmyfolio.service.ContactMessageService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Implementation of the {@link ContactMessageService} interface.
@@ -33,42 +35,30 @@ public class ContactMessageServiceImpl implements ContactMessageService {
      */
     @Override
     @Transactional
-    public ContactMessageDto saveMessage(CreateContactMessageRequest createRequest) {
-        ContactMessage contactMessage = convertCreateRequestToEntity(createRequest);
-        ContactMessage savedMessage = contactMessageRepository.save(contactMessage);
-        // As per requirements, this endpoint returns a "success message".
-        // However, returning the created DTO is also a common and useful pattern.
-        // For now, let's return the DTO, the controller can decide to wrap it in an ApiResponse.
-        return convertToDto(savedMessage);
+    public ContactMessage saveMessage(ContactMessage message) {
+        return contactMessageRepository.save(message);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ContactMessageDto convertToDto(ContactMessage messageEntity) {
-        if (messageEntity == null) {
-            return null;
-        }
-        return new ContactMessageDto(
-                messageEntity.getId(),
-                messageEntity.getName(),
-                messageEntity.getEmail(),
-                messageEntity.getMessage(),
-                messageEntity.getCreatedAt()
-        );
+    public List<ContactMessage> findAll() {
+        return contactMessageRepository.findAll();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ContactMessage convertCreateRequestToEntity(CreateContactMessageRequest request) {
-        ContactMessage contactMessage = new ContactMessage();
-        contactMessage.setName(request.getName());
-        contactMessage.setEmail(request.getEmail());
-        contactMessage.setMessage(request.getMessage());
-        // createdAt will be handled by Hibernate @CreationTimestamp
-        return contactMessage;
+    @Transactional
+    public void deleteByUuid(UUID uuid) {
+        // First, find the entity by its UUID.
+        // This ensures the entity exists before attempting to delete it.
+        ContactMessage messageToDelete = contactMessageRepository.findByUuid(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("ContactMessage not found with UUID: " + uuid));
+        // Then, delete the found entity.
+        contactMessageRepository.delete(messageToDelete);
     }
+
 }

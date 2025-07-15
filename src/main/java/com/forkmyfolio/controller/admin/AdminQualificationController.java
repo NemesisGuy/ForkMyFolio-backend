@@ -1,8 +1,8 @@
 package com.forkmyfolio.controller.admin;
 
-import com.forkmyfolio.dto.CreateQualificationRequest;
-import com.forkmyfolio.dto.QualificationDto;
-import com.forkmyfolio.dto.UpdateQualificationRequest;
+import com.forkmyfolio.dto.create.CreateQualificationRequest;
+import com.forkmyfolio.dto.response.QualificationDto;
+import com.forkmyfolio.dto.update.UpdateQualificationRequest;
 import com.forkmyfolio.mapper.QualificationMapper;
 import com.forkmyfolio.model.Qualification;
 import com.forkmyfolio.model.User;

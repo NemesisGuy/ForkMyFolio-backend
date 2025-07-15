@@ -2,9 +2,9 @@
 package com.forkmyfolio.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.forkmyfolio.dto.CreateProjectRequest;
-import com.forkmyfolio.dto.ProjectDto;
-import com.forkmyfolio.dto.UpdateProjectRequest;
+import com.forkmyfolio.dto.create.CreateProjectRequest;
+import com.forkmyfolio.dto.response.ProjectDto;
+import com.forkmyfolio.dto.update.UpdateProjectRequest;
 import com.forkmyfolio.model.Project;
 import com.forkmyfolio.model.Role;
 import com.forkmyfolio.model.User;

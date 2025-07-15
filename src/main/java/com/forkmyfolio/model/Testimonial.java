@@ -48,4 +48,11 @@ public class Testimonial {
 
     @UpdateTimestamp
     private Instant updatedAt;
+    @PrePersist
+    protected void onCreate() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID();
+        }
+    }
+
 }

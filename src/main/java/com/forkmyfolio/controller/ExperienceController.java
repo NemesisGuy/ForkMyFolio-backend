@@ -1,6 +1,6 @@
 package com.forkmyfolio.controller;
 
-import com.forkmyfolio.dto.ExperienceDto;
+import com.forkmyfolio.dto.response.ExperienceDto;
 import com.forkmyfolio.mapper.ExperienceMapper;
 import com.forkmyfolio.service.ExperienceService;
 import org.slf4j.Logger;

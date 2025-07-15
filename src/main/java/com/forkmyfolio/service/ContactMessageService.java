@@ -1,8 +1,9 @@
 package com.forkmyfolio.service;
 
-import com.forkmyfolio.dto.ContactMessageDto;
-import com.forkmyfolio.dto.CreateContactMessageRequest;
 import com.forkmyfolio.model.ContactMessage;
+
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Service interface for managing contact messages.
@@ -12,24 +13,20 @@ public interface ContactMessageService {
     /**
      * Saves a new contact message submitted through the platform.
      *
-     * @param createRequest DTO containing the details of the contact message.
-     * @return The saved {@link ContactMessageDto}.
+     * @param message The {@link ContactMessage} entity to save.
+     * @return The saved {@link ContactMessage} entity.
      */
-    ContactMessageDto saveMessage(CreateContactMessageRequest createRequest);
+    ContactMessage saveMessage(ContactMessage message);
 
     /**
-     * Converts a {@link ContactMessage} entity to a {@link ContactMessageDto}.
-     *
-     * @param messageEntity The contact message entity.
-     * @return The corresponding DTO.
+     * Finds all contact messages, typically for admin purposes.
+     * @return a list of all {@link ContactMessage} entities.
      */
-    ContactMessageDto convertToDto(ContactMessage messageEntity);
+    List<ContactMessage> findAll();
 
     /**
-     * Converts a {@link CreateContactMessageRequest} DTO to a {@link ContactMessage} entity.
-     *
-     * @param request The DTO.
-     * @return The contact message entity.
+     * Deletes a contact message by its UUID.
+     * @param uuid The UUID of the message to delete.
      */
-    ContactMessage convertCreateRequestToEntity(CreateContactMessageRequest request);
+    void deleteByUuid(UUID uuid);
 }

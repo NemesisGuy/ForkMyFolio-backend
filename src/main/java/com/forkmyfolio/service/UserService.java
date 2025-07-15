@@ -1,8 +1,5 @@
 package com.forkmyfolio.service;
 
-import com.forkmyfolio.dto.RegisterRequest;
-import com.forkmyfolio.dto.UpdateUserRequest;
-import com.forkmyfolio.dto.UserDto;
 import com.forkmyfolio.model.Role;
 import com.forkmyfolio.model.User;
 import org.springframework.security.core.userdetails.UserDetailsService;

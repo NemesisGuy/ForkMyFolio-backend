@@ -1,6 +1,6 @@
 package com.forkmyfolio.controller;
 
-import com.forkmyfolio.dto.QualificationDto;
+import com.forkmyfolio.dto.response.QualificationDto;
 import com.forkmyfolio.mapper.QualificationMapper;
 import com.forkmyfolio.service.QualificationService;
 import io.swagger.v3.oas.annotations.Operation;

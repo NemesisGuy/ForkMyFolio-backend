@@ -1,8 +1,8 @@
 package com.forkmyfolio.controller.admin;
 
-import com.forkmyfolio.dto.CreateTestimonialRequest;
-import com.forkmyfolio.dto.TestimonialDto;
-import com.forkmyfolio.dto.UpdateTestimonialRequest;
+import com.forkmyfolio.dto.create.CreateTestimonialRequest;
+import com.forkmyfolio.dto.response.TestimonialDto;
+import com.forkmyfolio.dto.update.UpdateTestimonialRequest;
 import com.forkmyfolio.mapper.TestimonialMapper;
 import com.forkmyfolio.model.Testimonial;
 import com.forkmyfolio.model.User;

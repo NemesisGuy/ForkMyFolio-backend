@@ -1,4 +1,4 @@
-package com.forkmyfolio.dto;
+package com.forkmyfolio.dto.response;
 
 import lombok.Data;
 import java.time.LocalDate;

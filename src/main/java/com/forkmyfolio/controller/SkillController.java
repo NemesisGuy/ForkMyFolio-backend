@@ -1,6 +1,6 @@
 package com.forkmyfolio.controller;
 
-import com.forkmyfolio.dto.SkillDto;
+import com.forkmyfolio.dto.response.SkillDto;
 import com.forkmyfolio.mapper.SkillMapper; // <-- 1. IMPORT MAPPER
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.service.SkillService;

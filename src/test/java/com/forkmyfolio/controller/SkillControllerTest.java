@@ -2,8 +2,8 @@
 package com.forkmyfolio.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.forkmyfolio.dto.CreateSkillRequest;
-import com.forkmyfolio.dto.SkillDto;
+import com.forkmyfolio.dto.create.CreateSkillRequest;
+import com.forkmyfolio.dto.response.SkillDto;
 import com.forkmyfolio.model.Role;
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.User;

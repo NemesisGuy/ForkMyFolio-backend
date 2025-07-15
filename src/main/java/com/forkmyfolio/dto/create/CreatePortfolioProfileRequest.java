@@ -1,4 +1,4 @@
-package com.forkmyfolio.dto;
+package com.forkmyfolio.dto.create;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -35,7 +35,7 @@ public class CreatePortfolioProfileRequest {
 
     @URL @Size(max = 255)
     private String resumeUrl;
-    
+
     @URL @Size(max = 255)
     private String resumeImageUrl;
 
