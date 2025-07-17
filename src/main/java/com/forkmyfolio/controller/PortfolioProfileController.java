@@ -1,9 +1,13 @@
 package com.forkmyfolio.controller;
 
+import com.forkmyfolio.aop.TrackVisitor;
 import com.forkmyfolio.dto.response.PortfolioProfileDto;
+import com.forkmyfolio.model.enums.VisitorStatType;
 import com.forkmyfolio.mapper.PortfolioProfileMapper;
 import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.service.PortfolioProfileService;
+import com.forkmyfolio.service.VisitorStatsService;
+import com.forkmyfolio.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
@@ -25,11 +29,15 @@ public class PortfolioProfileController {
 
     private final PortfolioProfileService portfolioProfileService;
     private final PortfolioProfileMapper portfolioProfileMapper;
+    private final VisitorStatsService visitorStatsService;
+    private final SecurityUtils securityUtils;
 
     @Autowired
-    public PortfolioProfileController(PortfolioProfileService portfolioProfileService, PortfolioProfileMapper portfolioProfileMapper) {
+    public PortfolioProfileController(PortfolioProfileService portfolioProfileService, PortfolioProfileMapper portfolioProfileMapper, VisitorStatsService visitorStatsService, SecurityUtils securityUtils) {
         this.portfolioProfileService = portfolioProfileService;
         this.portfolioProfileMapper = portfolioProfileMapper;
+        this.visitorStatsService = visitorStatsService;
+        this.securityUtils = securityUtils;
     }
 
     /**
@@ -39,9 +47,11 @@ public class PortfolioProfileController {
      */
     @GetMapping
     @Operation(summary = "Get the public portfolio profile", description = "Retrieves the main profile information for the portfolio owner.")
+    @TrackVisitor(VisitorStatType.TOTAL_VISITS)
     public PortfolioProfileDto getPublicProfile() {
         logger.info("Request received for public portfolio profile.");
         PortfolioProfile portfolioProfile = portfolioProfileService.getPublicProfile();
+
         logger.info("Successfully retrieved public portfolio profile.");
         return portfolioProfileMapper.toDto(portfolioProfile);
     }

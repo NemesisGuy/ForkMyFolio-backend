@@ -54,7 +54,7 @@ All API responses (both for successful requests and errors) are wrapped in a sta
   ]
 }
 ```
-This consistent structure helps in simplifying client-side handling of API responses. The specific type for the `data` field for each endpoint is detailed in the [API_Endpoints.md](./API_Endpoints.md) and can be seen in the Swagger UI schemas.
+This consistent structure helps in simplifying client-side handling of API responses. The specific type for the `data` field for each endpoint is detailed in the [API_Endpoints.md](docs/API_Endpoints.md) and can be seen in the Swagger UI schemas.
 
 ## Built With
 
@@ -137,7 +137,7 @@ The OpenAPI specification (JSON) is available at:
 You can use the "Authorize" button on Swagger UI (top right) to authenticate using a JWT access token obtained from the `/auth/login` or `/auth/register` endpoints. The format is `Bearer <your_jwt_token>`. The refresh token mechanism is handled via HttpOnly cookies and the `/auth/refresh-token` endpoint.
 
 ### Static Endpoint Summary
-For a quick human-readable summary of all API endpoints, their request/response structures, and authentication requirements, see the [API_Endpoints.md](./API_Endpoints.md) file.
+For a quick human-readable summary of all API endpoints, their request/response structures, and authentication requirements, see the [API_Endpoints.md](docs/API_Endpoints.md) file.
 
 ## Authentication Flow
 

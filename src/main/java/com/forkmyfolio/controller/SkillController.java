@@ -1,9 +1,13 @@
 package com.forkmyfolio.controller;
 
+import com.forkmyfolio.aop.TrackVisitor;
 import com.forkmyfolio.dto.response.SkillDto;
 import com.forkmyfolio.mapper.SkillMapper; // <-- 1. IMPORT MAPPER
+import com.forkmyfolio.model.enums.VisitorStatType;
 import com.forkmyfolio.model.Skill;
+import com.forkmyfolio.service.VisitorStatsService;
 import com.forkmyfolio.service.SkillService;
+import com.forkmyfolio.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,11 +34,15 @@ public class SkillController {
     private static final Logger logger = LoggerFactory.getLogger(SkillController.class);
     private final SkillService skillService;
     private final SkillMapper skillMapper; // <-- 3. INJECT MAPPER
+    private final VisitorStatsService visitorStatsService;
+    private final SecurityUtils securityUtils;
 
     @Autowired
-    public SkillController(SkillService skillService, SkillMapper skillMapper) { // <-- 4. UPDATE CONSTRUCTOR
+    public SkillController(SkillService skillService, SkillMapper skillMapper, VisitorStatsService visitorStatsService, SecurityUtils securityUtils) { // <-- 4. UPDATE CONSTRUCTOR
         this.skillService = skillService;
         this.skillMapper = skillMapper;
+        this.visitorStatsService = visitorStatsService;
+        this.securityUtils = securityUtils;
     }
 
     /**
@@ -42,6 +50,7 @@ public class SkillController {
      */
     @GetMapping
     @Operation(summary = "Get all public skills", description = "Retrieves a list of all skills for the portfolio.")
+    @TrackVisitor(VisitorStatType.SKILLS_SECTION_VIEW)
     public List<SkillDto> getPublicSkills() {
         logger.info("Received request to get all public skills.");
 

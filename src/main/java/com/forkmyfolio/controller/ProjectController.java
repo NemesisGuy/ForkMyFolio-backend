@@ -1,9 +1,13 @@
 package com.forkmyfolio.controller;
 
+import com.forkmyfolio.aop.TrackVisitor;
 import com.forkmyfolio.dto.response.ProjectDto;
 import com.forkmyfolio.mapper.ProjectMapper;
+import com.forkmyfolio.model.enums.VisitorStatType;
 import com.forkmyfolio.model.Project;
 import com.forkmyfolio.service.ProjectService;
+import com.forkmyfolio.service.VisitorStatsService;
+import com.forkmyfolio.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,11 +34,15 @@ public class ProjectController {
     private static final Logger logger = LoggerFactory.getLogger(ProjectController.class);
     private final ProjectService projectService;
     private final ProjectMapper projectMapper;
+    private final VisitorStatsService visitorStatsService;
+    private final SecurityUtils securityUtils;
 
     @Autowired
-    public ProjectController(ProjectService projectService, ProjectMapper projectMapper) {
+    public ProjectController(ProjectService projectService, ProjectMapper projectMapper, VisitorStatsService visitorStatsService, SecurityUtils securityUtils) {
         this.projectService = projectService;
         this.projectMapper = projectMapper;
+        this.visitorStatsService = visitorStatsService;
+        this.securityUtils = securityUtils;
     }
 
     /**
@@ -42,6 +50,7 @@ public class ProjectController {
      */
     @GetMapping
     @Operation(summary = "Get all public projects")
+    @TrackVisitor(VisitorStatType.PROJECTS_SECTION_VIEW)
     public List<ProjectDto> getPublicProjects() {
         logger.info("Received request to get all public projects.");
 
@@ -60,6 +69,7 @@ public class ProjectController {
      */
     @GetMapping("/{uuid}")
     @Operation(summary = "Get a public project by its UUID")
+    @TrackVisitor(VisitorStatType.PROJECT_VIEW)
     public ProjectDto getPublicProjectByUuid(@Parameter(description = "UUID of the project") @PathVariable UUID uuid) {
         logger.info("Received request to get public project by UUID: {}", uuid);
 

@@ -1,9 +1,13 @@
 package com.forkmyfolio.controller;
 
+import com.forkmyfolio.aop.TrackVisitor;
 import com.forkmyfolio.dto.create.CreateContactMessageRequest;
 import com.forkmyfolio.mapper.ContactMessageMapper;
+import com.forkmyfolio.model.enums.VisitorStatType;
 import com.forkmyfolio.model.ContactMessage;
+import com.forkmyfolio.service.VisitorStatsService;
 import com.forkmyfolio.service.ContactMessageService;
+import com.forkmyfolio.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,18 +32,22 @@ public class ContactMessageController {
 
     private final ContactMessageService contactMessageService;
     private final ContactMessageMapper contactMessageMapper;
+    private final VisitorStatsService visitorStatsService;
+    private final SecurityUtils securityUtils;
     private static final Logger logger = org.slf4j.LoggerFactory.getLogger(ContactMessageController.class);
 
     /**
      * Constructs a ContactMessageController with the necessary service.
      *
      * @param contactMessageService Service for contact message operations.
-     * @param contactMessageMapper  Mapper for converting between entities and DTOs.
+     * @param contactMessageMapper Mapper for converting between DTOs and entities.
      */
     @Autowired
-    public ContactMessageController(ContactMessageService contactMessageService, ContactMessageMapper contactMessageMapper) {
+    public ContactMessageController(ContactMessageService contactMessageService, ContactMessageMapper contactMessageMapper, VisitorStatsService visitorStatsService, SecurityUtils securityUtils) {
         this.contactMessageService = contactMessageService;
         this.contactMessageMapper = contactMessageMapper;
+        this.visitorStatsService = visitorStatsService;
+        this.securityUtils = securityUtils;
     }
 
     /**
@@ -59,6 +67,7 @@ public class ContactMessageController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
     })
     @ResponseStatus(HttpStatus.CREATED)
+    @TrackVisitor(VisitorStatType.CONTACT_MESSAGE_SUBMISSION)
     public Map<String, String> submitContactMessage(@Valid @RequestBody CreateContactMessageRequest createContactMessageRequest) {
         // Log the incoming request with key details at INFO level
         logger.info("Received a new contact message from: {} <{}>",

@@ -1,8 +1,12 @@
 package com.forkmyfolio.controller;
 
+import com.forkmyfolio.aop.TrackVisitor;
 import com.forkmyfolio.dto.response.QualificationDto;
 import com.forkmyfolio.mapper.QualificationMapper;
+import com.forkmyfolio.model.enums.VisitorStatType;
 import com.forkmyfolio.service.QualificationService;
+import com.forkmyfolio.service.VisitorStatsService;
+import com.forkmyfolio.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
@@ -26,11 +30,15 @@ public class QualificationController {
     private static final Logger logger = LoggerFactory.getLogger(QualificationController.class);
     private final QualificationService qualificationService;
     private final QualificationMapper qualificationMapper;
+    private final VisitorStatsService visitorStatsService;
+    private final SecurityUtils securityUtils;
 
     @Autowired
-    public QualificationController(QualificationService qualificationService, QualificationMapper qualificationMapper) {
+    public QualificationController(QualificationService qualificationService, QualificationMapper qualificationMapper, VisitorStatsService visitorStatsService, SecurityUtils securityUtils) {
         this.qualificationService = qualificationService;
         this.qualificationMapper = qualificationMapper;
+        this.visitorStatsService = visitorStatsService;
+        this.securityUtils = securityUtils;
     }
 
     /**
@@ -40,6 +48,7 @@ public class QualificationController {
      */
     @GetMapping
     @Operation(summary = "Get all public qualifications", description = "Retrieves a list of all qualifications (e.g., degrees, certifications) for the portfolio.")
+    @TrackVisitor(VisitorStatType.QUALIFICATIONS_SECTION_VIEW)
     public List<QualificationDto> getPublicQualifications() {
         logger.info("Request received for public qualifications.");
 

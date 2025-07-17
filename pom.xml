@@ -108,6 +108,13 @@
             <artifactId>jakarta.validation-api</artifactId>
         </dependency>
 
+        <!-- For PDF Generation -->
+        <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+            <version>2.2.4</version>
+        </dependency>
+
         <!-- Spring Boot Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -116,27 +115,23 @@ public class SecurityConfig {
 
                         // 1. PUBLIC endpoints that anyone can access.
                         .requestMatchers(
-                                "/api/v1/auth/**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/h2-console/**",
-                                "/api/v1/profile",
-                                "/api/v1/projects/**",
-                                "/api/v1/skills/**",
-                                "/api/v1/experience/**",
-                                "/api/v1/testimonials/**",
-                                "/api/v1/qualifications/**",
-                                "/api/v1/qualifications/**" ,
-                                "/api/v1/contact-messages" ,
-                                "/api/v1/contact-messages/**" ,
-
-                                "/api/v1/portfolio-profile" // <-- RENAMED from /api/v1/profile
-
-
-
+                                // --- Authentication & API Docs ---
+                                "/api/v1/auth/**",          // Login, refresh token, etc.
+                                "/swagger-ui/**",           // Swagger UI for API testing
+                                "/v3/api-docs/**",          // OpenAPI specification
+                                "/h2-console/**",           // H2 Database console for dev
+                                // --- Public Portfolio Data ---
+                                "/api/v1/portfolio-profile",// Public profile information
+                                "/api/v1/projects/**",      // Public projects
+                                "/api/v1/skills/**",        // Public skills
+                                "/api/v1/experience/**",    // Public work experience
+                                "/api/v1/testimonials/**",  // Public testimonials
+                                "/api/v1/qualifications/**",// Public qualifications
+                                "/api/v1/contact-messages", // Endpoint for submitting contact form
+                                "/api/v1/settings",         // Endpoint for public feature flags
+                                "/api/v1/pdf/**",           // Endpoint for PDF generation and download
+                                "/api/v1/stats/**"          // Public endpoints for incrementing visitor stats
                         ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/profile", "/api/v1/projects/**", "/api/v1/skills/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/contact").permitAll()
 
                         // 2. ADMIN endpoints. Only users with the 'ADMIN' role can access these.
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")

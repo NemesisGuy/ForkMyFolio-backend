@@ -1,0 +1,23 @@
+package com.forkmyfolio.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.Map;
+
+@Data
+@NoArgsConstructor
+public class AdminStatsDto {
+    private long totalVisits;
+    private Map<String, Long> projects;
+    private long projectsSectionViews;
+    private long skillsSectionViews;
+    private long experienceSectionViews;
+    private long qualificationsSectionViews;
+    private long contactMessageSubmissions;
+    private long pdfDownloads;
+    private long testimonialsSectionViews;
+    private long loginSuccesses;
+    private long loginFailures;
+    private long logoutSuccesses;
+}

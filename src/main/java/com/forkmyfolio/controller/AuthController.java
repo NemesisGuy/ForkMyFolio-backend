@@ -11,6 +11,7 @@ import com.forkmyfolio.model.RefreshToken;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.security.JwtTokenProvider;
 import com.forkmyfolio.service.RefreshTokenService;
+import com.forkmyfolio.service.VisitorStatsService;
 import com.forkmyfolio.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,6 +55,7 @@ public class AuthController {
     private final JwtTokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final UserMapper userMapper; // <-- 1. INJECT MAPPER
+    private final VisitorStatsService visitorStatsService;
 
     @Value("${app.jwt.refresh-cookie-name}")
     private String refreshTokenCookieName;
@@ -65,12 +67,13 @@ public class AuthController {
     private String cookieSameSite;
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, UserService userService, JwtTokenProvider tokenProvider, RefreshTokenService refreshTokenService, UserMapper userMapper) { // <-- 2. ADD TO CONSTRUCTOR
+    public AuthController(AuthenticationManager authenticationManager, UserService userService, JwtTokenProvider tokenProvider, RefreshTokenService refreshTokenService, UserMapper userMapper, VisitorStatsService visitorStatsService) { // <-- 2. ADD TO CONSTRUCTOR
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.tokenProvider = tokenProvider;
         this.refreshTokenService = refreshTokenService;
         this.userMapper = userMapper; // <-- 2. ADD TO CONSTRUCTOR
+        this.visitorStatsService = visitorStatsService;
     }
 
     /**
@@ -202,6 +205,9 @@ public class AuthController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = (authentication != null && !"anonymousUser".equals(authentication.getPrincipal())) ? authentication.getName() : "anonymous";
         logger.info("Received logout request from user: {}", userEmail);
+
+        // Increment the successful logout counter.
+        visitorStatsService.incrementLogoutSuccess();
 
         Cookie cookie = WebUtils.getCookie(request, refreshTokenCookieName);
         if (cookie != null && cookie.getValue() != null) {

@@ -1,0 +1,16 @@
+package com.forkmyfolio.model.enums;
+
+public enum VisitorStatType {
+    TOTAL_VISITS,
+    PROJECT_VIEW,
+    PROJECTS_SECTION_VIEW, // The new type for the project list page
+    SKILLS_SECTION_VIEW,
+    EXPERIENCE_SECTION_VIEW,
+    QUALIFICATIONS_SECTION_VIEW,
+    CONTACT_MESSAGE_SUBMISSION,
+    PDF_DOWNLOAD,
+    TESTIMONIALS_SECTION_VIEW,
+    LOGIN_SUCCESS,
+    LOGIN_FAILURE,
+    LOGOUT_SUCCESS
+}
