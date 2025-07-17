@@ -125,21 +125,13 @@ Or, after building the JAR:
 java -jar -Dspring.profiles.active=prod target/forkmyfolio-backend-0.0.1-SNAPSHOT.jar
 ```
 
-## API Documentation
+## Documentation
 
-### Swagger UI (Interactive)
-Once the application is running, the interactive Swagger UI documentation can be accessed at:
-[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+- **[API Documentation](docs/API_DOCUMENTATION.md)**: A comprehensive overview of the API, including its structure, endpoints, and authentication flow.
+- **[Codebase Overview](docs/CODEBASE_OVERVIEW.md)**: A detailed explanation of the project's structure, including the purpose of each package and key classes.
+- **[Swagger UI (Interactive)](http://localhost:8080/swagger-ui.html)**: Interactive API documentation that allows you to test endpoints directly from your browser.
 
-The OpenAPI specification (JSON) is available at:
-[http://localhost:8080/api-docs](http://localhost:8080/api-docs)
-
-You can use the "Authorize" button on Swagger UI (top right) to authenticate using a JWT access token obtained from the `/auth/login` or `/auth/register` endpoints. The format is `Bearer <your_jwt_token>`. The refresh token mechanism is handled via HttpOnly cookies and the `/auth/refresh-token` endpoint.
-
-### Static Endpoint Summary
-For a quick human-readable summary of all API endpoints, their request/response structures, and authentication requirements, see the [API_Endpoints.md](docs/API_Endpoints.md) file.
-
-## Authentication Flow
+## Authentication
 
 The application uses JWTs for authentication, with a system of short-lived access tokens and long-lived refresh tokens.
 
