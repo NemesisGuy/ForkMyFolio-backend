@@ -25,13 +25,12 @@ This example assumes you have an external PostgreSQL database.
 docker run -d -p 8080:8080 \
   -e SPRING_PROFILES_ACTIVE=prod \
   -e SPRING_DATASOURCE_URL=jdbc:postgresql://your-db-host:5432/your-db-name \
-  -e DB_USERNAME=your-db-user \
-  -e DB_PASSWORD=your-db-password \
-  -e JWT_SECRET_KEY=your-super-strong-and-secret-jwt-key \
+  -e SPRING_DATASOURCE_USERNAME=your-db-user \
+  -e SPRING_DATASOURCE_PASSWORD=your-db-password \
+  -e JWT_SECRET=your-super-strong-base64-encoded-jwt-secret \
   -e APP_CORS_ALLOWED_ORIGINS=https://your-frontend-domain.com \
-  -e DEFAULT_ADMIN_PASSWORD=a-secure-admin-password \
   --name forkmyfolio-backend-prod \
-  nemesisguy/forkmyfolio-backend:latest
+  forkmyfolio-backend
 ```
 Replace the placeholder values with your actual production configuration.
 

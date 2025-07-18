@@ -53,7 +53,9 @@ These endpoints are open and do not require authentication. They are used to pop
 #### Portfolio & Content
 -   **Get Public Profile Info**: `GET /api/v1/portfolio-profile`
 -   **Get All Projects**: `GET /api/v1/projects`
+-   **Get Project by UUID**: `GET /api/v1/projects/{uuid}`
 -   **Get All Skills**: `GET /api/v1/skills`
+-   **Get Skill by UUID**: `GET /api/v1/skills/{uuid}`
 -   **Get All Experience**: `GET /api/v1/experience`
 -   **Get All Testimonials**: `GET /api/v1/testimonials`
 -   **Get All Qualifications**: `GET /api/v1/qualifications`
@@ -61,29 +63,14 @@ These endpoints are open and do not require authentication. They are used to pop
 #### Submit Contact Message
 -   **Endpoint**: `POST /api/v1/contact-messages`
 -   **Purpose**: To submit a message from the public contact form.
--   **Request Body**:
-    ```json
-    {
-      "name": "Jane Doe",
-      "email": "jane.doe@example.com",
-      "message": "This is a test message."
-    }
-    ```
 
 #### Get Public Settings
 -   **Endpoint**: `GET /api/v1/settings`
--   **Purpose**: To get a simple map of all public feature flags. This is ideal for quickly checking which UI sections to display on the public site.
--   **Response Body**:
-    ```json
-    {
-      "SHOW_PROJECTS": true,
-      "SHOW_SKILLS": true,
-      "SHOW_EXPERIENCE": false,
-      "SHOW_TESTIMONIALS": true,
-      "SHOW_QUALIFICATIONS": true,
-      "SHOW_CONTACT_FORM": true
-    }
-    ```
+-   **Purpose**: To get a simple map of all public feature flags.
+
+#### PDF Download
+-   **Endpoint**: `GET /api/v1/pdf/download`
+-   **Purpose**: To download the portfolio as a PDF.
 
 ### Authentication Endpoints
 
@@ -94,7 +81,12 @@ These endpoints are open and do not require authentication. They are used to pop
 
 All admin endpoints require a valid JWT `Bearer` token in the `Authorization` header and are prefixed with `/api/v1/admin`.
 
+#### Account Management
+-   **Get Admin Account**: `GET /api/v1/admin/account`
+-   **Update Admin Account**: `PUT /api/v1/admin/account`
+
 #### Content Management (CRUD)
+-   **Portfolio Profile**: `GET, POST, PUT /api/v1/admin/portfolio-profile`
 -   **Projects**: `GET, POST, PUT, DELETE /api/v1/admin/projects/{uuid}`
 -   **Skills**: `GET, POST, PUT, DELETE /api/v1/admin/skills/{uuid}`
 -   **Experience**: `GET, POST, PUT, DELETE /api/v1/admin/experience/{uuid}`
@@ -108,6 +100,9 @@ All admin endpoints require a valid JWT `Bearer` token in the `Authorization` he
 #### Application Settings Management
 -   **Get All Settings Details**: `GET /api/v1/admin/settings`
 -   **Update Settings (Bulk)**: `PUT /api/v1/admin/settings`
+
+#### Statistics
+-   **Get Visitor Stats**: `GET /api/v1/admin/stats`
 
 ---
 
