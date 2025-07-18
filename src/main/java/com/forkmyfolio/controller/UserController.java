@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     /**
      * Constructs a UserController with the necessary UserService.
@@ -32,8 +33,9 @@ public class UserController {
      * @param userService The service for user-related business logic.
      */
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
+        this.userMapper = userMapper;
     }
 
     /**
@@ -59,8 +61,7 @@ public class UserController {
                                     schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
             })
     public UserDto getCurrentUserProfile() {
-        User currentUser = userService.getCurrentAuthenticatedUser();
-        UserMapper mapper = new UserMapper();
-        return mapper.toDto(currentUser);
+        User currentUser = userService.getCurrentAuthenticatedUser();        
+        return userMapper.toDto(currentUser);
     }
 }

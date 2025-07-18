@@ -29,68 +29,39 @@ import java.util.Objects;
  * - Responses that are {@link ProblemDetail} instances.
  * - Void responses or ResponseEntity<Void>.
  */
-@ControllerAdvice(assignableTypes = { // Only apply to our main controllers
-        AuthController.class,
-        ContactMessageController.class,
-        ProjectController.class,
-        SkillController.class,
-        UserController.class
-})
+@ControllerAdvice(basePackages = "com.forkmyfolio.controller") // Apply to all controllers in this package and subpackages
 public class ApiResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
 
     private static final org.apache.commons.logging.Log logger = org.apache.commons.logging.LogFactory.getLog(ApiResponseWrapperAdvice.class);
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        String controllerName = returnType.getContainingClass().getName();
-        // String methodName = returnType.getMethod().getName(); // Corrected for logging previously
-        String returnTypeName = returnType.getParameterType().getName();
-        // logger.info("ApiResponseWrapperAdvice.supports called for: " + controllerName + "#" + methodName + ", returnType: " + returnTypeName);
+        // Exclude PdfController as it handles file downloads directly.
+        if (returnType.getContainingClass().equals(PdfController.class)) {
+            return false;
+        }
 
-        // Do not wrap if the method already returns ApiResponseWrapper or ResponseEntity<ApiResponseWrapper>
+        // Exclude methods that already return an ApiResponseWrapper.
         if (returnType.getParameterType().isAssignableFrom(ApiResponseWrapper.class)) {
-            // logger.info("ApiResponseWrapperAdvice: supports=false (already ApiResponseWrapper)");
             return false;
         }
-        if (returnType.getParameterType().isAssignableFrom(ResponseEntity.class)) {
-            if (returnType.getGenericParameterType().getTypeName().contains(ApiResponseWrapper.class.getName())) {
-                // logger.info("ApiResponseWrapperAdvice: supports=false (already ResponseEntity<ApiResponseWrapper>)");
-                return false;
-            }
-        }
-        // Do not wrap if the controller is GlobalExceptionHandler
-        if (Objects.equals(returnType.getContainingClass(), GlobalExceptionHandler.class)) {
-            // logger.info("ApiResponseWrapperAdvice: supports=false (GlobalExceptionHandler)");
-            return false;
-        }
-        // Do not wrap Springdoc OpenAPI endpoints
-        if (Objects.equals(returnType.getContainingClass(), OpenApiWebMvcResource.class) ||
-                controllerName.startsWith("org.springdoc")) { // Broader check for springdoc
-            // logger.info("ApiResponseWrapperAdvice: supports=false (Springdoc OpenAPI endpoint)");
-            return false;
-        }
-        // Do not wrap Actuator endpoints
-        if (controllerName.startsWith("org.springframework.boot.actuate")) {
-            // logger.info("ApiResponseWrapperAdvice: supports=false (Actuator endpoint)");
-            return false;
-        }
-        // Do not wrap if return type is void or ResponseEntity<Void>
-        if (returnTypeName.equals("void") || returnType.getParameterType().isAssignableFrom(Void.class)) {
-            // logger.info("ApiResponseWrapperAdvice: supports=false (Void return type)");
-            return false;
-        }
-        if (returnType.getParameterType().isAssignableFrom(ResponseEntity.class) &&
-                returnType.getGenericParameterType().getTypeName().contains(Void.class.getName())) {
-            // logger.info("ApiResponseWrapperAdvice: supports=false (ResponseEntity<Void>)");
-            return false;
-        }
-        // Do not wrap if body is ProblemDetail (RFC 7807)
-        // This check is more effective in beforeBodyWrite, but we can try to infer from returnType if it's ResponseEntity<ProblemDetail>
-        // logger.info("ApiResponseWrapperAdvice: supports=false (ResponseEntity<ProblemDetail>)");
-        return !returnType.getParameterType().isAssignableFrom(ResponseEntity.class) ||
-                !returnType.getGenericParameterType().getTypeName().contains(ProblemDetail.class.getName());
 
-        // logger.info("ApiResponseWrapperAdvice: supports=true for " + controllerName + "#" + methodName);
+        // Exclude methods returning void.
+        if (returnType.getParameterType() == Void.TYPE || returnType.getParameterType() == Void.class) {
+            return false;
+        }
+
+        // For ResponseEntity, inspect the generic type.
+        if (returnType.getParameterType().isAssignableFrom(ResponseEntity.class) &&
+                (returnType.getGenericParameterType().getTypeName().contains(ApiResponseWrapper.class.getName()) ||
+                 returnType.getGenericParameterType().getTypeName().contains(Void.class.getName()) ||
+                 returnType.getGenericParameterType().getTypeName().contains(ProblemDetail.class.getName()))) {
+            // Exclude ResponseEntity<ApiResponseWrapper>, ResponseEntity<Void>, and ResponseEntity<ProblemDetail>.
+           return false;
+        }
+
+        // By default, wrap everything else.
+        return true;
     }
 
     @Override

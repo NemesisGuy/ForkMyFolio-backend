@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.WebUtils;
 
-import java.util.Collections;
+import java.util.Map;
 
 /**
  * Controller for handling user authentication requests, including registration and login.
@@ -54,7 +54,7 @@ public class AuthController {
     private final UserService userService;
     private final JwtTokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
-    private final UserMapper userMapper; // <-- 1. INJECT MAPPER
+    private final UserMapper userMapper;
     private final VisitorStatsService visitorStatsService;
 
     @Value("${app.jwt.refresh-cookie-name}")
@@ -72,7 +72,7 @@ public class AuthController {
         this.userService = userService;
         this.tokenProvider = tokenProvider;
         this.refreshTokenService = refreshTokenService;
-        this.userMapper = userMapper; // <-- 2. ADD TO CONSTRUCTOR
+        this.userMapper = userMapper;
         this.visitorStatsService = visitorStatsService;
     }
 
@@ -81,16 +81,10 @@ public class AuthController {
      */
     @PostMapping("/register")
     @Operation(summary = "Register a new user")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
+    public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
         logger.info("Received registration request for email: {}", registerRequest.getEmail());
         logger.debug("Registration request details: {}", registerRequest);
 
-        if (userService.existsByEmail(registerRequest.getEmail())) {
-            logger.warn("Registration failed: Email '{}' already in use.", registerRequest.getEmail());
-            return new ResponseEntity<>(new ApiResponseWrapper<>(null, "Email address already in use!"), HttpStatus.BAD_REQUEST);
-        }
-
-        // 3. FIX: Call the DTO-less service method with primitive values from the DTO
         User registeredUser = userService.registerUser(
                 registerRequest.getEmail(),
                 registerRequest.getPassword(),
@@ -99,7 +93,6 @@ public class AuthController {
                 registerRequest.getProfileImageUrl(),
                 registerRequest.getRoles()
         );
-        logger.info("User with email '{}' registered successfully with ID: {}", registeredUser.getEmail(), registeredUser.getId());
 
         // --- The rest of the logic remains the same until the final conversion ---
         UserDetails userDetails = (UserDetails) registeredUser; // The User model implements UserDetails
@@ -117,9 +110,9 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
         logger.info("Set refresh token cookie for user '{}'.", registeredUser.getEmail());
 
-        // 4. FIX: Use the mapper to convert the User entity to a UserDto for the response
+        // Use the mapper to convert the User entity to a UserDto for the response
         UserDto userDto = userMapper.toDto(registeredUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseWrapper<>(new AuthResponse(jwt, userDto)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(jwt, userDto));
     }
 
     /**
@@ -127,7 +120,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     @Operation(summary = "Login an existing user")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<AuthResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         logger.info("Received login request for email: {}", loginRequest.getEmail());
         logger.debug("Login request details: {}", loginRequest);
 
@@ -148,9 +141,9 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
         logger.info("Created new refresh token and set cookie for user '{}'.", userPrincipal.getEmail());
 
-        // 5. FIX: Use the mapper to convert the User principal to a UserDto
+        // Use the mapper to convert the User principal to a UserDto
         UserDto userDto = userMapper.toDto(userPrincipal);
-        return ResponseEntity.ok(new ApiResponseWrapper<>(new AuthResponse(jwt, userDto)));
+        return ResponseEntity.ok(new AuthResponse(jwt, userDto));
     }
 
     /**
@@ -158,13 +151,13 @@ public class AuthController {
      */
     @PostMapping("/refresh-token")
     @Operation(summary = "Refresh access token")
-    public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<AuthResponse> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         logger.info("Received request to refresh token.");
         Cookie cookie = WebUtils.getCookie(request, refreshTokenCookieName);
 
         if (cookie == null) {
             logger.warn("Token refresh request failed: No refresh token cookie found.");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponseWrapper<>(null, "Refresh token cookie not found."));
+            throw new TokenRefreshException(null, "Refresh token cookie not found. Please log in again.");
         }
 
         String requestRefreshToken = cookie.getValue();
@@ -188,9 +181,9 @@ public class AuthController {
                     response.addHeader(HttpHeaders.SET_COOKIE, newRefreshTokenCookie.toString());
                     logger.info("Set new refresh token cookie for user '{}'.", user.getEmail());
 
-                    // 6. FIX: Use the mapper to convert the User to a UserDto
+                    // Use the mapper to convert the User to a UserDto
                     UserDto userDto = userMapper.toDto(user);
-                    return ResponseEntity.ok(new ApiResponseWrapper<>(new AuthResponse(newAccessToken, userDto)));
+                    return ResponseEntity.ok(new AuthResponse(newAccessToken, userDto));
                 })
                 .orElseThrow(() -> new TokenRefreshException(requestRefreshToken, "Refresh token not found in database!"));
     }
@@ -200,14 +193,11 @@ public class AuthController {
      */
     @PostMapping("/logout")
     @Operation(summary = "Logout the current user")
-    public ResponseEntity<ApiResponseWrapper<Object>> logoutUser(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<Map<String, String>> logoutUser(HttpServletRequest request, HttpServletResponse response) {
         // ... This method does not deal with DTOs, so no changes are needed here. It remains correct.
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = (authentication != null && !"anonymousUser".equals(authentication.getPrincipal())) ? authentication.getName() : "anonymous";
         logger.info("Received logout request from user: {}", userEmail);
-
-        // Increment the successful logout counter.
-        visitorStatsService.incrementLogoutSuccess();
 
         Cookie cookie = WebUtils.getCookie(request, refreshTokenCookieName);
         if (cookie != null && cookie.getValue() != null) {
@@ -225,6 +215,6 @@ public class AuthController {
         SecurityContextHolder.clearContext();
         logger.info("Cleared SecurityContext for user '{}'. Logout complete.", userEmail);
 
-        return ResponseEntity.ok(new ApiResponseWrapper<>(Collections.singletonMap("message", "User logged out successfully.")));
+        return ResponseEntity.ok(Map.of("message", "User logged out successfully."));
     }
 }
