@@ -2,16 +2,19 @@ package com.forkmyfolio.controller;
 
 import com.forkmyfolio.aop.TrackVisitor;
 import com.forkmyfolio.dto.response.TestimonialDto;
-import com.forkmyfolio.model.enums.VisitorStatType;
 import com.forkmyfolio.mapper.TestimonialMapper;
+import com.forkmyfolio.model.enums.VisitorStatType;
+import com.forkmyfolio.service.TestimonialService;
 import com.forkmyfolio.service.VisitorStatsService;
 import com.forkmyfolio.util.SecurityUtils;
-import com.forkmyfolio.service.TestimonialService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
 import java.util.stream.Collectors;
 

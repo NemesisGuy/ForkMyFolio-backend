@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,8 +17,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 
@@ -27,35 +28,19 @@ import java.util.Arrays;
  * and HTTP security rules.
  */
 @Configuration
-@EnableWebSecurity // debug = true removed
+@EnableWebSecurity
 @EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true) // Enables @RolesAllowed, @Secured
 public class SecurityConfig {
 
-    private static final String[] PUBLIC_MATCHERS = {
-            "/auth/**",
-            "/swagger-ui.html",
-            "/swagger-ui/**",
-            "/v3/api-docs/**",
-            "/api-docs/**",
-            "/h2-console/**", // Allow H2 console access for development
-            // Publicly accessible GET requests for projects and skills
-            "/api/v1/projects",
-            "/api/v1/skills",
-            // Publicly accessible POST for contact messages
-            "/api/v1/contact-messages"
-    };
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtAuthenticationEntryPoint unauthorizedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Value("${app.cors.allowed-origins}")
     private String[] allowedOrigins;
 
     /**
      * Constructs the SecurityConfig with necessary custom components.
-     *
-     * @param customUserDetailsService Service to load user-specific data.
-     * @param unauthorizedHandler      Handles unauthorized access attempts.
-     * @param jwtAuthenticationFilter  Filter to process JWT tokens.
      */
     @Autowired
     public SecurityConfig(CustomUserDetailsService customUserDetailsService,
@@ -66,30 +51,26 @@ public class SecurityConfig {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
-
     /**
-     * Configures a CorsFilter bean for handling Cross-Origin Resource Sharing (CORS).
-     * Allows all origins, headers, and methods for simplicity during development.
-     * This should be restricted in a production environment.
+     * Configures a CorsConfigurationSource bean for handling Cross-Origin Resource Sharing (CORS).
+     * This is the standard way to integrate CORS with Spring Security 6's DSL.
      *
-     * @return A CorsFilter instance.
+     * @return A CorsConfigurationSource instance.
      */
     @Bean
-    public CorsFilter corsFilter() {
+    public CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        // config.addAllowedOriginPattern("*"); // Replaced by specific origins
         if (allowedOrigins != null && allowedOrigins.length > 0) {
             config.setAllowedOrigins(Arrays.asList(allowedOrigins));
         }
         config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
-        config.setExposedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));
+        config.setExposedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials", "Content-Disposition"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
+        return source;
     }
-
 
     /**
      * Defines the security filter chain for HTTP requests.
@@ -103,7 +84,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults()) // This will use the CorsFilter bean if available
+                .cors(Customizer.withDefaults()) // Uses the CorsConfigurationSource bean defined above
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(unauthorizedHandler) // Handle unauthorized attempts
                 )
@@ -114,23 +95,31 @@ public class SecurityConfig {
                         // --- Rule Order: Most Specific to Most General ---
 
                         // 1. PUBLIC endpoints that anyone can access.
+                        // We are very specific about which HTTP methods are allowed publicly.
                         .requestMatchers(
                                 // --- Authentication & API Docs ---
-                                "/api/v1/auth/**",          // Login, refresh token, etc.
-                                "/swagger-ui/**",           // Swagger UI for API testing
-                                "/v3/api-docs/**",          // OpenAPI specification
-                                "/h2-console/**",           // H2 Database console for dev
-                                // --- Public Portfolio Data ---
-                                "/api/v1/portfolio-profile",// Public profile information
-                                "/api/v1/projects/**",      // Public projects
-                                "/api/v1/skills/**",        // Public skills
-                                "/api/v1/experience/**",    // Public work experience
-                                "/api/v1/testimonials/**",  // Public testimonials
-                                "/api/v1/qualifications/**",// Public qualifications
-                                "/api/v1/contact-messages", // Endpoint for submitting contact form
-                                "/api/v1/settings",         // Endpoint for public feature flags
-                                "/api/v1/pdf/**",           // Endpoint for PDF generation and download
-                                "/api/v1/stats/**"          // Public endpoints for incrementing visitor stats
+                                "/api/v1/auth/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/h2-console/**"
+                        ).permitAll()
+
+                        // --- Publicly readable portfolio data (GET requests only) ---
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/portfolio-profile",
+                                "/api/v1/projects/**",
+                                "/api/v1/skills/**",
+                                "/api/v1/experience/**",
+                                "/api/v1/testimonials/**",
+                                "/api/v1/qualifications/**",
+                                "/api/v1/settings",
+                                "/api/v1/pdf/**"
+                        ).permitAll()
+
+                        // --- Publicly writable endpoints (POST requests only) ---
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/contact-messages",
+                                "/api/v1/stats/**"
                         ).permitAll()
 
                         // 2. ADMIN endpoints. Only users with the 'ADMIN' role can access these.
@@ -146,7 +135,6 @@ public class SecurityConfig {
 
         // For H2 console frame options if Spring Security is enabled
         http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
-
 
         return http.build();
     }

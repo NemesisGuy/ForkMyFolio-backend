@@ -1,24 +1,24 @@
 package com.forkmyfolio.dto.create;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
 @Schema(name = "CreateQualificationRequest", description = "Request body for creating a new qualification.")
 public class CreateQualificationRequest {
 
-    @NotBlank @Size(max = 255)
+    @NotBlank
+    @Size(max = 255)
     private String qualificationName;
 
-    @NotBlank @Size(max = 255)
+    @NotBlank
+    @Size(max = 255)
     private String institutionName;
 
-    @NotNull @Min(1900) @Max(2100)
+    @NotNull
+    @Min(1900)
+    @Max(2100)
     private Integer completionYear;
 
     @Size(max = 255)

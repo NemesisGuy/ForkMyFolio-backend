@@ -5,40 +5,28 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 
+import java.util.Optional;
+
 @Data
 public class UpdatePortfolioProfileRequest {
 
-    @Size(max = 100)
-    private String headline;
+    private Optional<@Size(max = 100) String> headline = Optional.empty();
 
-    @Size(max = 5000)
-    private String summary;
+    private Optional<@Size(max = 5000) String> summary = Optional.empty();
 
-    @Email
-    @Size(max = 255)
-    private String publicEmail;
+    private Optional<@Email @Size(max = 255) String> publicEmail = Optional.empty();
 
-    @Size(max = 50)
-    private String location;
+    private Optional<@Size(max = 50) String> location = Optional.empty();
 
-    @URL @Size(max = 255)
-    private String websiteUrl;
+    private Optional<@URL @Size(max = 255) String> websiteUrl = Optional.empty();
 
-    @URL @Size(max = 255)
-    private String linkedinUrl;
+    private Optional<@URL @Size(max = 255) String> linkedinUrl = Optional.empty();
 
-    @URL @Size(max = 255)
-    private String githubUrl;
+    private Optional<@URL @Size(max = 255) String> githubUrl = Optional.empty();
 
-    @URL @Size(max = 255)
-    private String resumeUrl;
+    private Optional<@URL @Size(max = 255) String> resumeUrl = Optional.empty();
 
-    @URL @Size(max = 255)
-    private String resumeImageUrl;
+    private Optional<@URL @Size(max = 255) String> resumeImageUrl = Optional.empty();
 
-
-    @Size(max = 10000, message = "Cover letter template must not exceed 10000 characters.")
-    private String coverLetterTemplate;
-
-
+    private Optional<@Size(max = 10000, message = "Cover letter template must not exceed 10000 characters.") String> coverLetterTemplate = Optional.empty();
 }

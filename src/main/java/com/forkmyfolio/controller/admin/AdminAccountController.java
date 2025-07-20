@@ -1,7 +1,7 @@
 package com.forkmyfolio.controller.admin;
 
-import com.forkmyfolio.dto.update.UpdateUserAccountRequest;
 import com.forkmyfolio.dto.response.UserDto;
+import com.forkmyfolio.dto.update.UpdateUserAccountRequest;
 import com.forkmyfolio.mapper.UserMapper;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.service.UserService;

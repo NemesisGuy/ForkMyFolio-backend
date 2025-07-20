@@ -15,12 +15,14 @@ public interface TestimonialService {
 
     /**
      * Retrieves the list of public testimonials for the portfolio owner.
+     *
      * @return A list of {@link Testimonial} entities.
      */
     List<Testimonial> getPublicTestimonials();
 
     /**
      * Retrieves a single testimonial by its public UUID.
+     *
      * @param uuid The UUID of the testimonial.
      * @return The {@link Testimonial} entity.
      */
@@ -28,6 +30,7 @@ public interface TestimonialService {
 
     /**
      * Creates and persists a new testimonial.
+     *
      * @param testimonial The pre-constructed testimonial entity to save.
      * @return The persisted {@link Testimonial} entity.
      */
@@ -35,6 +38,7 @@ public interface TestimonialService {
 
     /**
      * Saves an updated testimonial entity.
+     *
      * @param testimonial The testimonial entity with updated fields to be saved.
      * @return The updated and persisted {@link Testimonial} entity.
      */
@@ -42,7 +46,8 @@ public interface TestimonialService {
 
     /**
      * Deletes a testimonial by its public UUID.
-     * @param uuid The UUID of the testimonial to delete.
+     *
+     * @param uuid        The UUID of the testimonial to delete.
      * @param currentUser The user performing the action.
      * @throws AccessDeniedException if the user is not authorized.
      */

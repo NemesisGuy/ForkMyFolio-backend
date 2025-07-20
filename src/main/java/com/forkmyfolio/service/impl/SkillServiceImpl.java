@@ -77,7 +77,7 @@ public class SkillServiceImpl implements SkillService {
     /**
      * Deletes a skill by its public UUID, ensuring the user has permission.
      *
-     * @param uuid The UUID of the skill to delete.
+     * @param uuid        The UUID of the skill to delete.
      * @param currentUser The user performing the action.
      */
     @Override
@@ -93,6 +93,7 @@ public class SkillServiceImpl implements SkillService {
 
         skillRepository.delete(skillToDelete);
     }
+
     @Override
     @Transactional
     public Skill updateSkill(UUID uuid, Skill updatedSkillDetails, User currentUser) {

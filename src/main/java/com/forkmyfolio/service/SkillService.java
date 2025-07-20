@@ -41,18 +41,19 @@ public interface SkillService {
      * Deletes a skill by its public UUID.
      * Implementations of this method must perform an authorization check.
      *
-     * @param uuid The UUID of the skill to delete.
+     * @param uuid        The UUID of the skill to delete.
      * @param currentUser The user performing the action, for authorization checks.
-     * @throws com.forkmyfolio.exception.ResourceNotFoundException if the skill is not found.
+     * @throws com.forkmyfolio.exception.ResourceNotFoundException       if the skill is not found.
      * @throws org.springframework.security.access.AccessDeniedException if the user is not authorized to delete the skill.
      */
     void deleteSkill(UUID uuid, User currentUser);
 
     /**
      * Updates an existing skill.
-     * @param uuid The UUID of the skill to update.
+     *
+     * @param uuid                The UUID of the skill to update.
      * @param updatedSkillDetails A transient Skill object with the new details.
-     * @param currentUser The user performing the action.
+     * @param currentUser         The user performing the action.
      * @return The updated Skill entity.
      */
     Skill updateSkill(UUID uuid, Skill updatedSkillDetails, User currentUser);

@@ -1,9 +1,8 @@
 package com.forkmyfolio.advice;
 
-import com.forkmyfolio.controller.*;
+import com.forkmyfolio.controller.PdfController;
 import com.forkmyfolio.dto.response.ApiResponseWrapper;
 import com.forkmyfolio.exception.GlobalExceptionHandler;
-import org.springdoc.webmvc.api.OpenApiWebMvcResource;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
@@ -13,8 +12,6 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
-
-import java.util.Objects;
 
 /**
  * A {@link ControllerAdvice} that implements {@link ResponseBodyAdvice} to automatically
@@ -29,7 +26,8 @@ import java.util.Objects;
  * - Responses that are {@link ProblemDetail} instances.
  * - Void responses or ResponseEntity<Void>.
  */
-@ControllerAdvice(basePackages = "com.forkmyfolio.controller") // Apply to all controllers in this package and subpackages
+@ControllerAdvice(basePackages = "com.forkmyfolio.controller")
+// Apply to all controllers in this package and subpackages
 public class ApiResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
 
     private static final org.apache.commons.logging.Log logger = org.apache.commons.logging.LogFactory.getLog(ApiResponseWrapperAdvice.class);
@@ -52,16 +50,13 @@ public class ApiResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
         }
 
         // For ResponseEntity, inspect the generic type.
-        if (returnType.getParameterType().isAssignableFrom(ResponseEntity.class) &&
-                (returnType.getGenericParameterType().getTypeName().contains(ApiResponseWrapper.class.getName()) ||
-                 returnType.getGenericParameterType().getTypeName().contains(Void.class.getName()) ||
-                 returnType.getGenericParameterType().getTypeName().contains(ProblemDetail.class.getName()))) {
-            // Exclude ResponseEntity<ApiResponseWrapper>, ResponseEntity<Void>, and ResponseEntity<ProblemDetail>.
-           return false;
-        }
+        // Exclude ResponseEntity<ApiResponseWrapper>, ResponseEntity<Void>, and ResponseEntity<ProblemDetail>.
+        return !returnType.getParameterType().isAssignableFrom(ResponseEntity.class) ||
+                (!returnType.getGenericParameterType().getTypeName().contains(ApiResponseWrapper.class.getName()) &&
+                        !returnType.getGenericParameterType().getTypeName().contains(Void.class.getName()) &&
+                        !returnType.getGenericParameterType().getTypeName().contains(ProblemDetail.class.getName()));
 
         // By default, wrap everything else.
-        return true;
     }
 
     @Override

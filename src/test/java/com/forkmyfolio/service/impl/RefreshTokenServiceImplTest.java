@@ -25,17 +25,14 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class RefreshTokenServiceImplTest {
 
+    private final Long refreshTokenDurationMs = 3600000L; // 1 hour for testing
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
-
     @Mock
     private UserRepository userRepository;
-
     @InjectMocks
     private RefreshTokenServiceImpl refreshTokenService;
-
     private User user;
-    private final Long refreshTokenDurationMs = 3600000L; // 1 hour for testing
 
     @BeforeEach
     void setUp() {

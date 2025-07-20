@@ -2,7 +2,7 @@ package com.forkmyfolio.controller.admin;
 
 import com.forkmyfolio.dto.create.CreateSkillRequest;
 import com.forkmyfolio.dto.response.SkillDto;
-import com.forkmyfolio.dto.update.UpdateSkillRequest; // Import the new DTO
+import com.forkmyfolio.dto.update.UpdateSkillRequest;
 import com.forkmyfolio.mapper.SkillMapper;
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.User;

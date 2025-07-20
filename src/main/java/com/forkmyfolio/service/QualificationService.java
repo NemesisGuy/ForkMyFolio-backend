@@ -15,12 +15,14 @@ public interface QualificationService {
 
     /**
      * Retrieves the list of public qualifications for the portfolio owner.
+     *
      * @return A list of {@link Qualification} entities.
      */
     List<Qualification> getPublicQualifications();
 
     /**
      * Retrieves a single qualification by its public UUID.
+     *
      * @param uuid The UUID of the qualification.
      * @return The {@link Qualification} entity.
      */
@@ -28,6 +30,7 @@ public interface QualificationService {
 
     /**
      * Creates and persists a new qualification.
+     *
      * @param qualification The pre-constructed qualification entity to save.
      * @return The persisted {@link Qualification} entity.
      */
@@ -35,6 +38,7 @@ public interface QualificationService {
 
     /**
      * Saves an updated qualification entity.
+     *
      * @param qualification The qualification entity with updated fields to be saved.
      * @return The updated and persisted {@link Qualification} entity.
      */
@@ -42,7 +46,8 @@ public interface QualificationService {
 
     /**
      * Deletes a qualification by its public UUID.
-     * @param uuid The UUID of the qualification to delete.
+     *
+     * @param uuid        The UUID of the qualification to delete.
      * @param currentUser The user performing the action.
      * @throws AccessDeniedException if the user is not authorized.
      */

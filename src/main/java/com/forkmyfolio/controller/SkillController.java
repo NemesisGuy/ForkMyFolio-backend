@@ -2,11 +2,11 @@ package com.forkmyfolio.controller;
 
 import com.forkmyfolio.aop.TrackVisitor;
 import com.forkmyfolio.dto.response.SkillDto;
-import com.forkmyfolio.mapper.SkillMapper; // <-- 1. IMPORT MAPPER
-import com.forkmyfolio.model.enums.VisitorStatType;
+import com.forkmyfolio.mapper.SkillMapper;
 import com.forkmyfolio.model.Skill;
-import com.forkmyfolio.service.VisitorStatsService;
+import com.forkmyfolio.model.enums.VisitorStatType;
 import com.forkmyfolio.service.SkillService;
+import com.forkmyfolio.service.VisitorStatsService;
 import com.forkmyfolio.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.UUID; // <-- 2. IMPORT UUID
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**

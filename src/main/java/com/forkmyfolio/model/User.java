@@ -41,7 +41,6 @@ public class User implements UserDetails {
     private Long id;
     /**
      * Unique identifier for the user.     * Universally unique identifier for the user.
-     *
      */
 
     @UuidGenerator
@@ -88,7 +87,7 @@ public class User implements UserDetails {
     // 'cascade = CascadeType.ALL' means if you delete a User, their PortfolioProfile is also deleted.
     // 'orphanRemoval = true' handles cases where the link is severed.
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private PortfolioProfile portfolioProfile;;
+    private PortfolioProfile portfolioProfile;
 
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

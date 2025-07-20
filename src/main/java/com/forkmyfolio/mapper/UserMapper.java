@@ -1,7 +1,7 @@
 package com.forkmyfolio.mapper;
 
-import com.forkmyfolio.dto.update.UpdateUserRequest;
 import com.forkmyfolio.dto.response.UserDto;
+import com.forkmyfolio.dto.update.UpdateUserRequest;
 import com.forkmyfolio.model.User;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +23,7 @@ public class UserMapper {
             return null;
         }
         UserDto dto = new UserDto();
-       /* dto.setId(user.getId());*/
+        /* dto.setId(user.getId());*/
         dto.setId(user.getUuid());
         dto.setEmail(user.getEmail());
         dto.setFirstName(user.getFirstName());

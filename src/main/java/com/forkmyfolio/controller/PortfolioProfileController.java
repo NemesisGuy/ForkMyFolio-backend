@@ -2,9 +2,9 @@ package com.forkmyfolio.controller;
 
 import com.forkmyfolio.aop.TrackVisitor;
 import com.forkmyfolio.dto.response.PortfolioProfileDto;
-import com.forkmyfolio.model.enums.VisitorStatType;
 import com.forkmyfolio.mapper.PortfolioProfileMapper;
 import com.forkmyfolio.model.PortfolioProfile;
+import com.forkmyfolio.model.enums.VisitorStatType;
 import com.forkmyfolio.service.PortfolioProfileService;
 import com.forkmyfolio.service.VisitorStatsService;
 import com.forkmyfolio.util.SecurityUtils;
@@ -22,7 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/v1/portfolio-profile") // <-- RENAMED
-@Tag(name = "Public Portfolio Profile", description = "Endpoint for viewing the portfolio owner's public profile.") // <-- RENAMED
+@Tag(name = "Public Portfolio Profile", description = "Endpoint for viewing the portfolio owner's public profile.")
+// <-- RENAMED
 public class PortfolioProfileController {
 
     private static final Logger logger = LoggerFactory.getLogger(PortfolioProfileController.class);

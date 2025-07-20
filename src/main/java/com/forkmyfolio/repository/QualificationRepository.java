@@ -16,4 +16,6 @@ public interface QualificationRepository extends JpaRepository<Qualification, Lo
 
     // Find all qualifications for a user, ordered by year descending
     List<Qualification> findByUserOrderByCompletionYearDesc(User user);
+
+    void deleteByUser(User user);
 }

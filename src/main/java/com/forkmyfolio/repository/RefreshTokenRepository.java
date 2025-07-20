@@ -46,4 +46,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
      * @return An {@link Optional} containing the refresh token if found.
      */
     Optional<RefreshToken> findByUser(User user); // Useful if one user has one refresh token
+
+
 }

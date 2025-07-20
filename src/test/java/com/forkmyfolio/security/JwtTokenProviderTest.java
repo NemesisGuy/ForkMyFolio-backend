@@ -3,10 +3,6 @@ package com.forkmyfolio.security;
 import com.forkmyfolio.model.Role;
 import com.forkmyfolio.model.User;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.security.SignatureException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,9 +12,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,14 +19,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 public class JwtTokenProviderTest {
 
+    private final long jwtExpirationInMs = 3600000; // 1 hour
     @InjectMocks
     private JwtTokenProvider jwtTokenProvider;
-
     private User user;
     private Authentication authentication;
-
     private String jwtTestSecret; // Will be generated
-    private final long jwtExpirationInMs = 3600000; // 1 hour
 
     @BeforeEach
     void setUp() {
@@ -59,7 +50,7 @@ public class JwtTokenProviderTest {
     void generateToken_withAuthentication_shouldCreateValidToken() {
         String token = jwtTokenProvider.generateToken(authentication);
         assertNotNull(token);
-        assertTrue(token.split("\\.").length == 3); // Basic check for JWT structure
+        assertEquals(3, token.split("\\.").length); // Basic check for JWT structure
 
         Long userIdFromToken = jwtTokenProvider.getUserIdFromJWT(token);
         assertEquals(user.getId(), userIdFromToken);
@@ -74,7 +65,7 @@ public class JwtTokenProviderTest {
     void generateToken_withUserObject_shouldCreateValidToken() {
         String token = jwtTokenProvider.generateToken(user);
         assertNotNull(token);
-        assertTrue(token.split("\\.").length == 3);
+        assertEquals(3, token.split("\\.").length);
 
         Long userIdFromToken = jwtTokenProvider.getUserIdFromJWT(token);
         assertEquals(user.getId(), userIdFromToken);

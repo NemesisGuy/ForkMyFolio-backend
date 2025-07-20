@@ -12,7 +12,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.UUID; // <-- Import UUID
+import java.util.UUID;
 
 /**
  * Represents a skill that a user possesses, along with their proficiency level.

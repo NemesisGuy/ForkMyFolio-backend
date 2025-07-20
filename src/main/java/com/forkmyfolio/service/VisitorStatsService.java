@@ -120,13 +120,13 @@ public class VisitorStatsService {
 
     private void incrementStat(VisitorStatType type, String refId) {
         VisitorStats stats = visitorStatsRepository.findByTypeAndRefId(type, refId)
-            .orElseGet(() -> {
-                log.info("No stats found for type={}, refId={}. Creating new record.", type, refId);
-                VisitorStats newStats = new VisitorStats();
-                newStats.setType(type);
-                newStats.setRefId(refId);
-                return newStats;
-            });
+                .orElseGet(() -> {
+                    log.info("No stats found for type={}, refId={}. Creating new record.", type, refId);
+                    VisitorStats newStats = new VisitorStats();
+                    newStats.setType(type);
+                    newStats.setRefId(refId);
+                    return newStats;
+                });
 
         stats.setCount(stats.getCount() + 1);
         visitorStatsRepository.save(stats);
@@ -136,7 +136,7 @@ public class VisitorStatsService {
     public AdminStatsDto getStats() {
         log.debug("Fetching all visitor stats for admin dashboard.");
         List<VisitorStats> allStats = visitorStatsRepository.findAll();
-        
+
         // Group stats by type for efficient processing
         Map<VisitorStatType, List<VisitorStats>> groupedStats = allStats.stream()
                 .collect(Collectors.groupingBy(VisitorStats::getType));

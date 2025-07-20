@@ -110,6 +110,7 @@ public class Project {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
     /**
      * JPA lifecycle callback to generate a UUID before the entity is first persisted.
      */

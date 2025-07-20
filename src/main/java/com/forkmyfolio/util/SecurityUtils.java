@@ -14,6 +14,7 @@ public class SecurityUtils {
 
     /**
      * Checks if the current user is anonymous (i.e., not logged in).
+     *
      * @return true if the user is anonymous, false otherwise.
      */
     public boolean isUserAnonymous() {

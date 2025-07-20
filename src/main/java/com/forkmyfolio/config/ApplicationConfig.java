@@ -2,7 +2,6 @@
 
 package com.forkmyfolio.config;
 
-import com.forkmyfolio.security.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +23,7 @@ public class ApplicationConfig {
      * By defining this bean explicitly, we ensure the correct, non-proxied dependencies are injected.
      *
      * @param userDetailsService The service to load user data.
-     * @param passwordEncoder The encoder to validate passwords.
+     * @param passwordEncoder    The encoder to validate passwords.
      * @return A fully configured AuthenticationProvider.
      */
     @Bean

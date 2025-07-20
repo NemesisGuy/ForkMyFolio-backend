@@ -1,8 +1,8 @@
 package com.forkmyfolio.controller;
 
 import com.forkmyfolio.aop.TrackVisitor;
-import com.forkmyfolio.service.PdfGenerationService;
 import com.forkmyfolio.model.enums.VisitorStatType;
+import com.forkmyfolio.service.PdfGenerationService;
 import com.forkmyfolio.service.VisitorStatsService;
 import com.forkmyfolio.util.SecurityUtils;
 import com.lowagie.text.DocumentException;
@@ -16,9 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("/api/v1/pdf")

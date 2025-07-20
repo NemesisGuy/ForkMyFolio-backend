@@ -7,6 +7,9 @@ import com.forkmyfolio.model.User;
 import com.forkmyfolio.repository.ExperienceRepository;
 import com.forkmyfolio.repository.ProjectRepository;
 import com.lowagie.text.*;
+import com.lowagie.text.Font;
+import com.lowagie.text.Image;
+import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
@@ -15,11 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.awt.Color;
-import java.io.IOException;
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
-import java.time.format.DateTimeFormatter;
+import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -31,28 +34,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PdfGenerationService {
 
-    /**
-     * A simple record to hold the generated PDF content and a suggested filename.
-     * @param content The PDF content as a byte array.
-     * @param suggestedFilename The dynamically generated filename (e.g., "JohnDoe-Resume-2023-10-27.pdf").
-     */
-    public record PdfFile(byte[] content, String suggestedFilename) {}
     private static final Logger log = LoggerFactory.getLogger(PdfGenerationService.class);
-
-    // --- Repositories to fetch data ---
-    private final PortfolioProfileService portfolioProfileService;
-    private final ExperienceRepository experienceRepository;
-    private final ProjectRepository projectRepository;
-    // NOTE: You would also inject SkillRepository, TestimonialRepository, etc. here
-
     // --- PDF Font and Style Definitions ---
     private static final Font NAME_FONT = new Font(Font.HELVETICA, 24, Font.BOLD);
     private static final Font CONTACT_FONT = new Font(Font.HELVETICA, 10, Font.ITALIC, Color.GRAY);
     private static final Font SECTION_HEADER_FONT = new Font(Font.HELVETICA, 16, Font.BOLD, new Color(0, 51, 102));
     private static final Font JOB_TITLE_FONT = new Font(Font.HELVETICA, 12, Font.BOLD);
+    // NOTE: You would also inject SkillRepository, TestimonialRepository, etc. here
     private static final Font COMPANY_FONT = new Font(Font.HELVETICA, 11, Font.ITALIC);
     private static final Font BODY_FONT = new Font(Font.HELVETICA, 10, Font.NORMAL);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM yyyy");
+    // --- Repositories to fetch data ---
+    private final PortfolioProfileService portfolioProfileService;
+    private final ExperienceRepository experienceRepository;
+    private final ProjectRepository projectRepository;
 
     public PdfFile generatePortfolioPdf() throws DocumentException {
         log.info("Starting PDF generation process...");
@@ -78,9 +73,9 @@ public class PdfGenerationService {
         log.info("PDF generation complete. Final document size: {} bytes.", baos.size());
 
         String filename = String.format("%s%s-Resume-%s.pdf",
-            user.getFirstName(),
-            user.getLastName(),
-            LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                user.getFirstName(),
+                user.getLastName(),
+                LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
         );
 
         return new PdfFile(baos.toByteArray(), filename);
@@ -119,16 +114,16 @@ public class PdfGenerationService {
             textCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
             Paragraph name = new Paragraph(user.getFirstName() + " " + user.getLastName(), NAME_FONT);
             String contactInfo = List.of(profile.getPublicEmail(), profile.getWebsiteUrl(), profile.getLinkedinUrl(), profile.getGithubUrl())
-                .stream()
-                .filter(s -> Objects.nonNull(s) && !s.isBlank())
-                .collect(Collectors.joining(" | "));
+                    .stream()
+                    .filter(s -> Objects.nonNull(s) && !s.isBlank())
+                    .collect(Collectors.joining(" | "));
             Paragraph contact = new Paragraph(contactInfo, CONTACT_FONT);
             textCell.addElement(name);
             textCell.addElement(contact);
             headerTable.addCell(textCell);
 
             document.add(headerTable);
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("An unexpected error occurred while creating the PDF header.", e);
         }
 
@@ -179,7 +174,7 @@ public class PdfGenerationService {
             String dateRange = exp.getStartDate().format(DATE_FORMATTER) + " - " + endDate;
             Paragraph dates = new Paragraph(dateRange, BODY_FONT);
             dates.setAlignment(Element.ALIGN_RIGHT);
-            
+
             PdfPCell rightCell = new PdfPCell(dates);
             rightCell.setBorder(Rectangle.NO_BORDER);
             rightCell.setVerticalAlignment(Element.ALIGN_TOP);
@@ -199,7 +194,7 @@ public class PdfGenerationService {
 
     private void addProjectsSection(Document document) throws DocumentException {
         List<Project> projects = projectRepository.findAll();
-         for (Project proj : projects) {
+        for (Project proj : projects) {
             Paragraph projectTitle = new Paragraph(proj.getTitle(), JOB_TITLE_FONT);
             projectTitle.setSpacingBefore(5);
             document.add(projectTitle);
@@ -210,7 +205,7 @@ public class PdfGenerationService {
                 description.setAlignment(Element.ALIGN_JUSTIFIED);
                 document.add(description);
             }
-         }
+        }
     }
 
     /**
@@ -219,5 +214,14 @@ public class PdfGenerationService {
     @FunctionalInterface
     private interface SectionContentAdder {
         void addContent(Document document) throws DocumentException;
+    }
+
+    /**
+     * A simple record to hold the generated PDF content and a suggested filename.
+     *
+     * @param content           The PDF content as a byte array.
+     * @param suggestedFilename The dynamically generated filename (e.g., "JohnDoe-Resume-2023-10-27.pdf").
+     */
+    public record PdfFile(byte[] content, String suggestedFilename) {
     }
 }

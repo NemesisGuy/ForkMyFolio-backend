@@ -1,6 +1,7 @@
 package com.forkmyfolio.dto.response;
 
 import lombok.Data;
+
 import java.time.LocalDate;
 import java.util.UUID;
 

@@ -16,4 +16,6 @@ public interface TestimonialRepository extends JpaRepository<Testimonial, Long> 
     List<Testimonial> findByUserOrderByCreatedAtDesc(User user);
 
     Optional<Testimonial> findByUuid(UUID uuid);
+
+    void deleteByUser(User user);
 }

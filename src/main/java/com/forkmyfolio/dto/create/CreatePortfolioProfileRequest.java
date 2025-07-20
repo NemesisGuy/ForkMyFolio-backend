@@ -24,19 +24,24 @@ public class CreatePortfolioProfileRequest {
     @Size(max = 50)
     private String location;
 
-    @URL @Size(max = 255)
+    @URL
+    @Size(max = 255)
     private String websiteUrl;
 
-    @URL @Size(max = 255)
+    @URL
+    @Size(max = 255)
     private String linkedinUrl;
 
-    @URL @Size(max = 255)
+    @URL
+    @Size(max = 255)
     private String githubUrl;
 
-    @URL @Size(max = 255)
+    @URL
+    @Size(max = 255)
     private String resumeUrl;
 
-    @URL @Size(max = 255)
+    @URL
+    @Size(max = 255)
     private String resumeImageUrl;
 
     @NotBlank(message = "Cover letter template cannot be blank")

@@ -19,6 +19,7 @@ public class ConflictException extends RuntimeException {
 
     /**
      * Constructor with a detail message.
+     *
      * @param message The detail message explaining the conflict.
      */
     public ConflictException(String message) {
@@ -27,8 +28,9 @@ public class ConflictException extends RuntimeException {
 
     /**
      * Constructor with a detail message and a cause.
+     *
      * @param message The detail message explaining the conflict.
-     * @param cause The underlying cause of the exception.
+     * @param cause   The underlying cause of the exception.
      */
     public ConflictException(String message, Throwable cause) {
         super(message, cause);

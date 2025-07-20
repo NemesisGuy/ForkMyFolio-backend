@@ -15,12 +15,14 @@ public interface ExperienceService {
 
     /**
      * Retrieves the list of public work experiences for the portfolio owner.
+     *
      * @return A list of {@link Experience} entities.
      */
     List<Experience> getPublicExperience();
 
     /**
      * Retrieves a single experience by its public UUID.
+     *
      * @param uuid The UUID of the experience.
      * @return The {@link Experience} entity.
      */
@@ -28,6 +30,7 @@ public interface ExperienceService {
 
     /**
      * Creates and persists a new experience.
+     *
      * @param experience The pre-constructed experience entity to save.
      * @return The persisted {@link Experience} entity.
      */
@@ -35,6 +38,7 @@ public interface ExperienceService {
 
     /**
      * Saves an updated experience entity.
+     *
      * @param experience The experience entity with updated fields to be saved.
      * @return The updated and persisted {@link Experience} entity.
      */
@@ -42,7 +46,8 @@ public interface ExperienceService {
 
     /**
      * Deletes an experience by its public UUID.
-     * @param uuid The UUID of the experience to delete.
+     *
+     * @param uuid        The UUID of the experience to delete.
      * @param currentUser The user performing the action.
      * @throws AccessDeniedException if the user is not authorized.
      */

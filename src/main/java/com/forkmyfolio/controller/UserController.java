@@ -61,7 +61,7 @@ public class UserController {
                                     schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
             })
     public UserDto getCurrentUserProfile() {
-        User currentUser = userService.getCurrentAuthenticatedUser();        
+        User currentUser = userService.getCurrentAuthenticatedUser();
         return userMapper.toDto(currentUser);
     }
 }

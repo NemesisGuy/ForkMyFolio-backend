@@ -20,12 +20,14 @@ public interface ContactMessageService {
 
     /**
      * Finds all contact messages, typically for admin purposes.
+     *
      * @return a list of all {@link ContactMessage} entities.
      */
     List<ContactMessage> findAll();
 
     /**
      * Deletes a contact message by its UUID.
+     *
      * @param uuid The UUID of the message to delete.
      */
     void deleteByUuid(UUID uuid);

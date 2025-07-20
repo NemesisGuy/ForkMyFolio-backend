@@ -40,12 +40,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      * Registers a new user. The request data should be mapped to primitive types
      * or a domain model before calling this method.
      *
-     * @param email The user's email.
-     * @param password The user's raw password.
-     * @param firstName The user's first name.
-     * @param lastName The user's last name.
+     * @param email           The user's email.
+     * @param password        The user's raw password.
+     * @param firstName       The user's first name.
+     * @param lastName        The user's last name.
      * @param profileImageUrl The user's profile image URL.
-     * @param roles The set of roles for the user.
+     * @param roles           The set of roles for the user.
      * @return The saved {@link User} entity.
      * @throws EmailAlreadyExistsException if the email is already in use.
      */
@@ -116,6 +116,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.findFirstByOrderByIdAsc()
                 .orElseThrow(() -> new ResourceNotFoundException("User"));
     }
+
     @Override
     @Transactional
     public User updateUserAccount(Long userId, String firstName, String lastName) {
@@ -131,9 +132,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     /**
      * Updates an existing user's profile information.
      *
-     * @param userId The ID of the user to update.
-     * @param firstName The new first name.
-     * @param lastName The new last name.
+     * @param userId          The ID of the user to update.
+     * @param firstName       The new first name.
+     * @param lastName        The new last name.
      * @param profileImageUrl The new profile image URL.
      * @return The updated {@link User} entity.
      */
@@ -188,6 +189,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         return findByEmail(username);
     }
+
     @Override
     @Transactional
     public User updateUserAccount(Long userId, String firstName, String lastName, String profileImageUrl) { // <-- ADD PARAMETER

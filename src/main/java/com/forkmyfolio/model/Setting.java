@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "settings", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "name")
+        @UniqueConstraint(columnNames = "name")
 })
 @Getter
 @Setter

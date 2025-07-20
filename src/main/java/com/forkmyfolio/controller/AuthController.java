@@ -1,18 +1,17 @@
 package com.forkmyfolio.controller;
 
-import com.forkmyfolio.dto.response.AuthResponse;
 import com.forkmyfolio.dto.request.LoginRequest;
 import com.forkmyfolio.dto.request.RegisterRequest;
+import com.forkmyfolio.dto.response.AuthResponse;
 import com.forkmyfolio.dto.response.UserDto;
-import com.forkmyfolio.dto.response.ApiResponseWrapper;
 import com.forkmyfolio.exception.TokenRefreshException;
-import com.forkmyfolio.mapper.UserMapper; // <-- IMPORT MAPPER
+import com.forkmyfolio.mapper.UserMapper;
 import com.forkmyfolio.model.RefreshToken;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.security.JwtTokenProvider;
 import com.forkmyfolio.service.RefreshTokenService;
-import com.forkmyfolio.service.VisitorStatsService;
 import com.forkmyfolio.service.UserService;
+import com.forkmyfolio.service.VisitorStatsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
@@ -67,7 +66,7 @@ public class AuthController {
     private String cookieSameSite;
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, UserService userService, JwtTokenProvider tokenProvider, RefreshTokenService refreshTokenService, UserMapper userMapper, VisitorStatsService visitorStatsService) { // <-- 2. ADD TO CONSTRUCTOR
+    public AuthController(AuthenticationManager authenticationManager, UserService userService, JwtTokenProvider tokenProvider, RefreshTokenService refreshTokenService, UserMapper userMapper, VisitorStatsService visitorStatsService) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.tokenProvider = tokenProvider;
@@ -94,8 +93,7 @@ public class AuthController {
                 registerRequest.getRoles()
         );
 
-        // --- The rest of the logic remains the same until the final conversion ---
-        UserDetails userDetails = (UserDetails) registeredUser; // The User model implements UserDetails
+        UserDetails userDetails = registeredUser;
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         logger.info("User '{}' authenticated programmatically after registration.", registeredUser.getEmail());
@@ -105,12 +103,15 @@ public class AuthController {
         logger.info("Generated new JWT and refresh token for user '{}'.", registeredUser.getEmail());
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from(refreshTokenCookieName, refreshToken.getToken())
-                .httpOnly(true).secure(cookieSecure).path("/api/v1/auth")
-                .maxAge(refreshTokenDurationMs / 1000).sameSite(cookieSameSite).build();
+                .httpOnly(true)
+                .secure(cookieSecure) // In production, this must be true. For local dev over HTTP, set 'app.cookie.secure=false' in properties.
+                .path("/api/v1")      // Set path to API root for consistency.
+                .maxAge(refreshTokenDurationMs / 1000)
+                .sameSite(cookieSameSite) // "Lax" is a good default. Use "None" for cross-site requests (requires secure=true).
+                .build();
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
         logger.info("Set refresh token cookie for user '{}'.", registeredUser.getEmail());
 
-        // Use the mapper to convert the User entity to a UserDto for the response
         UserDto userDto = userMapper.toDto(registeredUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(jwt, userDto));
     }
@@ -136,12 +137,15 @@ public class AuthController {
 
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userPrincipal);
         ResponseCookie refreshTokenCookie = ResponseCookie.from(refreshTokenCookieName, refreshToken.getToken())
-                .httpOnly(true).secure(cookieSecure).path("/api/v1/auth")
-                .maxAge(refreshTokenDurationMs / 1000).sameSite(cookieSameSite).build();
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path("/api/v1") // Set path to API root.
+                .maxAge(refreshTokenDurationMs / 1000)
+                .sameSite(cookieSameSite)
+                .build();
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
         logger.info("Created new refresh token and set cookie for user '{}'.", userPrincipal.getEmail());
 
-        // Use the mapper to convert the User principal to a UserDto
         UserDto userDto = userMapper.toDto(userPrincipal);
         return ResponseEntity.ok(new AuthResponse(jwt, userDto));
     }
@@ -176,12 +180,15 @@ public class AuthController {
                     logger.info("Rolled refresh token for user '{}'.", user.getEmail());
 
                     ResponseCookie newRefreshTokenCookie = ResponseCookie.from(refreshTokenCookieName, newRefreshToken.getToken())
-                            .httpOnly(true).secure(cookieSecure).path("/api/v1/auth")
-                            .maxAge(refreshTokenDurationMs / 1000).sameSite(cookieSameSite).build();
+                            .httpOnly(true)
+                            .secure(cookieSecure)
+                            .path("/api/v1") // Set path to API root.
+                            .maxAge(refreshTokenDurationMs / 1000)
+                            .sameSite(cookieSameSite)
+                            .build();
                     response.addHeader(HttpHeaders.SET_COOKIE, newRefreshTokenCookie.toString());
                     logger.info("Set new refresh token cookie for user '{}'.", user.getEmail());
 
-                    // Use the mapper to convert the User to a UserDto
                     UserDto userDto = userMapper.toDto(user);
                     return ResponseEntity.ok(new AuthResponse(newAccessToken, userDto));
                 })
@@ -194,7 +201,6 @@ public class AuthController {
     @PostMapping("/logout")
     @Operation(summary = "Logout the current user")
     public ResponseEntity<Map<String, String>> logoutUser(HttpServletRequest request, HttpServletResponse response) {
-        // ... This method does not deal with DTOs, so no changes are needed here. It remains correct.
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = (authentication != null && !"anonymousUser".equals(authentication.getPrincipal())) ? authentication.getName() : "anonymous";
         logger.info("Received logout request from user: {}", userEmail);
@@ -207,8 +213,14 @@ public class AuthController {
             logger.warn("Logout request for user '{}' did not have a refresh token cookie to invalidate.", userEmail);
         }
 
-        ResponseCookie emptyCookie = ResponseCookie.from(refreshTokenCookieName, "").httpOnly(true)
-                .secure(cookieSecure).path("/api/v1/auth").maxAge(0).sameSite(cookieSameSite).build();
+        // To properly clear a cookie, its attributes (path, domain, etc.) must match the original.
+        ResponseCookie emptyCookie = ResponseCookie.from(refreshTokenCookieName, "")
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path("/api/v1") // Use the same path as the original cookie.
+                .maxAge(0)
+                .sameSite(cookieSameSite)
+                .build();
         response.addHeader(HttpHeaders.SET_COOKIE, emptyCookie.toString());
         logger.info("Cleared refresh token cookie for user '{}'.", userEmail);
 

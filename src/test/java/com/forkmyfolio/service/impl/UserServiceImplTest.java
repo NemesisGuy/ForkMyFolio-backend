@@ -1,7 +1,6 @@
 package com.forkmyfolio.service.impl;
 
 import com.forkmyfolio.dto.request.RegisterRequest;
-import com.forkmyfolio.dto.response.UserDto;
 import com.forkmyfolio.exception.EmailAlreadyExistsException;
 import com.forkmyfolio.model.Role;
 import com.forkmyfolio.model.User;

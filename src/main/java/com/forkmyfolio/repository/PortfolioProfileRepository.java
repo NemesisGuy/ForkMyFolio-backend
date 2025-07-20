@@ -12,4 +12,6 @@ public interface PortfolioProfileRepository extends JpaRepository<PortfolioProfi
 
     // Method to find a profile by the owner's User entity.
     Optional<PortfolioProfile> findByUser(User user);
+
+    void deleteByUser(User user);
 }

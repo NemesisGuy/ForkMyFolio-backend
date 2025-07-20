@@ -3,9 +3,6 @@ package com.forkmyfolio.controller.admin;
 import com.forkmyfolio.dto.response.ContactMessageDto;
 import com.forkmyfolio.mapper.ContactMessageMapper;
 import com.forkmyfolio.service.ContactMessageService;
-import java.util.List;
-import java.util.UUID;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -15,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.UUID;
 
 
 /**

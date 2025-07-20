@@ -46,6 +46,10 @@ public class Qualification {
 
     @Size(max = 255)
     private String grade; // e.g., "First Class Honours", "GPA: 3.8/4.0", or null
+    @CreationTimestamp
+    private Instant createdAt;
+    @UpdateTimestamp
+    private Instant updatedAt;
 
     @PrePersist
     protected void onCreate() {
@@ -53,10 +57,4 @@ public class Qualification {
             this.uuid = UUID.randomUUID();
         }
     }
-
-    @CreationTimestamp
-    private Instant createdAt;
-
-    @UpdateTimestamp
-    private Instant updatedAt;
 }

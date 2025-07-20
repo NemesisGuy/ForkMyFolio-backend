@@ -18,4 +18,6 @@ public interface ExperienceRepository extends JpaRepository<Experience, Long> {
     Optional<Experience> findByUuid(UUID uuid);
 
     List<Experience> findAllByOrderByStartDateDesc();
+
+    void deleteByUser(User user);
 }

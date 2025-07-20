@@ -47,19 +47,25 @@ public class PortfolioProfileMapper {
     /**
      * Applies updates from an UpdatePortfolioProfileRequest DTO to an existing PortfolioProfile entity.
      */
-    public void applyUpdateFromRequest(UpdatePortfolioProfileRequest request, PortfolioProfile profile) {
-        if (request == null || profile == null) return;
+    /**
+     * Applies updates from a PortfolioProfileDto (from a backup) to an existing PortfolioProfile entity.
+     */
+    public void applyUpdateFromDto(PortfolioProfileDto dto, PortfolioProfile profile) {
+        if (dto == null || profile == null) return;
 
-        if (request.getHeadline() != null) profile.setHeadline(request.getHeadline());
-        if (request.getSummary() != null) profile.setSummary(request.getSummary());
-        if (request.getPublicEmail() != null) profile.setPublicEmail(request.getPublicEmail());
-        if (request.getLocation() != null) profile.setLocation(request.getLocation());
-        if (request.getWebsiteUrl() != null) profile.setWebsiteUrl(request.getWebsiteUrl());
-        if (request.getLinkedinUrl() != null) profile.setLinkedinUrl(request.getLinkedinUrl());
-        if (request.getGithubUrl() != null) profile.setGithubUrl(request.getGithubUrl());
-        if (request.getResumeUrl() != null) profile.setResumeUrl(request.getResumeUrl());
-        if (request.getResumeImageUrl() != null) profile.setResumeImageUrl(request.getResumeImageUrl());
-        if (request.getCoverLetterTemplate() != null) profile.setCoverLetterTemplate(request.getCoverLetterTemplate());
+        // Note: We don't update the user's first/last name from the profile backup,
+        // as that's part of the User entity itself.
+
+        profile.setHeadline(dto.getHeadline());
+        profile.setSummary(dto.getSummary());
+        profile.setLocation(dto.getLocation());
+        profile.setPublicEmail(dto.getPublicEmail());
+        profile.setWebsiteUrl(dto.getWebsiteUrl());
+        profile.setLinkedinUrl(dto.getLinkedinUrl());
+        profile.setGithubUrl(dto.getGithubUrl());
+        profile.setResumeUrl(dto.getResumeUrl());
+        profile.setResumeImageUrl(dto.getResumeImageUrl());
+        profile.setCoverLetterTemplate(dto.getCoverLetterTemplate());
     }
 
     /**
@@ -81,5 +87,28 @@ public class PortfolioProfileMapper {
         profile.setResumeImageUrl(request.getResumeImageUrl());
         profile.setCoverLetterTemplate(request.getCoverLetterTemplate());
         return profile;
+    }
+
+    /**
+     * Applies updates from an UpdatePortfolioProfileRequest to an existing PortfolioProfile entity.
+     *
+     * @param request The DTO with the fields to update.
+     * @param profile The existing entity to be updated.
+     */
+    public void applyUpdateFromRequest(UpdatePortfolioProfileRequest request, PortfolioProfile profile) {
+        if (request == null || profile == null) {
+            return;
+        }
+
+        request.getHeadline().ifPresent(profile::setHeadline);
+        request.getSummary().ifPresent(profile::setSummary);
+        request.getPublicEmail().ifPresent(profile::setPublicEmail);
+        request.getWebsiteUrl().ifPresent(profile::setWebsiteUrl);
+        request.getLinkedinUrl().ifPresent(profile::setLinkedinUrl);
+        request.getGithubUrl().ifPresent(profile::setGithubUrl);
+        request.getResumeUrl().ifPresent(profile::setResumeUrl);
+        request.getResumeImageUrl().ifPresent(profile::setResumeImageUrl);
+        request.getLocation().ifPresent(profile::setLocation);
+        request.getCoverLetterTemplate().ifPresent(profile::setCoverLetterTemplate);
     }
 }
