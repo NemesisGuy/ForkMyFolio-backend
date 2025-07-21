@@ -34,8 +34,8 @@ public class PortfolioProfileServiceImpl implements PortfolioProfileService {
     @Override
     @Transactional(readOnly = true)
     public PortfolioProfile getProfileByUser(User user) {
-        return portfolioProfileRepository.findByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("PortfolioProfile not found for user with ID: " + user.getId()));
+        return portfolioProfileRepository.findByUserWithUserEagerly(user)
+                .orElseThrow(() -> new ResourceNotFoundException("PortfolioProfile not found for user: " + user.getEmail()));
     }
 
     @Override

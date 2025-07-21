@@ -31,7 +31,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -63,8 +62,6 @@ public class AuthController {
     private boolean cookieSecure;
     @Value("${app.cookie.samesite}")
     private String cookieSameSite;
-
-    // --- THIS IS THE FIX: Inject the new cookie domain property ---
     @Value("${app.security.cookie-domain}")
     private String cookieDomain;
 
@@ -96,7 +93,6 @@ public class AuthController {
         String jwt = tokenProvider.generateToken(authentication);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(registeredUser);
 
-        // --- THIS IS THE FIX: Use the new helper method to build the cookie ---
         ResponseCookie refreshTokenCookie = createRefreshTokenCookie(refreshToken.getToken());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
         logger.info("Set refresh token cookie for user '{}'.", registeredUser.getEmail());
@@ -118,7 +114,6 @@ public class AuthController {
         User userPrincipal = (User) authentication.getPrincipal();
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userPrincipal);
 
-        // --- THIS IS THE FIX: Use the new helper method to build the cookie ---
         ResponseCookie refreshTokenCookie = createRefreshTokenCookie(refreshToken.getToken());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
         logger.info("Created new refresh token and set cookie for user '{}'.", userPrincipal.getEmail());
@@ -145,7 +140,6 @@ public class AuthController {
                     refreshTokenService.deleteByToken(verifiedRefreshToken.getToken());
                     RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
 
-                    // --- THIS IS THE FIX: Use the new helper method to build the cookie ---
                     ResponseCookie newRefreshTokenCookie = createRefreshTokenCookie(newRefreshToken.getToken());
                     response.addHeader(HttpHeaders.SET_COOKIE, newRefreshTokenCookie.toString());
                     logger.info("Set new refresh token cookie for user '{}'.", user.getEmail());
@@ -168,7 +162,6 @@ public class AuthController {
             refreshTokenService.deleteByToken(cookie.getValue());
         }
 
-        // --- THIS IS THE FIX: Use the helper to build the clearing cookie ---
         ResponseCookie emptyCookie = createRefreshTokenCookie("");
         response.addHeader(HttpHeaders.SET_COOKIE, emptyCookie.toString());
         logger.info("Cleared refresh token cookie for user '{}'.", userEmail);
@@ -178,8 +171,8 @@ public class AuthController {
     }
 
     /**
-     * --- THIS IS THE FIX: A private helper to build the refresh token cookie ---
-     * It dynamically sets the domain based on the application properties,
+     * A private helper to build the refresh token cookie.
+     * It dynamically sets attributes for domain, path, and security,
      * ensuring it works correctly in both local and production environments.
      *
      * @param token The refresh token value (or empty string to clear).
@@ -191,12 +184,11 @@ public class AuthController {
         ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(refreshTokenCookieName, token)
                 .httpOnly(true)
                 .secure(cookieSecure)
-                .path("/api/v1") // Path must be consistent
+                .path("/") // KEY CHANGE: Use root path "/" for better compatibility.
                 .maxAge(maxAge)
                 .sameSite(cookieSameSite);
 
         // Only set the domain if it's explicitly configured in the properties.
-        // This allows it to work on localhost (where domain is empty) and in production.
         if (StringUtils.hasText(cookieDomain)) {
             cookieBuilder.domain(cookieDomain);
             logger.debug("Setting cookie with domain: {}", cookieDomain);

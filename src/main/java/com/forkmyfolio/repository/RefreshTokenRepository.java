@@ -4,6 +4,8 @@ import com.forkmyfolio.model.RefreshToken;
 import com.forkmyfolio.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -46,6 +48,20 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
      * @return An {@link Optional} containing the refresh token if found.
      */
     Optional<RefreshToken> findByUser(User user); // Useful if one user has one refresh token
+    /**
+     * --- THIS IS THE FIX ---
+     * A new method that finds a refresh token and simultaneously fetches the associated
+     * User and their Roles in a single, efficient database query. This prevents
+     * LazyInitializationException in downstream code.
+     *
+     * @param token The refresh token to find.
+     * @return An Optional containing the RefreshToken with a fully initialized User object.
+     */
+    @Query("SELECT rt FROM RefreshToken rt JOIN FETCH rt.user u JOIN FETCH u.roles WHERE rt.token = :token")
+    Optional<RefreshToken> findByTokenAndFetchUserWithRoles(@Param("token") String token);
 
+
+
+    void deleteByToken(String token);
 
 }

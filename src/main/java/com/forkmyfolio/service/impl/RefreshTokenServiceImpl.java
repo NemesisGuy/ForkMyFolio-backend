@@ -43,7 +43,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      */
     @Override
     public Optional<RefreshToken> findByToken(String token) {
-        return refreshTokenRepository.findByToken(token);
+        return refreshTokenRepository.findByTokenAndFetchUserWithRoles(token);
     }
 
     /**
