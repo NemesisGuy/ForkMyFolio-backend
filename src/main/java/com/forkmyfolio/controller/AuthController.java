@@ -1,3 +1,4 @@
+// C:/Users/Reign/IdeaProjects/ForkMyFolio-backend/src/main/java/com/forkmyfolio/controller/AuthController.java
 package com.forkmyfolio.controller;
 
 import com.forkmyfolio.dto.request.LoginRequest;
@@ -31,6 +32,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,9 +41,6 @@ import org.springframework.web.util.WebUtils;
 
 import java.util.Map;
 
-/**
- * Controller for handling user authentication requests, including registration and login.
- */
 @RestController
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Authentication", description = "Endpoints for user registration, login, logout, and token refresh.")
@@ -65,6 +64,10 @@ public class AuthController {
     @Value("${app.cookie.samesite}")
     private String cookieSameSite;
 
+    // --- THIS IS THE FIX: Inject the new cookie domain property ---
+    @Value("${app.security.cookie-domain}")
+    private String cookieDomain;
+
     @Autowired
     public AuthController(AuthenticationManager authenticationManager, UserService userService, JwtTokenProvider tokenProvider, RefreshTokenService refreshTokenService, UserMapper userMapper, VisitorStatsService visitorStatsService) {
         this.authenticationManager = authenticationManager;
@@ -75,15 +78,10 @@ public class AuthController {
         this.visitorStatsService = visitorStatsService;
     }
 
-    /**
-     * Registers a new user in the system.
-     */
     @PostMapping("/register")
     @Operation(summary = "Register a new user")
     public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
         logger.info("Received registration request for email: {}", registerRequest.getEmail());
-        logger.debug("Registration request details: {}", registerRequest);
-
         User registeredUser = userService.registerUser(
                 registerRequest.getEmail(),
                 registerRequest.getPassword(),
@@ -93,22 +91,13 @@ public class AuthController {
                 registerRequest.getRoles()
         );
 
-        UserDetails userDetails = registeredUser;
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(registeredUser, null, registeredUser.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        logger.info("User '{}' authenticated programmatically after registration.", registeredUser.getEmail());
-
         String jwt = tokenProvider.generateToken(authentication);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(registeredUser);
-        logger.info("Generated new JWT and refresh token for user '{}'.", registeredUser.getEmail());
 
-        ResponseCookie refreshTokenCookie = ResponseCookie.from(refreshTokenCookieName, refreshToken.getToken())
-                .httpOnly(true)
-                .secure(cookieSecure) // In production, this must be true. For local dev over HTTP, set 'app.cookie.secure=false' in properties.
-                .path("/api/v1")      // Set path to API root for consistency.
-                .maxAge(refreshTokenDurationMs / 1000)
-                .sameSite(cookieSameSite) // "Lax" is a good default. Use "None" for cross-site requests (requires secure=true).
-                .build();
+        // --- THIS IS THE FIX: Use the new helper method to build the cookie ---
+        ResponseCookie refreshTokenCookie = createRefreshTokenCookie(refreshToken.getToken());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
         logger.info("Set refresh token cookie for user '{}'.", registeredUser.getEmail());
 
@@ -116,33 +105,21 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(jwt, userDto));
     }
 
-    /**
-     * Authenticates an existing user.
-     */
     @PostMapping("/login")
     @Operation(summary = "Login an existing user")
     public ResponseEntity<AuthResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         logger.info("Received login request for email: {}", loginRequest.getEmail());
-        logger.debug("Login request details: {}", loginRequest);
-
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
         );
-        logger.info("Authentication successful for user '{}'.", loginRequest.getEmail());
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken(authentication);
         User userPrincipal = (User) authentication.getPrincipal();
-        logger.info("Generated new JWT for user '{}'.", userPrincipal.getEmail());
-
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userPrincipal);
-        ResponseCookie refreshTokenCookie = ResponseCookie.from(refreshTokenCookieName, refreshToken.getToken())
-                .httpOnly(true)
-                .secure(cookieSecure)
-                .path("/api/v1") // Set path to API root.
-                .maxAge(refreshTokenDurationMs / 1000)
-                .sameSite(cookieSameSite)
-                .build();
+
+        // --- THIS IS THE FIX: Use the new helper method to build the cookie ---
+        ResponseCookie refreshTokenCookie = createRefreshTokenCookie(refreshToken.getToken());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
         logger.info("Created new refresh token and set cookie for user '{}'.", userPrincipal.getEmail());
 
@@ -150,42 +127,26 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(jwt, userDto));
     }
 
-    /**
-     * Refreshes an access token.
-     */
     @PostMapping("/refresh-token")
     @Operation(summary = "Refresh access token")
     public ResponseEntity<AuthResponse> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         logger.info("Received request to refresh token.");
         Cookie cookie = WebUtils.getCookie(request, refreshTokenCookieName);
-
         if (cookie == null) {
-            logger.warn("Token refresh request failed: No refresh token cookie found.");
             throw new TokenRefreshException(null, "Refresh token cookie not found. Please log in again.");
         }
-
         String requestRefreshToken = cookie.getValue();
-        logger.debug("Found refresh token cookie. Token value (first 8 chars): {}", requestRefreshToken.substring(0, Math.min(requestRefreshToken.length(), 8)));
 
         return refreshTokenService.findByToken(requestRefreshToken)
                 .map(refreshTokenService::verifyExpiration)
                 .map(verifiedRefreshToken -> {
                     User user = verifiedRefreshToken.getUser();
-                    logger.info("Refresh token verified for user '{}'. Generating new tokens.", user.getEmail());
-
                     String newAccessToken = tokenProvider.generateToken(user);
-
                     refreshTokenService.deleteByToken(verifiedRefreshToken.getToken());
                     RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
-                    logger.info("Rolled refresh token for user '{}'.", user.getEmail());
 
-                    ResponseCookie newRefreshTokenCookie = ResponseCookie.from(refreshTokenCookieName, newRefreshToken.getToken())
-                            .httpOnly(true)
-                            .secure(cookieSecure)
-                            .path("/api/v1") // Set path to API root.
-                            .maxAge(refreshTokenDurationMs / 1000)
-                            .sameSite(cookieSameSite)
-                            .build();
+                    // --- THIS IS THE FIX: Use the new helper method to build the cookie ---
+                    ResponseCookie newRefreshTokenCookie = createRefreshTokenCookie(newRefreshToken.getToken());
                     response.addHeader(HttpHeaders.SET_COOKIE, newRefreshTokenCookie.toString());
                     logger.info("Set new refresh token cookie for user '{}'.", user.getEmail());
 
@@ -195,9 +156,6 @@ public class AuthController {
                 .orElseThrow(() -> new TokenRefreshException(requestRefreshToken, "Refresh token not found in database!"));
     }
 
-    /**
-     * Logs out the current user.
-     */
     @PostMapping("/logout")
     @Operation(summary = "Logout the current user")
     public ResponseEntity<Map<String, String>> logoutUser(HttpServletRequest request, HttpServletResponse response) {
@@ -208,25 +166,44 @@ public class AuthController {
         Cookie cookie = WebUtils.getCookie(request, refreshTokenCookieName);
         if (cookie != null && cookie.getValue() != null) {
             refreshTokenService.deleteByToken(cookie.getValue());
-            logger.info("Deleted refresh token from database for user '{}'.", userEmail);
-        } else {
-            logger.warn("Logout request for user '{}' did not have a refresh token cookie to invalidate.", userEmail);
         }
 
-        // To properly clear a cookie, its attributes (path, domain, etc.) must match the original.
-        ResponseCookie emptyCookie = ResponseCookie.from(refreshTokenCookieName, "")
-                .httpOnly(true)
-                .secure(cookieSecure)
-                .path("/api/v1") // Use the same path as the original cookie.
-                .maxAge(0)
-                .sameSite(cookieSameSite)
-                .build();
+        // --- THIS IS THE FIX: Use the helper to build the clearing cookie ---
+        ResponseCookie emptyCookie = createRefreshTokenCookie("");
         response.addHeader(HttpHeaders.SET_COOKIE, emptyCookie.toString());
         logger.info("Cleared refresh token cookie for user '{}'.", userEmail);
 
         SecurityContextHolder.clearContext();
-        logger.info("Cleared SecurityContext for user '{}'. Logout complete.", userEmail);
-
         return ResponseEntity.ok(Map.of("message", "User logged out successfully."));
+    }
+
+    /**
+     * --- THIS IS THE FIX: A private helper to build the refresh token cookie ---
+     * It dynamically sets the domain based on the application properties,
+     * ensuring it works correctly in both local and production environments.
+     *
+     * @param token The refresh token value (or empty string to clear).
+     * @return A configured ResponseCookie object.
+     */
+    private ResponseCookie createRefreshTokenCookie(String token) {
+        long maxAge = StringUtils.hasText(token) ? refreshTokenDurationMs / 1000 : 0;
+
+        ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(refreshTokenCookieName, token)
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path("/api/v1") // Path must be consistent
+                .maxAge(maxAge)
+                .sameSite(cookieSameSite);
+
+        // Only set the domain if it's explicitly configured in the properties.
+        // This allows it to work on localhost (where domain is empty) and in production.
+        if (StringUtils.hasText(cookieDomain)) {
+            cookieBuilder.domain(cookieDomain);
+            logger.debug("Setting cookie with domain: {}", cookieDomain);
+        } else {
+            logger.debug("Setting cookie without a specific domain (defaulting to request host).");
+        }
+
+        return cookieBuilder.build();
     }
 }
