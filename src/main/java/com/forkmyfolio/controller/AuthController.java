@@ -137,12 +137,14 @@ public class AuthController {
                 .map(verifiedRefreshToken -> {
                     User user = verifiedRefreshToken.getUser();
                     String newAccessToken = tokenProvider.generateToken(user);
-                    refreshTokenService.deleteByToken(verifiedRefreshToken.getToken());
-                    RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
+
+                    // --- THIS IS THE FIX ---
+                    // Call the new atomic rotation method instead of two separate service calls.
+                    RefreshToken newRefreshToken = refreshTokenService.rotateRefreshToken(verifiedRefreshToken);
 
                     ResponseCookie newRefreshTokenCookie = createRefreshTokenCookie(newRefreshToken.getToken());
                     response.addHeader(HttpHeaders.SET_COOKIE, newRefreshTokenCookie.toString());
-                    logger.info("Set new refresh token cookie for user '{}'.", user.getEmail());
+                    logger.info("Rotated refresh token and set new cookie for user '{}'.", user.getEmail());
 
                     UserDto userDto = userMapper.toDto(user);
                     return ResponseEntity.ok(new AuthResponse(newAccessToken, userDto));
@@ -183,19 +185,19 @@ public class AuthController {
 
         ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(refreshTokenCookieName, token)
                 .httpOnly(true)
-                .secure(cookieSecure)
-                .path("/") // KEY CHANGE: Use root path "/" for better compatibility.
+                .secure(cookieSecure)        // true in prod with HTTPS
+                .path("/")
                 .maxAge(maxAge)
-                .sameSite(cookieSameSite);
+                .sameSite(cookieSameSite);  // Should be "None"
 
-        // Only set the domain if it's explicitly configured in the properties.
         if (StringUtils.hasText(cookieDomain)) {
-            cookieBuilder.domain(cookieDomain);
+            cookieBuilder.domain(cookieDomain);  // Leading dot ".forkmyfolio.nemesisnet.co.za"
             logger.debug("Setting cookie with domain: {}", cookieDomain);
         } else {
-            logger.debug("Setting cookie without a specific domain (defaulting to request host).");
+            logger.debug("Setting cookie without a specific domain.");
         }
 
         return cookieBuilder.build();
     }
+
 }

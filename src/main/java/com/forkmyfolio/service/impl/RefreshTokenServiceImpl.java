@@ -96,4 +96,22 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public void deleteByToken(String token) {
         refreshTokenRepository.findByToken(token).ifPresent(refreshTokenRepository::delete);
     }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public RefreshToken rotateRefreshToken(RefreshToken oldToken) {
+        // 1. Delete the old token that was just used.
+        refreshTokenRepository.delete(oldToken);
+
+        // 2. Create a new token for the same user.
+        RefreshToken newRefreshToken = new RefreshToken();
+        newRefreshToken.setUser(oldToken.getUser());
+        newRefreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+        newRefreshToken.setToken(UUID.randomUUID().toString());
+
+        // 3. Save and return the new token.
+        return refreshTokenRepository.save(newRefreshToken);
+    }
 }

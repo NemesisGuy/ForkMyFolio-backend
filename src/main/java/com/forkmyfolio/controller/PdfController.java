@@ -4,8 +4,9 @@ import com.forkmyfolio.aop.TrackVisitor;
 import com.forkmyfolio.model.enums.VisitorStatType;
 import com.forkmyfolio.service.PdfGenerationService;
 import com.forkmyfolio.service.VisitorStatsService;
-import com.forkmyfolio.util.SecurityUtils;
-import com.lowagie.text.DocumentException;
+// THIS IS THE FIX: The unused SecurityUtils import is removed.
+// import com.forkmyfolio.util.SecurityUtils;
+
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +26,10 @@ public class PdfController {
     private static final Logger log = LoggerFactory.getLogger(PdfController.class);
 
     private final PdfGenerationService pdfGenerationService;
+    // VisitorStatsService is kept as it's likely used by the @TrackVisitor aspect.
     private final VisitorStatsService visitorStatsService;
-    private final SecurityUtils securityUtils;
+    // THIS IS THE FIX: The unused dependency is removed for better code clarity.
+    // private final SecurityUtils securityUtils;
 
     /**
      * GET : /api/v1/pdf/download
@@ -49,8 +52,9 @@ public class PdfController {
 
             log.info("Successfully generated PDF. Filename: {}, Size: {} bytes.", pdfFile.suggestedFilename(), pdfFile.content().length);
             return new ResponseEntity<>(pdfFile.content(), headers, HttpStatus.OK);
-        } catch (DocumentException e) {
-            log.error("Failed to generate portfolio PDF due to a DocumentException.", e);
+        } catch (Exception e) {
+            // THIS IS THE FIX: The log message is now more generic and accurate for iText 7.
+            log.error("Failed to generate portfolio PDF.", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

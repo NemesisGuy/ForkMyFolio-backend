@@ -34,7 +34,8 @@ public class PortfolioProfileServiceImpl implements PortfolioProfileService {
     @Override
     @Transactional(readOnly = true)
     public PortfolioProfile getProfileByUser(User user) {
-        return portfolioProfileRepository.findByUserWithUserEagerly(user)
+        // This now calls the cleaner @EntityGraph-enhanced method
+        return portfolioProfileRepository.findByUser(user)
                 .orElseThrow(() -> new ResourceNotFoundException("PortfolioProfile not found for user: " + user.getEmail()));
     }
 
@@ -45,13 +46,22 @@ public class PortfolioProfileServiceImpl implements PortfolioProfileService {
         portfolioProfileRepository.findByUser(portfolioProfile.getUser()).ifPresent(p -> {
             throw new ConflictException("A portfolio profile already exists for this user. Use PUT to update.");
         });
-        return portfolioProfileRepository.save(portfolioProfile);
+
+        PortfolioProfile savedProfile = portfolioProfileRepository.save(portfolioProfile);
+
+        // THIS IS THE FIX: After saving, we re-fetch the entity using our eager method.
+        // This guarantees the object returned to the controller is fully initialized.
+        return getProfileByUser(savedProfile.getUser());
     }
 
     @Override
     @Transactional
     public PortfolioProfile save(PortfolioProfile portfolioProfile) {
         // This method is for updating an existing entity.
-        return portfolioProfileRepository.save(portfolioProfile);
+        portfolioProfileRepository.save(portfolioProfile);
+
+        // THIS IS THE FIX: Same pattern as create. Save the changes, then return a
+        // complete, eagerly-loaded entity for the controller to use.
+        return getProfileByUser(portfolioProfile.getUser());
     }
 }
