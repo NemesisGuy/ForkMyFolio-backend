@@ -54,7 +54,7 @@ public class PdfGenerationService {
     private static final DeviceRgb SIDEBAR_BG = new DeviceRgb(245, 245, 245);
     private static final DeviceRgb SIDEBAR_TEXT = new DeviceRgb(51, 51, 51);
 
-    // --- NEW: Skill Level Colors ---
+    // Skill Level Colors
     private static final DeviceRgb SKILL_EXPERT_COLOR = new DeviceRgb(40, 167, 69);      // #28A745 (Green)
     private static final DeviceRgb SKILL_INTERMEDIATE_COLOR = new DeviceRgb(0, 123, 255); // #007BFF (Blue)
     private static final DeviceRgb SKILL_BEGINNER_COLOR = new DeviceRgb(255, 193, 7);     // #FFC107 (Amber)
@@ -422,7 +422,53 @@ public class PdfGenerationService {
 
     private Cell createProjectCell(Project proj, PdfContext ctx) {
         Cell cell = new Cell().setBorder(Border.NO_BORDER).setPaddingBottom(15);
-        cell.add(new Paragraph(proj.getTitle()).setFont(ctx.itemTitleFont).setFontSize(12).setFontColor(PRIMARY_COLOR));
+
+        // Determine the link for the project title, prioritizing the live demo
+        String projectUrl = null;
+        if (proj.getLiveUrl() != null && !proj.getLiveUrl().isBlank()) {
+            projectUrl = proj.getLiveUrl();
+        } else if (proj.getRepoUrl() != null && !proj.getRepoUrl().isBlank()) {
+            projectUrl = proj.getRepoUrl();
+        }
+
+        // Create the title element as a Text object to apply actions
+        Text titleText = new Text(proj.getTitle())
+                .setFont(ctx.itemTitleFont)
+                .setFontSize(12);
+
+        if (projectUrl != null) {
+            // If a URL exists, make the title a styled hyperlink
+            titleText.setFontColor(ACCENT_COLOR) // Use accent color for links
+                    .setUnderline()
+                    .setAction(PdfAction.createURI(projectUrl));
+        } else {
+            // Otherwise, just use the standard title color
+            titleText.setFontColor(PRIMARY_COLOR);
+        }
+
+        // Create the title paragraph and set its margin
+        Paragraph titleParagraph = new Paragraph(titleText);
+
+        // Add the title to the cell
+        cell.add(titleParagraph);
+
+        // --- NEW: Add the tech stack ---
+        if (proj.getTechStack() != null && !proj.getTechStack().isEmpty()) {
+            // If there's a tech stack, the title has a smaller bottom margin
+            titleParagraph.setMarginBottom(2);
+
+            String techStackString = String.join(" • ", proj.getTechStack());
+            Paragraph techStackParagraph = new Paragraph(techStackString)
+                    .setFont(ctx.itemSubtitleFont)
+                    .setFontSize(9)
+                    .setFontColor(SECONDARY_COLOR)
+                    .setMarginBottom(5); // Margin before description
+            cell.add(techStackParagraph);
+        } else {
+            // If no tech stack, give the title a larger bottom margin
+            titleParagraph.setMarginBottom(5);
+        }
+
         cell.add(createFormattedParagraph(proj.getDescription(), ctx));
         return cell;
     }
