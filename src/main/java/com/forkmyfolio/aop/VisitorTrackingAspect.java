@@ -43,6 +43,7 @@ public class VisitorTrackingAspect {
             case TESTIMONIALS_SECTION_VIEW -> visitorStatsService.incrementTestimonialsSectionView();
             case PROJECT_VIEW -> findUuidArgument(joinPoint)
                     .ifPresent(uuid -> visitorStatsService.incrementProjectView(uuid.toString()));
+            case VCARD_DOWNLOAD -> visitorStatsService.incrementVcardDownload();
             default -> log.warn("Unhandled VisitorStatType in VisitorTrackingAspect: {}", statType);
         }
     }

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class SettingMapper {
 
     public SettingDto toDto(Setting entity) {
-        return new SettingDto(entity.getUuid(), entity.getName(), entity.isEnabled(), entity.getDescription());
+        return new SettingDto(entity.getUuid(), entity.getName(), entity.getValue(), entity.getDescription());
     }
 
     public List<SettingDto> toDtoList(List<Setting> entities) {

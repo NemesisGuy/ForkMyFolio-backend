@@ -1,5 +1,6 @@
 package com.forkmyfolio.controller;
 
+import com.forkmyfolio.advice.ApiResponseWrapper;
 import com.forkmyfolio.aop.TrackVisitor;
 import com.forkmyfolio.dto.create.CreateContactMessageRequest;
 import com.forkmyfolio.mapper.ContactMessageMapper;
@@ -62,9 +63,9 @@ public class ContactMessageController {
             description = "Allows users to submit a contact message. This endpoint is publicly accessible.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Message submitted successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseWrapper.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseWrapper.class)))
     })
     @ResponseStatus(HttpStatus.CREATED)
     @TrackVisitor(VisitorStatType.CONTACT_MESSAGE_SUBMISSION)

@@ -1,77 +1,105 @@
 package com.forkmyfolio.exception;
 
+import com.forkmyfolio.aop.SkipApiResponseWrapper;
+import com.forkmyfolio.advice.ApiResponseWrapper;
+import com.forkmyfolio.dto.response.FieldErrorDto;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-@ControllerAdvice
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestControllerAdvice(basePackages = "com.forkmyfolio.controller")
 @Slf4j
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
+
+    // --- ResponseBodyAdvice implementation (for success wrapping) ---
 
     /**
-     * Handles validation errors for request bodies annotated with @Valid.
-     * This provides a much more detailed error response than the Spring Boot default.
-     *
-     * @param ex The exception thrown when validation fails.
-     * @return A ResponseEntity containing a structured error response.
+     * Determines if this advice should be applied. It will not be applied to methods
+     * annotated with @SkipApiResponseWrapper, which is used for file downloads.
+     */
+    @Override
+    public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+        return !returnType.hasMethodAnnotation(SkipApiResponseWrapper.class);
+    }
+
+    /**
+     * Wraps successful responses in the standard ApiResponseWrapper before the body is written.
+     */
+    @Override
+    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
+                                  Class<? extends HttpMessageConverter<?>> selectedConverterType,
+                                  ServerHttpRequest request, ServerHttpResponse response) {
+
+        // Do not wrap if the body is already our wrapper, a Spring ProblemDetail, or a file download.
+        if (body instanceof ApiResponseWrapper || body instanceof ProblemDetail || body instanceof byte[]) {
+            return body;
+        }
+
+        return new ApiResponseWrapper<>(body);
+    }
+
+    // --- ExceptionHandler implementations (for error handling) ---
+
+    /**
+     * Handles validation errors for request bodies (@Valid).
+     * Returns a standard ApiResponseWrapper with validation details.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Validation error. Check 'errors' field for details.");
-
-        // The 'bindingResult' contains all the details about which fields failed validation.
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errorResponse.addValidationError(fieldName, errorMessage);
-            log.warn("Validation error on field '{}': {}", fieldName, errorMessage);
-        });
-
-        return ResponseEntity.badRequest().body(errorResponse);
+    public ApiResponseWrapper<Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        List<FieldErrorDto> errors = ex.getBindingResult().getAllErrors().stream()
+                .map(error -> {
+                    String fieldName = ((FieldError) error).getField();
+                    String errorMessage = error.getDefaultMessage();
+                    log.warn("Validation error on field '{}': {}", fieldName, errorMessage);
+                    return new FieldErrorDto(fieldName, errorMessage);
+                })
+                .collect(Collectors.toList());
+        return new ApiResponseWrapper<>(errors, "validation_failed");
     }
 
     /**
-     * Handles validation errors for method parameters (e.g., @RequestParam, @PathVariable).
-     * This is triggered by method-level validation annotations in controllers.
-     *
-     * @param ex The exception thrown when method validation fails.
-     * @return A ResponseEntity containing a structured error response.
+     * Handles validation errors for method parameters (@RequestParam, etc.).
      */
     @ExceptionHandler(HandlerMethodValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleMethodValidation(HandlerMethodValidationException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Validation error. Check 'errors' field for details.");
-
-        ex.getAllValidationResults().forEach(result -> {
-            String paramName = result.getMethodParameter().getParameterName();
-            result.getResolvableErrors().forEach(error -> {
-                errorResponse.addValidationError(paramName, error.getDefaultMessage());
-                log.warn("Validation error on parameter '{}': {}", paramName, error.getDefaultMessage());
-            });
-        });
-
-        return ResponseEntity.badRequest().body(errorResponse);
+    public ApiResponseWrapper<Object> handleMethodValidation(HandlerMethodValidationException ex) {
+        List<FieldErrorDto> errors = ex.getAllValidationResults().stream()
+                .flatMap(result -> {
+                    String paramName = result.getMethodParameter().getParameterName();
+                    return result.getResolvableErrors().stream().map(error -> {
+                        log.warn("Validation error on parameter '{}': {}", paramName, error.getDefaultMessage());
+                        return new FieldErrorDto(paramName, error.getDefaultMessage());
+                    });
+                })
+                .collect(Collectors.toList());
+        return new ApiResponseWrapper<>(errors, "validation_failed");
     }
 
     /**
-     * Handles all other uncaught exceptions, providing a generic but structured 500 error response.
-     * This prevents exposing stack traces or default Spring error pages to the client.
-     *
-     * @param ex The uncaught exception.
-     * @return A ResponseEntity containing a structured 500 error response.
+     * A final catch-all for any unexpected exceptions.
+     * Returns a generic error message to avoid leaking implementation details.
      */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ErrorResponse> handleAllUncaughtException(Exception ex) {
+    public ApiResponseWrapper<Object> handleAllUncaughtException(Exception ex) {
         log.error("An unexpected error occurred: {}", ex.getMessage(), ex);
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected internal server error occurred.");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        List<FieldErrorDto> errors = List.of(new FieldErrorDto("general", "An unexpected internal server error occurred."));
+        return new ApiResponseWrapper<>(errors, "error");
     }
 }

@@ -28,7 +28,7 @@ public class SettingServiceImpl implements SettingService {
 
     @Override
     @Transactional
-    public List<Setting> updateSettings(Map<UUID, Boolean> settingsToUpdate) {
+    public List<Setting> updateSettings(Map<UUID, String> settingsToUpdate) {
         List<UUID> uuids = settingsToUpdate.keySet().stream().toList();
         List<Setting> settingsToModify = settingRepository.findByUuidIn(uuids);
 
@@ -37,16 +37,21 @@ public class SettingServiceImpl implements SettingService {
         }
 
         settingsToModify.forEach(setting ->
-                setting.setEnabled(settingsToUpdate.get(setting.getUuid()))
+                setting.setValue(settingsToUpdate.get(setting.getUuid()).toString())
         );
 
         return settingRepository.saveAll(settingsToModify);
     }
 
-    @Override
-    @Transactional(readOnly = true)
+    /**
+     * Gets all settings intended for public consumption.
+     * For backward compatibility, this converts settings with "true" or "false" values
+     * into a Map<String, Boolean> for the public visibility toggles.
+     */
+    @Transactional
     public Map<String, Boolean> getPublicSettings() {
         return settingRepository.findAll().stream()
-                .collect(Collectors.toMap(Setting::getName, Setting::isEnabled));
+                .filter(s -> "true".equalsIgnoreCase(s.getValue()) || "false".equalsIgnoreCase(s.getValue()))
+                .collect(Collectors.toMap(Setting::getName, s -> Boolean.parseBoolean(s.getValue())));
     }
 }

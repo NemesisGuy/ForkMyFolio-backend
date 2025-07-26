@@ -1,5 +1,6 @@
-package com.forkmyfolio.dto.response;
+package com.forkmyfolio.advice;
 
+import com.forkmyfolio.dto.response.FieldErrorDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

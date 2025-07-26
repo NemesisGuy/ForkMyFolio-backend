@@ -13,10 +13,11 @@ The format is inspired by Michael Nygard's ADRs.
     *   A consistent API response structure is needed for both successful operations and errors to simplify frontend integration and improve predictability.
     *   Boilerplate code for wrapping responses in controllers should be minimized.
 *   **Decision:**
-    1.  Implement a generic `com.forkmyfolio.dto.response.ApiResponseWrapper<T>` with `status` (String), `data` (T), and `errors` (List<`com.forkmyfolio.dto.response.FieldErrorDto`>) fields.
+    1.  Implement a generic `com.forkmyfolio.advice.ApiResponseWrapper<T>` with `status` (String), `data` (T), and `errors` (List<`com.forkmyfolio.dto.response.FieldErrorDto`>) fields.
     2.  All successful controller responses should ultimately be wrapped in this structure. The `data` field will hold the actual DTO or a success message map.
     3.  All error responses handled by `GlobalExceptionHandler` (and `JwtAuthenticationEntryPoint`) will also use this structure, typically with `data` as null and `errors` populated.
-    4.  Implement `com.forkmyfolio.advice.ApiResponseWrapperAdvice` (a Spring `ResponseBodyAdvice`) to automatically wrap successful DTOs (or `ResponseEntity<DTO>`) returned from designated application controllers. This advice will intelligently skip responses already in `ApiResponseWrapper` format, error responses, framework responses (Swagger, Actuator), and void/ResponseEntity<Void> types.
+
+[//]: # (    4.  Implement `com.forkmyfolio.advice.ApiResponseWrapperAdvice` &#40;a Spring `ResponseBodyAdvice`&#41; to automatically wrap successful DTOs &#40;or `ResponseEntity<DTO>`&#41; returned from designated application controllers. This advice will intelligently skip responses already in `ApiResponseWrapper` format, error responses, framework responses &#40;Swagger, Actuator&#41;, and void/ResponseEntity<Void> types.)
     5.  Controllers will be refactored to return raw DTOs or `ResponseEntity<DTO>` for success cases, relying on the advice for wrapping. `AuthController` remains an exception, explicitly returning `ResponseEntity<ApiResponseWrapper<T>>` due to its complex cookie and response handling needs; the advice is configured to ignore these.
 *   **Consequences:**
     *   **Positive:**

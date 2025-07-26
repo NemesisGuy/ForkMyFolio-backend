@@ -113,7 +113,8 @@ public class SecurityConfig {
                                 "/api/v1/testimonials/**",
                                 "/api/v1/qualifications/**",
                                 "/api/v1/settings",
-                                "/api/v1/pdf/**"
+                                "/api/v1/pdf/**",
+                                "/api/v1/vcard/**" // <-- ADDED: Allow public access to vCard downloads
                         ).permitAll()
 
                         // --- Publicly writable endpoints (POST requests only) ---

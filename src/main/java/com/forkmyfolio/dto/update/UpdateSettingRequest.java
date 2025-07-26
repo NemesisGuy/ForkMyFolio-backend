@@ -1,4 +1,4 @@
-package com.forkmyfolio.dto.request;
+package com.forkmyfolio.dto.update;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,10 +10,10 @@ import java.util.UUID;
 @Getter
 @Setter
 public class UpdateSettingRequest {
-    @NotBlank
-    private String name;
     @NotNull
     private UUID uuid;
-    @NotNull
-    private Boolean enabled;
+ /*   @NotBlank
+    private String name;*/
+    @NotNull(message = "Setting value cannot be null")
+    private String value;
 }

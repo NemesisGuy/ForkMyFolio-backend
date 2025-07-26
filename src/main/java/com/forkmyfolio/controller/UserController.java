@@ -1,5 +1,6 @@
 package com.forkmyfolio.controller;
 
+import com.forkmyfolio.advice.ApiResponseWrapper;
 import com.forkmyfolio.dto.response.UserDto;
 import com.forkmyfolio.mapper.UserMapper;
 import com.forkmyfolio.model.User;
@@ -52,13 +53,13 @@ public class UserController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Successfully retrieved user profile",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
+                                    schema = @Schema(implementation = ApiResponseWrapper.class))),
                     @ApiResponse(responseCode = "401", description = "Unauthorized - JWT token is missing or invalid",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class))),
+                                    schema = @Schema(implementation = ApiResponseWrapper.class))),
                     @ApiResponse(responseCode = "404", description = "User not found (should not happen if authenticated)",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = com.forkmyfolio.dto.response.ApiResponseWrapper.class)))
+                                    schema = @Schema(implementation = ApiResponseWrapper.class)))
             })
     public UserDto getCurrentUserProfile() {
         User currentUser = userService.getCurrentAuthenticatedUser();

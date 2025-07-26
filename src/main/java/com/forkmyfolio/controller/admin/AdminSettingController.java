@@ -1,6 +1,6 @@
 package com.forkmyfolio.controller.admin;
 
-import com.forkmyfolio.dto.request.UpdateSettingRequest;
+import com.forkmyfolio.dto.update.UpdateSettingRequest;
 import com.forkmyfolio.dto.response.SettingDto;
 import com.forkmyfolio.mapper.SettingMapper;
 import com.forkmyfolio.service.SettingService;
@@ -46,12 +46,11 @@ public class AdminSettingController {
         log.info("Admin request to update {} settings", updateRequests.size());
         // 1. Convert the list of DTOs into a simple Map for the service layer.
         // This keeps the service layer clean and unaware of DTOs.
-        Map<UUID, Boolean> settingsToUpdate = updateRequests.stream()
-                .collect(Collectors.toMap(UpdateSettingRequest::getUuid, UpdateSettingRequest::getEnabled));
+        Map<UUID, String> settingsToUpdate = updateRequests.stream()
+                .collect(Collectors.toMap(UpdateSettingRequest::getUuid, UpdateSettingRequest::getValue));
 
         // 2. Call the service to perform an efficient, transactional bulk update.
         var updatedSettings = settingService.updateSettings(settingsToUpdate);
-
         // 3. Map the updated entities back to DTOs for the response.
         return ResponseEntity.ok(settingMapper.toDtoList(updatedSettings));
     }

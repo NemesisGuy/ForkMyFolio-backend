@@ -182,4 +182,10 @@ public class VisitorStatsService {
                 .mapToLong(VisitorStats::getCount)
                 .sum();
     }
+
+    public void incrementVcardDownload() {
+        /// TODO IMPLEMENT THIS
+
+
+    }
 }

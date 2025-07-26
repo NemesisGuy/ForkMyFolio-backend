@@ -14,6 +14,6 @@ import java.util.UUID;
 public class SettingDto {
     private UUID uuid;
     private String name;
-    private boolean enabled;
+    private String value;
     private String description;
 }

@@ -261,3 +261,20 @@ Contributions are welcome! Please adhere to the project's coding standards and p
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details (if one were present).
 *(Assuming Apache 2.0 based on typical Spring Boot project licenses and OpenAPI config)*
+
+
+
+
+Summary of New CapabilitiesWith these changes, you now have:
+
+1.Three Resume Templates:
+
+•http://localhost:8080/api/v1/pdf/download?template=modern
+•http://localhost:8080/api/v1/pdf/download?template=elegance
+•http://localhost:8080/api/v1/pdf/download?template=classic
+•http://localhost:8080/api/v1/pdf/download?template=metro-dark
+•http://localhost:8080/api/v1/pdf/download?template=business-card
+
+2.A vCard Download:
+
+•http://localhost:8080/api/v1/vcard/download

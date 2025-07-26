@@ -21,10 +21,6 @@ public class Setting {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * Public-facing unique identifier for the setting.
-     * Automatically generated.
-     */
     @UuidGenerator
     @Column(name = "uuid", nullable = false, updatable = false, unique = true)
     private UUID uuid;
@@ -33,15 +29,15 @@ public class Setting {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false)
-    private boolean enabled;
+    @Column(nullable = false, length = 255)
+    private String value;
 
     @Column(length = 512)
     private String description;
 
-    public Setting(String name, boolean enabled, String description) {
+    public Setting(String name, String value, String description) {
         this.name = name;
-        this.enabled = enabled;
+        this.value = value;
         this.description = description;
     }
 }

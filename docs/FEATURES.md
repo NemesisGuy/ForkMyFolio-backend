@@ -1,4 +1,4 @@
-﻿﻿# Project Features & Capabilities
+﻿# Project Features & Capabilities
 
 This document outlines the key features and technical capabilities of the ForkMyFolio application, encompassing both the backend API and the frontend client.
 
@@ -16,6 +16,15 @@ This document outlines the key features and technical capabilities of the ForkMy
 - **Secure Refresh Token Strategy**: Implements `HttpOnly` cookies for refresh tokens, protecting them from client-side script access and mitigating XSS risks.
 - **Role-Based Access Control (RBAC)**: Clear distinction between public `permitAll()` endpoints and protected `/admin/**` routes, which require admin privileges.
 - **Password Encryption**: All user passwords are securely hashed using Spring Security's standard `BCryptPasswordEncoder`.
+
+## ⚙️ Dynamic Application Settings
+
+A core architectural feature is the robust and flexible settings system, which allows for live configuration of the application without redeployment.
+
+- **Unified API**: Both the public (`/api/v1/settings`) and admin (`/api/v1/admin/settings`) endpoints now provide a consistent, rich list of setting objects (`SettingDto`). This simplifies frontend logic and ensures data consistency.
+- **Flexible Configuration**: The system supports not just boolean toggles (e.g., `SHOW_PROJECTS: "true"`) but also string-based values.
+- **Dynamic PDF Templates**: A key example is the `DEFAULT_PDF_TEMPLATE` setting, which allows the admin to choose which PDF design (e.g., "modern", "classic") is used for public downloads.
+- **Transactional Updates**: The admin `PUT` endpoint performs efficient, transactional bulk updates, ensuring data integrity.
 
 ## 📊 Visitor Analytics & Tracking
 
@@ -38,13 +47,13 @@ This document outlines the key features and technical capabilities of the ForkMy
   - **Qualifications**: Maintain a list of degrees and certifications.
   - **Testimonials**: Curate quotes and recommendations.
 - **Contact Message Inbox**: A simple interface to view and manage messages submitted through the public contact form.
-- **Dynamic Application Settings**: A centralized location to control application-wide settings, such as toggling the visibility of entire portfolio sections on the public site.
+- **Live Site Configuration**: Admins can use the settings panel to instantly change the public site's behavior, such as toggling section visibility or changing the default PDF template.
 - **Account Management**: Admins can update their private user details (name, email, etc.).
 
 ## ✨ User Experience (Vue.js Frontend)
 
 - **Single-Page Application (SPA)**: A modern, reactive, and fast user interface built with Vue 3 and Vite.
-- **Dynamic Content**: All content displayed on the public portfolio is fetched dynamically from the backend API, allowing for instant updates without redeploying the frontend.
+- **Dynamic Content**: All content displayed on the public portfolio is fetched dynamically from the backend API. Sections are shown or hidden based on the live application settings.
 - **Seamless Navigation**: Uses Vue Router for a smooth user experience without full page reloads.
-- **PDF Resume Generation**: Allows visitors to download a neatly formatted PDF version of the portfolio on-the-fly.
+- **Dynamic PDF Resume Generation**: Allows visitors to download a PDF version of the portfolio. The design of the generated PDF is determined by the `DEFAULT_PDF_TEMPLATE` setting controlled by the admin.
 - **Secure Admin Dashboard**: A protected section of the application with a clean, intuitive interface for all content management and analytics viewing.

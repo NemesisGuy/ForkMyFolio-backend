@@ -1,7 +1,7 @@
 package com.forkmyfolio.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.forkmyfolio.dto.response.ApiResponseWrapper;
+import com.forkmyfolio.advice.ApiResponseWrapper;
 import com.forkmyfolio.dto.response.FieldErrorDto;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
