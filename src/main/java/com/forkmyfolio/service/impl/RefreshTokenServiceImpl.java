@@ -1,5 +1,6 @@
 package com.forkmyfolio.service.impl;
 
+import com.forkmyfolio.config.AppProperties;
 import com.forkmyfolio.exception.TokenRefreshException;
 import com.forkmyfolio.model.RefreshToken;
 import com.forkmyfolio.model.User;
@@ -7,7 +8,6 @@ import com.forkmyfolio.repository.RefreshTokenRepository;
 import com.forkmyfolio.repository.UserRepository;
 import com.forkmyfolio.service.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,19 +23,20 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
-    @Value("${jwt.refresh.expiration.ms}")
-    private Long refreshTokenDurationMs;
+    private final Long refreshTokenDurationMs;
 
     /**
      * Constructs a {@code RefreshTokenServiceImpl}.
      *
      * @param refreshTokenRepository Repository for refresh token data.
      * @param userRepository         Repository for user data.
+     * @param appProperties          Application configuration properties.
      */
     @Autowired
-    public RefreshTokenServiceImpl(RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {
+    public RefreshTokenServiceImpl(RefreshTokenRepository refreshTokenRepository, UserRepository userRepository, AppProperties appProperties) {
         this.refreshTokenRepository = refreshTokenRepository;
         this.userRepository = userRepository;
+        this.refreshTokenDurationMs = appProperties.getJwt().getRefreshExpirationMs();
     }
 
     /**
@@ -114,4 +115,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         // 3. Save and return the new token.
         return refreshTokenRepository.save(newRefreshToken);
     }
+
+
 }

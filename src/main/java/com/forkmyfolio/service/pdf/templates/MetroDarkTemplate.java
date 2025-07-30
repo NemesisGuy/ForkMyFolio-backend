@@ -1,7 +1,7 @@
 package com.forkmyfolio.service.pdf.templates;
 
 import com.forkmyfolio.model.*;
-import com.forkmyfolio.service.PdfGenerationService;
+import com.forkmyfolio.service.impl.PdfGenerationService;
 import com.forkmyfolio.service.pdf.PortfolioData;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.stream.Collectors;
 import java.util.List;
 
 public class MetroDarkTemplate implements PortfolioPdfTemplate {
@@ -146,7 +147,7 @@ public class MetroDarkTemplate implements PortfolioPdfTemplate {
 
             Paragraph titleLine = new Paragraph()
                     .add(titleText)
-                    .add(new Text("  |  " + String.join(", ", proj.getTechStack())).setFontColor(SUBTLE_COLOR).setFontSize(9))
+                    .add(new Text("  |  " + proj.getSkills().stream().map(Skill::getName).collect(Collectors.joining(", "))).setFontColor(SUBTLE_COLOR).setFontSize(9))
                     .setMarginBottom(0);
 
             doc.add(titleLine);

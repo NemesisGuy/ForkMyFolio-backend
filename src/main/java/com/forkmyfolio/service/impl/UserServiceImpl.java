@@ -2,11 +2,16 @@ package com.forkmyfolio.service.impl;
 
 import com.forkmyfolio.exception.EmailAlreadyExistsException;
 import com.forkmyfolio.exception.ResourceNotFoundException;
+import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.model.Role;
 import com.forkmyfolio.model.User;
+import com.forkmyfolio.model.enums.AuthProvider;
 import com.forkmyfolio.repository.UserRepository;
+import com.forkmyfolio.service.SlugService;
 import com.forkmyfolio.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Implementation of the {@link UserService} interface.
@@ -29,29 +36,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SlugService slugService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, SlugService slugService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.slugService = slugService;
     }
 
-    /**
-     * Registers a new user. The request data should be mapped to primitive types
-     * or a domain model before calling this method.
-     *
-     * @param email           The user's email.
-     * @param password        The user's raw password.
-     * @param firstName       The user's first name.
-     * @param lastName        The user's last name.
-     * @param profileImageUrl The user's profile image URL.
-     * @param roles           The set of roles for the user.
-     * @return The saved {@link User} entity.
-     * @throws EmailAlreadyExistsException if the email is already in use.
-     */
     @Transactional
     @Override
-    public User registerUser(String email, String password, String firstName, String lastName, String profileImageUrl, Set<Role> roles) {
+    public User registerUser(String email, String password, String firstName, String lastName, String profileImageUrl, Set<Role> roles, Boolean active) {
         if (userRepository.existsByEmail(email)) {
             throw new EmailAlreadyExistsException("Error: Email is already taken!");
         }
@@ -62,23 +58,28 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setLastName(lastName);
         user.setPassword(passwordEncoder.encode(password));
         user.setProfileImageUrl(profileImageUrl);
+        user.setProvider(AuthProvider.LOCAL);
+        user.setActive(active != null ? active : true); // Default to active if not specified
+
+        String baseNameForSlug = firstName + " " + lastName;
+        String uniqueSlug = slugService.generateUniqueSlug(baseNameForSlug);
+        user.setSlug(uniqueSlug);
 
         if (roles == null || roles.isEmpty()) {
-            user.setRoles(Set.of(Role.USER)); // Default role
+            user.setRoles(Set.of(Role.USER));
         } else {
             user.setRoles(new HashSet<>(roles));
         }
 
+        PortfolioProfile profile = new PortfolioProfile();
+        profile.setUser(user);
+        profile.setHeadline("Welcome to my portfolio!");
+        profile.setSummary("I'm excited to share my work with you.");
+        user.setPortfolioProfile(profile);
+
         return userRepository.save(user);
     }
 
-    /**
-     * Finds a user by their email address.
-     *
-     * @param email The email address to search for.
-     * @return The {@link User} entity.
-     * @throws UsernameNotFoundException if no user is found with the given email.
-     */
     @Override
     @Transactional(readOnly = true)
     public User findByEmail(String email) {
@@ -90,26 +91,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID " + userId + " not found"));
     }
 
-    /**
-     * Checks if a user exists with the given email address.
-     *
-     * @param email The email to check.
-     * @return True if a user exists, false otherwise.
-     */
     @Override
     @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
-    /**
-     * Retrieves the portfolio owner's profile.
-     *
-     * @return The {@link User} entity of the portfolio owner.
-     */
     @Override
     @Transactional(readOnly = true)
     public User getPublicProfile() {
@@ -118,55 +108,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    @Transactional
-    public User updateUserAccount(Long userId, String firstName, String lastName) {
-        User userToUpdate = getUserById(userId); // Reusing existing method
-
-
-        userToUpdate.setFirstName(firstName);
-        userToUpdate.setLastName(lastName);
-
-        return userRepository.save(userToUpdate);
-    }
-
-    /**
-     * Updates an existing user's profile information.
-     *
-     * @param userId          The ID of the user to update.
-     * @param firstName       The new first name.
-     * @param lastName        The new last name.
-     * @param profileImageUrl The new profile image URL.
-     * @return The updated {@link User} entity.
-     */
-    @Transactional
-    @Override
-    public User updateUser(Long userId, String firstName, String lastName, String profileImageUrl) {
-        User userToUpdate = getUserById(userId);
-
-        userToUpdate.setFirstName(firstName);
-        userToUpdate.setLastName(lastName);
-        userToUpdate.setProfileImageUrl(profileImageUrl);
-
-        return userRepository.save(userToUpdate);
-    }
-
-    /**
-     * Loads a user by their username (email for this application).
-     * This method is part of the {@link UserDetailsService} interface.
-     */
-    @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
 
-    /**
-     * Retrieves the currently authenticated user from the Spring Security context.
-     *
-     * @return The authenticated {@link User} object.
-     * @throws UsernameNotFoundException if no user is authenticated or the principal cannot be resolved to a User.
-     */
     @Override
     @Transactional(readOnly = true)
     public User getCurrentAuthenticatedUser() {
@@ -176,11 +123,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         Object principal = authentication.getPrincipal();
-        if (principal instanceof User) {
-            return (User) principal;
-        }
-
         String username;
+
         if (principal instanceof UserDetails) {
             username = ((UserDetails) principal).getUsername();
         } else {
@@ -192,13 +136,48 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional
-    public User updateUserAccount(Long userId, String firstName, String lastName, String profileImageUrl) { // <-- ADD PARAMETER
+    public User updateUserProfile(Long userId, String firstName, String lastName, String profileImageUrl) {
         User userToUpdate = getUserById(userId);
-
         userToUpdate.setFirstName(firstName);
         userToUpdate.setLastName(lastName);
-        userToUpdate.setProfileImageUrl(profileImageUrl); // <-- ADD THIS LINE
-
+        userToUpdate.setProfileImageUrl(profileImageUrl);
         return userRepository.save(userToUpdate);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<User> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
+    }
+
+    @Override
+    @Transactional
+    public User updateUserByAdmin(UUID userId, String firstName, String lastName, String slug, Set<Role> roles, Boolean active) {
+        User userToUpdate = getUserByUuid(userId);
+        userToUpdate.setFirstName(firstName);
+        userToUpdate.setLastName(lastName);
+        userToUpdate.setSlug(slug); // Admins can edit slugs
+        userToUpdate.setRoles(roles);
+        userToUpdate.setActive(active);
+        return userRepository.save(userToUpdate);
+    }
+
+    @Override
+    @Transactional
+    public void deactivateUser(UUID userId) {
+        User userToDeactivate = getUserByUuid(userId);
+        userToDeactivate.setActive(false);
+        userRepository.save(userToDeactivate);
+    }
+
+    @Override
+    public Optional<User> findBySlug(String slug) {
+        return userRepository.findBySlugAndActiveTrue(slug);
+    }
+
+    @Override
+    public User getUserByUuid(UUID userId) {
+        return userRepository.findByUuid(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with UUID " + userId + " not found"));
     }
 }

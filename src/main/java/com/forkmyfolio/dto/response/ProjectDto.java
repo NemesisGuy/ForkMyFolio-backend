@@ -1,70 +1,46 @@
 package com.forkmyfolio.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
-/**
- * Data Transfer Object for representing Project information in API responses.
- */
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
+@Schema(name = "ProjectDto", description = "Represents a portfolio project in an API response.")
 public class ProjectDto {
 
-    /**
-     * Unique identifier for the project.
-     */
+    @Schema(description = "The unique identifier for the project.", example = "a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6")
     private UUID uuid;
 
-    /**
-     * Title of the project.
-     */
+    @Schema(description = "The title of the project.", example = "My Awesome App")
     private String title;
 
-    /**
-     * Detailed description of the project.
-     */
+    @Schema(description = "A detailed description of the project.", example = "This application solves a real-world problem by...")
     private String description;
 
-    /**
-     * List of technologies or tools used in the project.
-     */
-    private List<String> techStack;
-
-    /**
-     * URL to the project's code repository.
-     */
+    @Schema(description = "URL to the project's code repository.", example = "https://github.com/user/my-awesome-app")
     private String repoUrl;
 
-    /**
-     * URL to the live deployment of the project.
-     */
+    @Schema(description = "URL to the live deployment of the project.", example = "https://my-awesome-app.com")
     private String liveUrl;
 
-    /**
-     * URL to an image representing the project.
-     */
+    @Schema(description = "URL to an image representing the project.", example = "https://cdn.images.com/my-awesome-app.png")
     private String imageUrl;
 
-    /**
-     * The ID of the user who owns this project.
-     */
-    private Long userId; // To associate project with a user
+    @Schema(description = "Whether the project is visible on the public portfolio.", example = "true")
+    private boolean visible;
 
-    /**
-     * Timestamp of when the project was created.
-     */
+    @Schema(description = "The order in which to display this project.", example = "1")
+    private Integer displayOrder;
+
+    @Schema(description = "A set of skills associated with this project.")
+    private Set<SkillDto> skills;
+
+    @Schema(description = "The timestamp when the project was created.")
     private LocalDateTime createdAt;
 
-    /**
-     * Timestamp of when the project was last updated.
-     */
+    @Schema(description = "The timestamp when the project was last updated.")
     private LocalDateTime updatedAt;
 }

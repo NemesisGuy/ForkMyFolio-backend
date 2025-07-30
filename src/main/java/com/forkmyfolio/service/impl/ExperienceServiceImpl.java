@@ -2,64 +2,102 @@ package com.forkmyfolio.service.impl;
 
 import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.model.Experience;
+import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.repository.ExperienceRepository;
-import com.forkmyfolio.repository.UserRepository;
 import com.forkmyfolio.service.ExperienceService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.forkmyfolio.service.SkillService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+/**
+ * Implementation of the {@link ExperienceService} interface.
+ * Handles business logic related to work experiences.
+ */
 @Service
+@RequiredArgsConstructor
 public class ExperienceServiceImpl implements ExperienceService {
 
     private final ExperienceRepository experienceRepository;
-    private final UserRepository userRepository;
+    private final SkillService skillService;
 
-    @Autowired
-    public ExperienceServiceImpl(ExperienceRepository experienceRepository, UserRepository userRepository) {
-        this.experienceRepository = experienceRepository;
-        this.userRepository = userRepository;
+    @Override
+    @Transactional(readOnly = true)
+    public List<Experience> getExperiencesForUser(User user) {
+        return experienceRepository.findByUserOrderByDisplayOrderAsc(user);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Experience> getPublicExperience() {
-        User owner = userRepository.findFirstByOrderByIdAsc()
-                .orElseThrow(() -> new IllegalStateException("Portfolio owner user not found."));
-        return experienceRepository.findByUserOrderByStartDateDesc(owner);
-    }
+    public Experience findExperienceByUuidAndUser(UUID uuid, User user) {
+        Experience experience = experienceRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Experience with UUID: " + uuid));
 
-    @Override
-    @Transactional(readOnly = true)
-    public Experience getExperienceByUuid(UUID uuid) {
-        return experienceRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Experience not found with UUID: " + uuid));
+        if (!experience.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("User does not have permission to access this experience.");
+        }
+        return experience;
     }
 
     @Override
     @Transactional
-    public Experience createExperience(Experience experience) {
+    public Experience createExperience(Experience experience, Set<UUID> skillUuids) {
+        // The user must be set on the experience object before calling this method.
+        User owner = experience.getUser();
+        if (skillUuids != null && !skillUuids.isEmpty()) {
+            Set<Skill> skills = skillUuids.stream()
+                    // Ensure the user owns the skills they are trying to link
+                    .map(skillUuid -> skillService.findSkillByUuidAndUser(skillUuid, owner))
+                    .collect(Collectors.toSet());
+            experience.setSkills(skills);
+        }
         return experienceRepository.save(experience);
     }
 
     @Override
     @Transactional
-    public Experience save(Experience experience) {
-        return experienceRepository.save(experience);
+    public Experience updateExperience(UUID uuid, Experience updatedExperienceData, Set<UUID> skillUuids, User currentUser) {
+        Experience existingExperience = findExperienceByUuidAndUser(uuid, currentUser);
+
+        // Update all fields from the provided data object
+        existingExperience.setJobTitle(updatedExperienceData.getJobTitle());
+        existingExperience.setCompanyName(updatedExperienceData.getCompanyName());
+        existingExperience.setCompanyUrl(updatedExperienceData.getCompanyUrl());
+        existingExperience.setCompanyLogoUrl(updatedExperienceData.getCompanyLogoUrl());
+        existingExperience.setLocation(updatedExperienceData.getLocation());
+        existingExperience.setLocationType(updatedExperienceData.getLocationType());
+        existingExperience.setEmploymentType(updatedExperienceData.getEmploymentType());
+        existingExperience.setStartDate(updatedExperienceData.getStartDate());
+        existingExperience.setEndDate(updatedExperienceData.getEndDate());
+        existingExperience.setDescription(updatedExperienceData.getDescription());
+        existingExperience.setAchievements(updatedExperienceData.getAchievements());
+        existingExperience.setVisible(updatedExperienceData.isVisible());
+        existingExperience.setDisplayOrder(updatedExperienceData.getDisplayOrder());
+
+        // Update associated skills
+        Set<Skill> skillsToAssociate = new HashSet<>();
+        if (skillUuids != null && !skillUuids.isEmpty()) {
+            skillsToAssociate = skillUuids.stream()
+                    .map(skillUuid -> skillService.findSkillByUuidAndUser(skillUuid, currentUser))
+                    .collect(Collectors.toSet());
+        }
+        existingExperience.setSkills(skillsToAssociate);
+
+        return experienceRepository.save(existingExperience);
     }
 
     @Override
     @Transactional
     public void deleteExperience(UUID uuid, User currentUser) {
-        Experience experienceToDelete = getExperienceByUuid(uuid);
-        if (!experienceToDelete.getUser().getId().equals(currentUser.getId())) {
-            throw new AccessDeniedException("User does not have permission to delete this experience.");
-        }
+        Experience experienceToDelete = findExperienceByUuidAndUser(uuid, currentUser);
         experienceRepository.delete(experienceToDelete);
     }
 }

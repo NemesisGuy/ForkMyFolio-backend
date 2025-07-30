@@ -5,90 +5,147 @@ import com.forkmyfolio.dto.response.ExperienceDto;
 import com.forkmyfolio.dto.update.UpdateExperienceRequest;
 import com.forkmyfolio.model.Experience;
 import com.forkmyfolio.model.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.stream.Collectors;
+
 /**
- * Maps between Experience domain objects and their related DTOs.
+ * Mapper class responsible for converting between Experience domain models and Experience-related DTOs.
+ * This keeps the conversion logic separate from the service and controller layers.
  */
 @Component
+@RequiredArgsConstructor
 public class ExperienceMapper {
+
+    private final SkillMapper skillMapper;
 
     /**
      * Converts an Experience entity to an ExperienceDto for API responses.
+     *
+     * @param experience The Experience entity to convert.
+     * @return The corresponding ExperienceDto.
      */
     public ExperienceDto toDto(Experience experience) {
         if (experience == null) {
             return null;
         }
-        // KEY CHANGE: Use setters to populate the DTO, which avoids constructor issues
-        // and correctly maps the entity fields to the DTO fields.
         ExperienceDto dto = new ExperienceDto();
         dto.setUuid(experience.getUuid());
         dto.setJobTitle(experience.getJobTitle());
         dto.setCompanyName(experience.getCompanyName());
+        dto.setCompanyUrl(experience.getCompanyUrl());
+        dto.setCompanyLogoUrl(experience.getCompanyLogoUrl());
         dto.setLocation(experience.getLocation());
+        dto.setLocationType(experience.getLocationType());
+        dto.setEmploymentType(experience.getEmploymentType());
         dto.setStartDate(experience.getStartDate());
         dto.setEndDate(experience.getEndDate());
         dto.setDescription(experience.getDescription());
-        // Note: userId, createdAt, and updatedAt are not part of the public DTO.
+        dto.setAchievements(experience.getAchievements());
+        dto.setVisible(experience.isVisible());
+        dto.setDisplayOrder(experience.getDisplayOrder());
+        dto.setCreatedAt(experience.getCreatedAt());
+        dto.setUpdatedAt(experience.getUpdatedAt());
+
+        if (experience.getSkills() != null) {
+            dto.setSkills(experience.getSkills().stream()
+                    .map(skillMapper::toDto)
+                    .collect(Collectors.toSet()));
+        }
+
         return dto;
     }
 
     /**
-     * Converts a CreateExperienceRequest DTO into a new Experience entity.
+     * Converts a CreateExperienceRequest DTO to a new Experience entity.
+     * The associated skills are handled separately in the service layer.
+     *
+     * @param request The DTO containing the creation data.
+     * @param user    The user who will own this experience.
+     * @return A new Experience entity, ready to be persisted.
      */
-    public Experience toEntity(CreateExperienceRequest request, User owner) {
+    public Experience toEntity(CreateExperienceRequest request, User user) {
         if (request == null) {
             return null;
         }
         Experience experience = new Experience();
-        // KEY CHANGE: Use correct setters from the entity.
-        experience.setJobTitle(request.getJobTitle());
-        experience.setCompanyName(request.getCompanyName());
-        experience.setLocation(request.getLocation());
-        experience.setStartDate(request.getStartDate());
-        experience.setEndDate(request.getEndDate());
-        experience.setDescription(request.getDescription());
-        experience.setUser(owner);
+        experience.setUser(user); // Set owner
+        return updateEntityFromRequest(experience, request);
+    }
+
+    /**
+     * Converts an ExperienceDto (typically from a backup) to a new Experience entity.
+     *
+     * @param dto  The DTO containing the experience data.
+     * @param user The user who will own this experience.
+     * @return A new Experience entity, ready to be persisted.
+     */
+    public Experience toEntityFromDto(ExperienceDto dto, User user) {
+        if (dto == null) {
+            return null;
+        }
+        Experience experience = new Experience();
+        experience.setUser(user);
+        experience.setJobTitle(dto.getJobTitle());
+        experience.setCompanyName(dto.getCompanyName());
+        experience.setCompanyUrl(dto.getCompanyUrl());
+        experience.setCompanyLogoUrl(dto.getCompanyLogoUrl());
+        experience.setLocation(dto.getLocation());
+        experience.setLocationType(dto.getLocationType());
+        experience.setEmploymentType(dto.getEmploymentType());
+        experience.setStartDate(dto.getStartDate());
+        experience.setEndDate(dto.getEndDate());
+        experience.setDescription(dto.getDescription());
+        experience.setAchievements(dto.getAchievements());
+        experience.setVisible(dto.isVisible());
+        experience.setDisplayOrder(dto.getDisplayOrder());
+        // Note: Skills are not mapped here; they are restored separately and then linked in the service.
         return experience;
     }
 
     /**
-     * Applies updates from an UpdateExperienceRequest to an existing Experience entity.
+     * Creates a transient Experience entity from an UpdateExperienceRequest DTO.
+     * This object is used by the service layer to update a persisted entity.
+     *
+     * @param request The DTO containing the update data.
+     * @return A transient Experience entity populated with data from the request.
      */
-    public void applyUpdateFromRequest(UpdateExperienceRequest request, Experience experience) {
-        if (request == null || experience == null) {
-            return;
+    public Experience toEntity(UpdateExperienceRequest request) {
+        if (request == null) {
+            return null;
         }
-        // KEY CHANGE: Use correct field names from the request DTO.
-        request.getJobTitle().ifPresent(experience::setJobTitle);
-        request.getCompanyName().ifPresent(experience::setCompanyName);
-        request.getLocation().ifPresent(experience::setLocation);
-        request.getStartDate().ifPresent(experience::setStartDate);
-        request.getEndDate().ifPresent(experience::setEndDate);
-        request.getDescription().ifPresent(experience::setDescription);
+        Experience experience = new Experience();
+        experience.setJobTitle(request.getJobTitle());
+        experience.setCompanyName(request.getCompanyName());
+        experience.setCompanyUrl(request.getCompanyUrl());
+        experience.setCompanyLogoUrl(request.getCompanyLogoUrl());
+        experience.setLocation(request.getLocation());
+        experience.setLocationType(request.getLocationType());
+        experience.setEmploymentType(request.getEmploymentType());
+        experience.setStartDate(request.getStartDate());
+        experience.setEndDate(request.getEndDate());
+        experience.setDescription(request.getDescription());
+        experience.setAchievements(request.getAchievements());
+        experience.setVisible(request.getVisible());
+        experience.setDisplayOrder(request.getDisplayOrder());
+        return experience;
     }
 
-    /**
-     * Converts an ExperienceDto from a backup file into a new Experience entity.
-     * This is used by the RestoreService.
-     *
-     * @param dto   The DTO from the backup.
-     * @param owner The User who will own this new experience entry.
-     * @return A new Experience entity, ready to be persisted.
-     */
-    public Experience toEntityFromDto(ExperienceDto dto, User owner) {
-        if (dto == null) return null;
-        Experience experience = new Experience();
-        // Note: We do not set ID or UUID, allowing the DB to generate them.
-        // KEY CHANGE: Use correct setters from the entity.
-        experience.setJobTitle(dto.getJobTitle());
-        experience.setCompanyName(dto.getCompanyName());
-        experience.setLocation(dto.getLocation());
-        experience.setStartDate(dto.getStartDate());
-        experience.setEndDate(dto.getEndDate());
-        experience.setDescription(dto.getDescription());
-        experience.setUser(owner);
+    private Experience updateEntityFromRequest(Experience experience, CreateExperienceRequest request) {
+        experience.setJobTitle(request.getJobTitle());
+        experience.setCompanyName(request.getCompanyName());
+        experience.setCompanyUrl(request.getCompanyUrl());
+        experience.setCompanyLogoUrl(request.getCompanyLogoUrl());
+        experience.setLocation(request.getLocation());
+        experience.setLocationType(request.getLocationType());
+        experience.setEmploymentType(request.getEmploymentType());
+        experience.setStartDate(request.getStartDate());
+        experience.setEndDate(request.getEndDate());
+        experience.setDescription(request.getDescription());
+        experience.setAchievements(request.getAchievements());
+        experience.setVisible(request.isVisible());
+        experience.setDisplayOrder(request.getDisplayOrder());
         return experience;
     }
 }

@@ -10,4 +10,5 @@ public class TestimonialDto {
     private String quote;
     private String authorName;
     private String authorTitle;
+    private boolean visible;
 }

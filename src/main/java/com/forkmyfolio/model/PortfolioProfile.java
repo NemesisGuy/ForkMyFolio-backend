@@ -22,9 +22,17 @@ public class PortfolioProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    /**
+     * Flag to control the visibility of the entire profile section on the public portfolio.
+     */
+    @Column(nullable = false)
+    private boolean visible = true;
 
     @Column(length = 100)
     private String headline;

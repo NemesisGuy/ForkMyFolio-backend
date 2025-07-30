@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Spring Data JPA repository for {@link User} entities.
@@ -36,4 +37,18 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByRolesContains(Role role);
 
+
+    /**
+     * Finds an active user by their slug.
+     *
+     * @param slug The slug of the user.
+     * @return An Optional containing the User if found and active.
+     */
+    Optional<User> findBySlugAndActiveTrue(String slug);
+
+    boolean existsBySlug(String candidate);
+
+    Optional<User> findBySlug(String slug);
+
+    Optional<User> findByUuid(UUID userId);
 }

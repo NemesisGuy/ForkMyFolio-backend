@@ -1,7 +1,7 @@
 package com.forkmyfolio.service.pdf.templates;
 
 import com.forkmyfolio.model.*;
-import com.forkmyfolio.service.PdfGenerationService;
+import com.forkmyfolio.service.impl.PdfGenerationService;
 import com.forkmyfolio.service.pdf.PortfolioData;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -25,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A sophisticated, single-column "Elegance" template, now in a high-contrast light mode.
@@ -156,6 +157,7 @@ public class EleganceTemplate implements PortfolioPdfTemplate {
             Color pillColor = switch (skill.getLevel()) {
                 case EXPERT -> PdfGenerationService.SKILL_EXPERT_COLOR;
                 case INTERMEDIATE -> PdfGenerationService.SKILL_INTERMEDIATE_COLOR;
+                case ADVANCED -> PdfGenerationService.SKILL_ADVANCED_COLOR;
                 case BEGINNER -> PdfGenerationService.SKILL_BEGINNER_COLOR;
             };
             // White text on the colored pills still provides good contrast.
@@ -208,8 +210,10 @@ public class EleganceTemplate implements PortfolioPdfTemplate {
             }
             doc.add(new Paragraph(titleText));
 
-            if (proj.getTechStack() != null && !proj.getTechStack().isEmpty()) {
-                String techStackString = String.join(" • ", proj.getTechStack());
+            if (proj.getSkills() != null && !proj.getSkills().isEmpty()) {
+                String techStackString = proj.getSkills().stream()
+                        .map(Skill::getName)
+                        .collect(Collectors.joining(" • "));
                 doc.add(new Paragraph(techStackString)
                         .setFont(bodyItalicFont).setFontColor(SUBTLE_COLOR).setFontSize(10).setMarginTop(0));
             }

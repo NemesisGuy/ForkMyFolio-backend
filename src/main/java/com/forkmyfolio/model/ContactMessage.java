@@ -9,7 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -37,6 +39,8 @@ public class ContactMessage {
      * Automatically generated.
      */
     @UuidGenerator
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+
     @Column(name = "uuid", nullable = false, updatable = false, unique = true)
     private UUID uuid;
 
@@ -67,6 +71,13 @@ public class ContactMessage {
     @Size(min = 10, max = 5000, message = "Message must be between 10 and 5000 characters")
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
+
+    /**
+     * The user who owns the portfolio to which this message was sent.
+     */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     /**
      * Timestamp of when the message was created/received.

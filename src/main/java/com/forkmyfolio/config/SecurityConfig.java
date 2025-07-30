@@ -1,13 +1,17 @@
 package com.forkmyfolio.config;
 
-import com.forkmyfolio.security.CustomUserDetailsService;
 import com.forkmyfolio.security.JwtAuthenticationEntryPoint;
 import com.forkmyfolio.security.JwtAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.forkmyfolio.security.oauth2.CustomOAuth2UserService;
+import com.forkmyfolio.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
+import com.forkmyfolio.security.oauth2.OAuth2AuthenticationFailureHandler;
+import com.forkmyfolio.security.oauth2.OAuth2AuthenticationSuccessHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,6 +25,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Main security configuration class for the application.
@@ -29,31 +34,27 @@ import java.util.Arrays;
  */
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true) // Enables @RolesAllowed, @Secured
+@EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true)
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomUserDetailsService customUserDetailsService;
-    private final JwtAuthenticationEntryPoint unauthorizedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AuthenticationProvider authenticationProvider;
+    private final JwtAuthenticationEntryPoint unauthorizedHandler;
+
+    // OAuth2 Components
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     @Value("${app.cors.allowed-origins}")
     private String[] allowedOrigins;
 
     /**
-     * Constructs the SecurityConfig with necessary custom components.
-     */
-    @Autowired
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService,
-                          JwtAuthenticationEntryPoint unauthorizedHandler,
-                          JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.customUserDetailsService = customUserDetailsService;
-        this.unauthorizedHandler = unauthorizedHandler;
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
-
-    /**
      * Configures a CorsConfigurationSource bean for handling Cross-Origin Resource Sharing (CORS).
      * This is the standard way to integrate CORS with Spring Security 6's DSL.
+     * It correctly allows credentials, which is essential for the refresh token cookie.
      *
      * @return A CorsConfigurationSource instance.
      */
@@ -65,9 +66,9 @@ public class SecurityConfig {
         if (allowedOrigins != null && allowedOrigins.length > 0) {
             config.setAllowedOrigins(Arrays.asList(allowedOrigins));
         }
-        config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
-        config.setExposedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials", "Content-Disposition"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        config.setAllowedHeaders(List.of("Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
+        config.setExposedHeaders(List.of("Origin", "Content-Type", "Accept", "Authorization", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials", "Content-Disposition"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         source.registerCorsConfiguration("/**", config);
         return source;
     }
@@ -84,57 +85,51 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults()) // Uses the CorsConfigurationSource bean defined above
+                .cors(Customizer.withDefaults())
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(unauthorizedHandler) // Handle unauthorized attempts
+                        .authenticationEntryPoint(unauthorizedHandler)
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Use stateless sessions
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+                .authenticationProvider(authenticationProvider)
                 .authorizeHttpRequests(authorize -> authorize
-                        // --- Rule Order: Most Specific to Most General ---
-
-                        // 1. PUBLIC endpoints that anyone can access.
-                        // We are very specific about which HTTP methods are allowed publicly.
                         .requestMatchers(
-                                // --- Authentication & API Docs ---
                                 "/api/v1/auth/**",
+                                "/oauth2/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/h2-console/**"
                         ).permitAll()
-
-                        // --- Publicly readable portfolio data (GET requests only) ---
                         .requestMatchers(HttpMethod.GET,
-                                "/api/v1/portfolio-profile",
-                                "/api/v1/projects/**",
-                                "/api/v1/skills/**",
-                                "/api/v1/experience/**",
-                                "/api/v1/testimonials/**",
-                                "/api/v1/qualifications/**",
                                 "/api/v1/settings",
-                                "/api/v1/pdf/**",
-                                "/api/v1/vcard/**" // <-- ADDED: Allow public access to vCard downloads
+                                "/api/v1/settings/pdf-templates",
+                                "/api/v1/portfolios/**"
                         ).permitAll()
-
-                        // --- Publicly writable endpoints (POST requests only) ---
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/contact-messages",
                                 "/api/v1/stats/**"
                         ).permitAll()
-
-                        // 2. ADMIN endpoints. Only users with the 'ADMIN' role can access these.
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-
-                        // 3. ANY OTHER request that hasn't been matched yet must be authenticated.
-                        //    This rule MUST BE LAST.
+                        .requestMatchers("/api/v1/me/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(authz -> authz
+                                .baseUri("/oauth2/authorize")
+                                .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository)
+                        )
+                        .redirectionEndpoint(redirection -> redirection
+                                .baseUri("/oauth2/callback/*")
+                        )
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                        )
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                        .failureHandler(oAuth2AuthenticationFailureHandler)
                 );
 
-        // Add JWT token filter before UsernamePasswordAuthenticationFilter
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-        // For H2 console frame options if Spring Security is enabled
         http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
         return http.build();

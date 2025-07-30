@@ -5,10 +5,18 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
+/**
+ * Represents a global, system-wide setting.
+ * These settings are unique by name and serve as application-level configurations
+ * or as default values for user-configurable settings.
+ * For user-specific overrides, see the {@link UserSetting} entity.
+ */
 @Entity
 @Table(name = "settings", uniqueConstraints = {
         @UniqueConstraint(columnNames = "name")
@@ -22,6 +30,7 @@ public class Setting {
     private Long id;
 
     @UuidGenerator
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "uuid", nullable = false, updatable = false, unique = true)
     private UUID uuid;
 

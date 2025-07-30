@@ -2,22 +2,54 @@ package com.forkmyfolio.repository;
 
 import com.forkmyfolio.model.Experience;
 import com.forkmyfolio.model.User;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Spring Data JPA repository for the {@link Experience} entity.
+ */
 @Repository
 public interface ExperienceRepository extends JpaRepository<Experience, Long> {
 
-    // Find all experiences for a specific user, ordered by start date descending
-    List<Experience> findByUserOrderByStartDateDesc(User user);
-
+    /**
+     * Finds an experience by its public, unique UUID, eagerly fetching associated skills.
+     *
+     * @param uuid The UUID of the experience.
+     * @return An {@link Optional} containing the found experience, or empty if not found.
+     */
+    @EntityGraph(value = "Experience.withSkills")
     Optional<Experience> findByUuid(UUID uuid);
 
-    List<Experience> findAllByOrderByStartDateDesc();
+    /**
+     * Finds all experiences associated with a specific user, ordered by the displayOrder field,
+     * and eagerly fetches associated skills.
+     *
+     * @param user The user whose experiences to retrieve.
+     * @return A list of {@link Experience} entities, sorted by displayOrder in ascending order.
+     */
+    @EntityGraph(value = "Experience.withSkills")
+    List<Experience> findByUserOrderByDisplayOrderAsc(User user);
 
+    /**
+     * Finds all visible experiences for a specific user, eagerly fetching associated skills.
+     *
+     * @param user The user whose visible experiences to retrieve.
+     * @return A list of visible {@link Experience} entities.
+     */
+    @EntityGraph(value = "Experience.withSkills")
+    List<Experience> findByUserAndVisibleTrue(User user);
+
+    /**
+     * Deletes all experiences associated with a specific user.
+     *
+     * @param user The user whose experiences should be deleted.
+     */
+    @Transactional
     void deleteByUser(User user);
 }

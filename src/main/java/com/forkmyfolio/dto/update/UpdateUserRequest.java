@@ -36,6 +36,10 @@ public class UpdateUserRequest {
             example = "https://example.com/path/to/profile-image.png")
     private String profileImageUrl;
 
+    //active bool
+
+
+
     // You could add other fields here in the future, for example:
     /*
     @Size(max = 5000, message = "Bio must not exceed 5000 characters.")

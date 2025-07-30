@@ -9,29 +9,33 @@ import java.util.UUID;
 
 /**
  * Service interface for business logic related to Testimonials.
- * This service operates solely on domain models and is DTO-agnostic.
+ * This service operates solely on domain models (e.g., Testimonial) and is DTO-agnostic.
  */
 public interface TestimonialService {
 
     /**
-     * Retrieves the list of public testimonials for the portfolio owner.
+     * Retrieves all testimonials belonging to a specific user.
      *
-     * @return A list of {@link Testimonial} entities.
+     * @param user The user whose testimonials are to be retrieved.
+     * @return A list of {@link Testimonial} entities for the specified user.
      */
-    List<Testimonial> getPublicTestimonials();
+    List<Testimonial> getTestimonialsForUser(User user);
 
     /**
-     * Retrieves a single testimonial by its public UUID.
+     * Retrieves a single testimonial by its UUID, ensuring it belongs to the specified user.
      *
      * @param uuid The UUID of the testimonial.
-     * @return The {@link Testimonial} entity.
+     * @param user The user who must own the testimonial.
+     * @return The {@link Testimonial} entity if found and owned by the user.
+     * @throws com.forkmyfolio.exception.ResourceNotFoundException if the testimonial is not found.
+     * @throws AccessDeniedException                               if the user does not own the testimonial.
      */
-    Testimonial getTestimonialByUuid(UUID uuid);
+    Testimonial findTestimonialByUuidAndUser(UUID uuid, User user);
 
     /**
      * Creates and persists a new testimonial.
      *
-     * @param testimonial The pre-constructed testimonial entity to save.
+     * @param testimonial The pre-constructed testimonial entity to save. The owner must be set.
      * @return The persisted {@link Testimonial} entity.
      */
     Testimonial createTestimonial(Testimonial testimonial);

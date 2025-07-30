@@ -1,6 +1,7 @@
 package com.forkmyfolio.dto.response;
 
 import com.forkmyfolio.model.Role;
+import com.forkmyfolio.model.enums.AuthProvider;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,14 +42,38 @@ public class UserDto {
     private String lastName;
 
     /**
+     * User's slug.
+     *
+     */
+    private String slug;
+
+
+    /**
      * URL to the user's profile image.
      */
     private String profileImageUrl;
 
     /**
+     * The authentication provider used to register this user.
+     */
+    private AuthProvider provider;
+
+    /**
+     * The unique identifier from the external provider.
+     * This will be null for users with LOCAL provider.
+     */
+    private String providerId;
+
+    /**
      * Roles assigned to the user (e.g., ADMIN, USER).
      */
     private Set<Role> roles;
+
+    /**
+     * Indicates whether the user account is active.
+     */
+    private boolean active;
+
 
     /**
      * Timestamp of when the user account was created.

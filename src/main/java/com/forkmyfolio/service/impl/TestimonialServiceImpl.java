@@ -4,9 +4,8 @@ import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.model.Testimonial;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.repository.TestimonialRepository;
-import com.forkmyfolio.repository.UserRepository;
 import com.forkmyfolio.service.TestimonialService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,30 +14,27 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class TestimonialServiceImpl implements TestimonialService {
 
     private final TestimonialRepository testimonialRepository;
-    private final UserRepository userRepository;
 
-    @Autowired
-    public TestimonialServiceImpl(TestimonialRepository testimonialRepository, UserRepository userRepository) {
-        this.testimonialRepository = testimonialRepository;
-        this.userRepository = userRepository;
+    @Override
+    @Transactional(readOnly = true)
+    public List<Testimonial> getTestimonialsForUser(User user) {
+        return testimonialRepository.findByUserOrderByCreatedAtDesc(user);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Testimonial> getPublicTestimonials() {
-        User owner = userRepository.findFirstByOrderByIdAsc()
-                .orElseThrow(() -> new IllegalStateException("Portfolio owner user not found."));
-        return testimonialRepository.findByUserOrderByCreatedAtDesc(owner);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Testimonial getTestimonialByUuid(UUID uuid) {
-        return testimonialRepository.findByUuid(uuid)
+    public Testimonial findTestimonialByUuidAndUser(UUID uuid, User user) {
+        Testimonial testimonial = testimonialRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Testimonial not found with UUID: " + uuid));
+
+        if (!testimonial.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Access denied. You do not own this testimonial record.");
+        }
+        return testimonial;
     }
 
     @Override
@@ -50,16 +46,15 @@ public class TestimonialServiceImpl implements TestimonialService {
     @Override
     @Transactional
     public Testimonial save(Testimonial testimonial) {
+        // This method is used for updates. The ownership check happens before this is called.
         return testimonialRepository.save(testimonial);
     }
 
     @Override
     @Transactional
     public void deleteTestimonial(UUID uuid, User currentUser) {
-        Testimonial testimonialToDelete = getTestimonialByUuid(uuid);
-        if (!testimonialToDelete.getUser().getId().equals(currentUser.getId())) {
-            throw new AccessDeniedException("User does not have permission to delete this testimonial.");
-        }
+        // findTestimonialByUuidAndUser performs both the lookup and the ownership check.
+        Testimonial testimonialToDelete = findTestimonialByUuidAndUser(uuid, currentUser);
         testimonialRepository.delete(testimonialToDelete);
     }
 }

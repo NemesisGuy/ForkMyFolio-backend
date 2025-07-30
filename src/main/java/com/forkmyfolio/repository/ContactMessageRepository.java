@@ -5,6 +5,7 @@ import com.forkmyfolio.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,4 +17,11 @@ public interface ContactMessageRepository extends JpaRepository<ContactMessage, 
 
     Optional<ContactMessage> findByUuid(UUID uuid);
 
+    List<ContactMessage> findAllByOrderByCreatedAtDesc();
+
+    boolean existsByUuid(UUID uuid);
+
+    void deleteByUuid(UUID uuid);
+
+    List<ContactMessage> findByUserOrderByCreatedAtDesc(User user);
 }

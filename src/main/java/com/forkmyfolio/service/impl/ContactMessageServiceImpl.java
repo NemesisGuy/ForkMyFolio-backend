@@ -1,64 +1,70 @@
 package com.forkmyfolio.service.impl;
 
+import com.forkmyfolio.dto.create.CreateContactMessageRequest;
+import com.forkmyfolio.exception.ResourceNotFoundException;
+import com.forkmyfolio.mapper.ContactMessageMapper;
 import com.forkmyfolio.model.ContactMessage;
+import com.forkmyfolio.model.User;
 import com.forkmyfolio.repository.ContactMessageRepository;
+import com.forkmyfolio.repository.UserRepository;
 import com.forkmyfolio.service.ContactMessageService;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Implementation of the {@link ContactMessageService} interface.
- * Handles business logic related to contact messages.
- */
 @Service
+@RequiredArgsConstructor
 public class ContactMessageServiceImpl implements ContactMessageService {
 
     private final ContactMessageRepository contactMessageRepository;
+    private final UserRepository userRepository;
+    private final ContactMessageMapper contactMessageMapper;
 
-    /**
-     * Constructs a {@code ContactMessageServiceImpl} with the necessary repository.
-     *
-     * @param contactMessageRepository The repository for contact message data.
-     */
-    @Autowired
-    public ContactMessageServiceImpl(ContactMessageRepository contactMessageRepository) {
-        this.contactMessageRepository = contactMessageRepository;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional
-    public ContactMessage saveMessage(ContactMessage message) {
+    public ContactMessage saveMessage(String userSlug, CreateContactMessageRequest request) {
+        User targetUser = userRepository.findBySlugAndActiveTrue(userSlug)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with slug: " + userSlug));
+
+        ContactMessage message = contactMessageMapper.toEntity(request);
+        message.setUser(targetUser); // Associate message with the portfolio owner
         return contactMessageRepository.save(message);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
+    @Transactional(readOnly = true)
     public List<ContactMessage> findAll() {
-        return contactMessageRepository.findAll();
+        return contactMessageRepository.findAllByOrderByCreatedAtDesc();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional
     public void deleteByUuid(UUID uuid) {
-        // First, find the entity by its UUID.
-        // This ensures the entity exists before attempting to delete it.
-        ContactMessage messageToDelete = contactMessageRepository.findByUuid(uuid)
-                .orElseThrow(() -> new EntityNotFoundException("ContactMessage not found with UUID: " + uuid));
-        // Then, delete the found entity.
-        contactMessageRepository.delete(messageToDelete);
+        if (!contactMessageRepository.existsByUuid(uuid)) {
+            throw new ResourceNotFoundException("ContactMessage not found with UUID: " + uuid);
+        }
+        contactMessageRepository.deleteByUuid(uuid);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ContactMessage> getMessagesForUser(User user) {
+        return contactMessageRepository.findByUserOrderByCreatedAtDesc(user);
+    }
+
+    @Override
+    @Transactional
+    public void deleteMessageAsOwner(UUID messageUuid, User owner) {
+        ContactMessage message = contactMessageRepository.findByUuid(messageUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("ContactMessage not found with UUID: " + messageUuid));
+
+        if (!message.getUser().getId().equals(owner.getId())) {
+            throw new AccessDeniedException("You are not authorized to delete this message.");
+        }
+        contactMessageRepository.delete(message);
+    }
 }

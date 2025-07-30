@@ -8,17 +8,24 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * Represents a project in a user's portfolio.
  */
+@NamedEntityGraph(
+        name = "Project.withSkills",
+        attributeNodes = @NamedAttributeNode("skills")
+)
 @Entity
 @Table(name = "projects")
 @Getter
@@ -35,6 +42,7 @@ public class Project {
     private Long id;
 
     @UuidGenerator
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "uuid", nullable = false, updatable = false, unique = true)
     private UUID uuid;
 
@@ -56,13 +64,17 @@ public class Project {
     private String description;
 
     /**
-     * List of technologies or tools used in the project.
-     * For example, ["Java", "Spring Boot", "React"].
+     * The skills and technologies used in the project.
+     * This establishes a many-to-many relationship with the Skill entity,
+     * replacing the old plain text techStack.
      */
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "project_tech_stack", joinColumns = @JoinColumn(name = "project_id"))
-    @Column(name = "technology")
-    private List<String> techStack;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "project_skills",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private Set<Skill> skills = new HashSet<>();
 
     /**
      * URL to the project's code repository (e.g., GitHub, GitLab).
@@ -88,12 +100,23 @@ public class Project {
     /**
      * The user who owns this project.
      * This establishes a many-to-one relationship with the User entity.
-     * It is eagerly fetched as project details often require user information.
      */
-    @ManyToOne(fetch = FetchType.LAZY) // Many projects can belong to one user
-    @JoinColumn(name = "user_id") // Foreign key in the projects table
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    /**
+     * Flag to control the visibility of this project on the public portfolio.
+     */
+    @Column(nullable = false)
+    private boolean visible = true;
+
+    /**
+     * The order in which this project should be displayed on the portfolio.
+     * Lower numbers appear first.
+     */
+    @Column(name = "display_order", nullable = false)
+    private Integer displayOrder = 0;
 
     /**
      * Timestamp of when the project was created.
@@ -111,14 +134,4 @@ public class Project {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    /**
-     * JPA lifecycle callback to generate a UUID before the entity is first persisted.
-     */
-    @PrePersist
-    protected void onCreate() {
-        if (this.uuid == null) {
-            this.uuid = UUID.randomUUID();
-        }
-
-    }
 }

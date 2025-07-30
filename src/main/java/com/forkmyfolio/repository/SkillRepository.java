@@ -31,4 +31,6 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
     Optional<Skill> findByUuid(UUID uuid);
 
     void deleteByUser(User user);
+
+    List<Skill> findByUserAndVisibleTrue(User user);
 }

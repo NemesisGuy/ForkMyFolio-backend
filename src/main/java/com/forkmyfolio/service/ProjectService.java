@@ -5,51 +5,63 @@ import com.forkmyfolio.model.User;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
- * Service interface for business logic related to Projects.
- * This service operates solely on domain models and is DTO-agnostic.
+ * Service interface for managing portfolio projects.
+ * Defines business logic for creating, retrieving, updating, and deleting projects.
+ * This service operates solely on domain models (e.g., Project) and is DTO-agnostic.
  */
 public interface ProjectService {
 
     /**
-     * Retrieves the list of public projects for the portfolio owner.
+     * Retrieves all projects belonging to a specific user.
      *
-     * @return A list of {@link Project} entities.
+     * @param user The user whose projects are to be retrieved.
+     * @return A list of {@link Project} entities for the specified user.
      */
-    List<Project> getPublicProjects();
+    List<Project> getProjectsForUser(User user);
 
     /**
-     * Retrieves a single project by its public UUID.
+     * Retrieves a single project by its public UUID, ensuring it belongs to the specified user.
      *
      * @param uuid The UUID of the project.
-     * @return The {@link Project} entity.
+     * @param user The user who must own the project.
+     * @return The {@link Project} entity if found and owned by the user.
+     * @throws com.forkmyfolio.exception.ResourceNotFoundException if the project is not found.
+     * @throws AccessDeniedException if the user does not own the project.
      */
-    Project getProjectByUuid(UUID uuid);
+    Project findProjectByUuidAndUser(UUID uuid, User user);
 
     /**
      * Creates and persists a new project.
      *
-     * @param project The pre-constructed project entity to save.
-     * @return The persisted {@link Project} entity.
+     * @param project    The project entity to save. The owner (User) must be set before calling this method.
+     * @param skillUuids A set of UUIDs for skills to associate with this project.
+     * @return The persisted {@link Project} entity, including its generated ID and UUID.
      */
-    Project createProject(Project project);
+    Project createProject(Project project, Set<UUID> skillUuids);
 
     /**
-     * Saves an updated project entity.
+     * Updates an existing project.
      *
-     * @param project The project entity with updated fields to be saved.
-     * @return The updated and persisted {@link Project} entity.
+     * @param uuid                The UUID of the project to update.
+     * @param updatedProjectData  A Project object containing the new data to be applied.
+     * @param skillUuids          A set of UUIDs for skills to associate with this project.
+     * @param currentUser         The user performing the action, for authorization.
+     * @return The updated Project entity.
      */
-    Project save(Project project);
+    Project updateProject(UUID uuid, Project updatedProjectData, Set<UUID> skillUuids, User currentUser);
 
     /**
      * Deletes a project by its public UUID.
+     * Implementations of this method must perform an authorization check.
      *
      * @param uuid        The UUID of the project to delete.
-     * @param currentUser The user performing the action.
-     * @throws AccessDeniedException if the user is not authorized.
+     * @param currentUser The user performing the action, for authorization checks.
+     * @throws com.forkmyfolio.exception.ResourceNotFoundException if the project is not found.
+     * @throws AccessDeniedException if the user is not authorized to delete the project.
      */
     void deleteProject(UUID uuid, User currentUser);
 }

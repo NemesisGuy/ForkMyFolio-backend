@@ -1,10 +1,7 @@
 package com.forkmyfolio.service.pdf.templates;
 
-import com.forkmyfolio.model.Experience;
-import com.forkmyfolio.model.Project;
-import com.forkmyfolio.model.Qualification;
-import com.forkmyfolio.model.User;
-import com.forkmyfolio.service.PdfGenerationService;
+import com.forkmyfolio.model.*;
+import com.forkmyfolio.service.impl.PdfGenerationService;
 import com.forkmyfolio.service.pdf.PortfolioData;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -15,7 +12,6 @@ import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.Div;
 import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.properties.TextAlignment;
 
 import java.io.IOException;
@@ -69,7 +65,7 @@ public class ClassicTemplate implements PortfolioPdfTemplate {
         // 4. Projects
         createSection(document, "Projects");
         for (Project proj : data.projects()) {
-            createEntry(document, proj.getTitle(), proj.getTechStack().stream().collect(Collectors.joining(", ")), null, proj.getDescription());
+            createEntry(document, proj.getTitle(), proj.getSkills().stream().map(Skill::getName).collect(Collectors.joining(", ")), null, proj.getDescription());
         }
 
         // 5. Education

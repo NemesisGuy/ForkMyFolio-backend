@@ -18,4 +18,6 @@ public interface TestimonialRepository extends JpaRepository<Testimonial, Long> 
     Optional<Testimonial> findByUuid(UUID uuid);
 
     void deleteByUser(User user);
+
+    List<Testimonial> findByUserAndVisibleTrue(User user);
 }

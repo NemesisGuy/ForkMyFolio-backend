@@ -1,7 +1,7 @@
 package com.forkmyfolio.aop;
 
 import com.forkmyfolio.model.enums.VisitorStatType;
-import com.forkmyfolio.service.VisitorStatsService;
+import com.forkmyfolio.service.impl.VisitorStatsService;
 import com.forkmyfolio.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;

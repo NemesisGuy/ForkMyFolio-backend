@@ -7,7 +7,8 @@ import com.forkmyfolio.model.User;
 import org.springframework.stereotype.Component;
 
 /**
- * Maps between Skill domain objects and their related DTOs.
+ * Mapper class responsible for converting between Skill domain models and Skill-related DTOs.
+ * This keeps the conversion logic separate from the service and controller layers.
  */
 @Component
 public class SkillMapper {
@@ -15,55 +16,67 @@ public class SkillMapper {
     /**
      * Converts a Skill entity to a SkillDto for API responses.
      *
-     * @param skill The Skill entity.
+     * @param skill The Skill entity to convert.
      * @return The corresponding SkillDto.
      */
     public SkillDto toDto(Skill skill) {
         if (skill == null) {
             return null;
         }
-        // Corrected to use the 'level' field from the entity
-        return new SkillDto(skill.getUuid(), skill.getName(), skill.getLevel());
+        SkillDto dto = new SkillDto();
+        dto.setUuid(skill.getUuid());
+        dto.setName(skill.getName());
+        dto.setLevel(skill.getLevel());
+        dto.setVisible(skill.isVisible());
+        dto.setCategory(skill.getCategory());
+        dto.setIcon(skill.getIcon());
+        dto.setDescription(skill.getDescription());
+        dto.setCreatedAt(skill.getCreatedAt());
+        dto.setUpdatedAt(skill.getUpdatedAt());
+        return dto;
     }
 
     /**
-     * Converts a CreateSkillRequest DTO into a new Skill entity.
+     * Converts a CreateSkillRequest DTO to a new Skill entity.
      *
-     * @param request The DTO containing the new skill data.
-     * @param owner   The User who will own this new skill.
+     * @param request The DTO containing the creation data.
+     * @param user    The user who will own this skill.
      * @return A new Skill entity, ready to be persisted.
      */
-    public Skill toEntity(CreateSkillRequest request, User owner) {
+    public Skill toEntity(CreateSkillRequest request, User user) {
         if (request == null) {
             return null;
         }
         Skill skill = new Skill();
         skill.setName(request.getName());
-        // Corrected to use the 'level' field
         skill.setLevel(request.getLevel());
-        // Corrected to link to the User, not PortfolioProfile
-        skill.setUser(owner);
+        skill.setVisible(request.isVisible());
+        skill.setCategory(request.getCategory());
+        skill.setIcon(request.getIcon());
+        skill.setDescription(request.getDescription());
+        skill.setUser(user); // Set the owner
         return skill;
     }
 
     /**
-     * Converts a SkillDto from a backup file into a new Skill entity.
-     * This method is called by the central RestoreService.
+     * Converts a SkillDto (typically from a backup) to a new Skill entity.
      *
-     * @param dto   The DTO from the backup.
-     * @param owner The User who will own this new skill.
+     * @param dto  The DTO containing the skill data.
+     * @param user The user who will own this skill.
      * @return A new Skill entity, ready to be persisted.
      */
-    public Skill toEntityFromDto(SkillDto dto, User owner) {
+    public Skill toEntityFromDto(SkillDto dto, User user) {
         if (dto == null) {
             return null;
         }
         Skill skill = new Skill();
+        skill.setUser(user);
         skill.setName(dto.getName());
-        // Corrected to use the 'level' field from the DTO
         skill.setLevel(dto.getLevel());
-        // Corrected to link to the User, not PortfolioProfile
-        skill.setUser(owner);
+        skill.setVisible(dto.isVisible());
+        skill.setCategory(dto.getCategory());
+        skill.setIcon(dto.getIcon());
+        skill.setDescription(dto.getDescription());
         return skill;
     }
 }

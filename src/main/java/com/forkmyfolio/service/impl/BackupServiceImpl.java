@@ -27,22 +27,23 @@ public class BackupServiceImpl implements BackupService {
         PortfolioBackupData backupData = new PortfolioBackupData();
 
         // 1. Get Profile
+        // This will throw an exception if not found, which is acceptable for a backup.
         backupData.setProfile(portfolioProfileService.getProfileByUser(currentUser));
 
         // 2. Get Projects
-        backupData.setProjects(projectService.getPublicProjects());
+        backupData.setProjects(projectService.getProjectsForUser(currentUser));
 
         // 3. Get Skills
-        backupData.setSkills(skillService.getPublicSkills());
+        backupData.setSkills(skillService.getSkillsForUser(currentUser));
 
         // 4. Get Experiences
-        backupData.setExperiences(experienceService.getPublicExperience());
+        backupData.setExperiences(experienceService.getExperiencesForUser(currentUser));
 
         // 5. Get Testimonials
-        backupData.setTestimonials(testimonialService.getPublicTestimonials());
+        backupData.setTestimonials(testimonialService.getTestimonialsForUser(currentUser));
 
         // 6. Get Qualifications
-        backupData.setQualifications(qualificationService.getPublicQualifications());
+        backupData.setQualifications(qualificationService.getQualificationsForCurrentUser());
 
         return backupData;
     }

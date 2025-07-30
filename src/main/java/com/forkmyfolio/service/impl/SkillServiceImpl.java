@@ -4,9 +4,8 @@ import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.repository.SkillRepository;
-import com.forkmyfolio.repository.UserRepository;
 import com.forkmyfolio.service.SkillService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,96 +15,63 @@ import java.util.UUID;
 
 /**
  * Implementation of the {@link SkillService} interface.
- * Handles business logic related to user skills.
- * This service operates solely on domain models and is DTO-agnostic.
+ * Handles business logic related to skills.
  */
 @Service
+@RequiredArgsConstructor
 public class SkillServiceImpl implements SkillService {
 
     private final SkillRepository skillRepository;
-    private final UserRepository userRepository;
 
-    @Autowired
-    public SkillServiceImpl(SkillRepository skillRepository, UserRepository userRepository) {
-        this.skillRepository = skillRepository;
-        this.userRepository = userRepository;
-    }
-
-    /**
-     * Retrieves the list of public skills for the portfolio owner.
-     *
-     * @return A list of {@link Skill} entities.
-     */
     @Override
     @Transactional(readOnly = true)
-    public List<Skill> getPublicSkills() {
-        // Find the portfolio owner using our established "first user" strategy.
-        User owner = userRepository.findFirstByOrderByIdAsc()
-                .orElseThrow(() -> new IllegalStateException("Portfolio owner user not found in the database."));
-
-        // Fetch their skills. Assumes a method `findByUser` exists in SkillRepository.
-        return skillRepository.findByUser(owner);
+    public List<Skill> getSkillsForUser(User user) {
+        return skillRepository.findByUser(user);
     }
 
-    /**
-     * Retrieves a single skill by its public UUID.
-     *
-     * @param uuid The UUID of the skill to find.
-     * @return The {@link Skill} entity.
-     */
     @Override
     @Transactional(readOnly = true)
-    public Skill getSkillByUuid(UUID uuid) {
+    public Skill findSkillByUuid(UUID uuid) {
         return skillRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Skill not found with UUID: " + uuid));
+                .orElseThrow(() -> new ResourceNotFoundException("Skill with UUID: " + uuid));
     }
 
-    /**
-     * Creates and persists a new skill.
-     * The incoming Skill object should be pre-constructed by a mapper.
-     *
-     * @param skill The new skill entity to save.
-     * @return The persisted {@link Skill} entity with its generated ID and UUID.
-     */
+    @Override
+    @Transactional(readOnly = true)
+    public Skill findSkillByUuidAndUser(UUID uuid, User user) {
+        Skill skill = findSkillByUuid(uuid);
+        if (!skill.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("User does not have permission to access this skill.");
+        }
+        return skill;
+    }
+
     @Override
     @Transactional
     public Skill createSkill(Skill skill) {
-        // The service's job is simply to persist the fully-formed entity.
+        // The user must be set on the skill object before calling this method.
         return skillRepository.save(skill);
     }
 
-    /**
-     * Deletes a skill by its public UUID, ensuring the user has permission.
-     *
-     * @param uuid        The UUID of the skill to delete.
-     * @param currentUser The user performing the action.
-     */
     @Override
     @Transactional
     public void deleteSkill(UUID uuid, User currentUser) {
-        Skill skillToDelete = getSkillByUuid(uuid);
-
-        // Authorization check: Ensure the skill belongs to the user trying to delete it.
-        // This is a crucial check even if the controller endpoint is secured by role.
-        if (!skillToDelete.getUser().getId().equals(currentUser.getId())) {
-            throw new AccessDeniedException("User does not have permission to delete this skill.");
-        }
-
+        Skill skillToDelete = findSkillByUuidAndUser(uuid, currentUser);
         skillRepository.delete(skillToDelete);
     }
 
     @Override
     @Transactional
-    public Skill updateSkill(UUID uuid, Skill updatedSkillDetails, User currentUser) {
-        Skill existingSkill = getSkillByUuid(uuid);
-        if (!existingSkill.getUser().getId().equals(currentUser.getId())) {
-            throw new AccessDeniedException("User does not have permission to update this skill.");
-        }
+    public Skill updateSkill(UUID uuid, String name, Skill.SkillLevel level, boolean visible, String category, String icon, String description, User currentUser) {
+        Skill skillToUpdate = findSkillByUuidAndUser(uuid, currentUser);
 
-        // Update the level from the transient object
-        existingSkill.setLevel(updatedSkillDetails.getLevel());
+        skillToUpdate.setName(name);
+        skillToUpdate.setLevel(level);
+        skillToUpdate.setVisible(visible);
+        skillToUpdate.setCategory(category);
+        skillToUpdate.setIcon(icon);
+        skillToUpdate.setDescription(description);
 
-        return skillRepository.save(existingSkill);
+        return skillRepository.save(skillToUpdate);
     }
-
 }

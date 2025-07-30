@@ -5,102 +5,119 @@ import com.forkmyfolio.dto.response.ProjectDto;
 import com.forkmyfolio.dto.update.UpdateProjectRequest;
 import com.forkmyfolio.model.Project;
 import com.forkmyfolio.model.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.stream.Collectors;
+
 /**
- * Maps between Project domain objects and their related DTOs.
+ * Mapper class responsible for converting between Project domain models and Project-related DTOs.
+ * This keeps the conversion logic separate from the service and controller layers.
  */
 @Component
+@RequiredArgsConstructor
 public class ProjectMapper {
+
+    private final SkillMapper skillMapper;
 
     /**
      * Converts a Project entity to a ProjectDto for API responses.
      *
      * @param project The Project entity to convert.
-     * @return A complete ProjectDto.
+     * @return The corresponding ProjectDto.
      */
     public ProjectDto toDto(Project project) {
         if (project == null) {
             return null;
         }
-        // KEY CHANGE: The constructor now includes all fields from the DTO,
-        // ensuring the API response is complete.
-        return new ProjectDto(
-                project.getUuid(),
-                project.getTitle(),
-                project.getDescription(),
-                project.getTechStack(),
-                project.getRepoUrl(),
-                project.getLiveUrl(),
-                project.getImageUrl(),
-                project.getUser() != null ? project.getUser().getId() : null, // Safely get user ID
-                project.getCreatedAt(),
-                project.getUpdatedAt()
-        );
+        ProjectDto dto = new ProjectDto();
+        dto.setUuid(project.getUuid());
+        dto.setTitle(project.getTitle());
+        dto.setDescription(project.getDescription());
+        dto.setRepoUrl(project.getRepoUrl());
+        dto.setLiveUrl(project.getLiveUrl());
+        dto.setImageUrl(project.getImageUrl());
+        dto.setVisible(project.isVisible());
+        dto.setDisplayOrder(project.getDisplayOrder());
+        dto.setCreatedAt(project.getCreatedAt());
+        dto.setUpdatedAt(project.getUpdatedAt());
+
+        if (project.getSkills() != null) {
+            dto.setSkills(project.getSkills().stream()
+                    .map(skillMapper::toDto)
+                    .collect(Collectors.toSet()));
+        }
+
+        return dto;
     }
 
     /**
-     * Converts a ProjectDto from a backup file into a new Project entity.
-     * This is used by the RestoreService.
+     * Converts a CreateProjectRequest DTO to a new Project entity.
+     * The associated skills are handled separately in the service layer.
      *
-     * @param dto   The DTO from the backup.
-     * @param owner The User who will own this new project.
+     * @param request The DTO containing the creation data.
+     * @param user    The user who will own this project.
      * @return A new Project entity, ready to be persisted.
      */
-    public Project toEntityFromDto(ProjectDto dto, User owner) {
-        if (dto == null) {
+    public Project toEntity(CreateProjectRequest request, User user) {
+        if (request == null) {
             return null;
         }
         Project project = new Project();
-        // Note: We do not set ID or UUID, allowing the DB to generate them.
-        project.setTitle(dto.getTitle());
-        project.setDescription(dto.getDescription());
-        project.setTechStack(dto.getTechStack());
-        project.setRepoUrl(dto.getRepoUrl());
-        project.setLiveUrl(dto.getLiveUrl());
-        project.setImageUrl(dto.getImageUrl());
-        project.setUser(owner);
+        project.setUser(user); // Set owner
+        project.setTitle(request.getTitle());
+        project.setDescription(request.getDescription());
+        project.setRepoUrl(request.getRepoUrl());
+        project.setLiveUrl(request.getLiveUrl());
+        project.setImageUrl(request.getImageUrl());
+        project.setVisible(request.isVisible());
+        project.setDisplayOrder(request.getDisplayOrder());
         return project;
     }
 
     /**
-     * Converts a CreateProjectRequest DTO into a new Project entity.
+     * Converts a ProjectDto (typically from a backup) to a new Project entity.
      *
-     * @param request The DTO with new project data.
-     * @param owner   The User who will own this project.
+     * @param dto  The DTO containing the project data.
+     * @param user The user who will own this project.
      * @return A new Project entity, ready to be persisted.
      */
-    public Project toEntity(CreateProjectRequest request, User owner) {
+    public Project toEntityFromDto(ProjectDto dto, User user) {
+        if (dto == null) {
+            return null;
+        }
+        Project project = new Project();
+        project.setUser(user);
+        project.setTitle(dto.getTitle());
+        project.setDescription(dto.getDescription());
+        project.setRepoUrl(dto.getRepoUrl());
+        project.setLiveUrl(dto.getLiveUrl());
+        project.setImageUrl(dto.getImageUrl());
+        project.setVisible(dto.isVisible());
+        project.setDisplayOrder(dto.getDisplayOrder());
+        // Note: Skills are not mapped here; they are restored separately and then linked in the service.
+        return project;
+    }
+
+    /**
+     * Creates a transient Project entity from an UpdateProjectRequest DTO.
+     * This object is used by the service layer to update a persisted entity.
+     *
+     * @param request The DTO containing the update data.
+     * @return A transient Project entity populated with data from the request.
+     */
+    public Project toEntity(UpdateProjectRequest request) {
         if (request == null) {
             return null;
         }
         Project project = new Project();
         project.setTitle(request.getTitle());
         project.setDescription(request.getDescription());
-        project.setTechStack(request.getTechStack());
         project.setRepoUrl(request.getRepoUrl());
         project.setLiveUrl(request.getLiveUrl());
         project.setImageUrl(request.getImageUrl());
-        project.setUser(owner);
+        project.setVisible(request.getVisible());
+        project.setDisplayOrder(request.getDisplayOrder());
         return project;
-    }
-
-    /**
-     * Applies updates from an UpdateProjectRequest to an existing Project entity.
-     *
-     * @param request The DTO with the fields to update.
-     * @param project The existing entity to be updated.
-     */
-    public void applyUpdateFromRequest(UpdateProjectRequest request, Project project) {
-        if (request == null || project == null) {
-            return;
-        }
-
-        request.getTitle().ifPresent(project::setTitle);
-        request.getDescription().ifPresent(project::setDescription);
-        request.getTechStack().ifPresent(project::setTechStack);
-        request.getRepoUrl().ifPresent(project::setRepoUrl);
-        request.getLiveUrl().ifPresent(project::setLiveUrl);
-        request.getImageUrl().ifPresent(project::setImageUrl);
     }
 }

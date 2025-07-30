@@ -1,6 +1,6 @@
 package com.forkmyfolio.security;
 
-import com.forkmyfolio.service.VisitorStatsService;
+import com.forkmyfolio.service.impl.VisitorStatsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

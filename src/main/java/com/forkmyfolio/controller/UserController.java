@@ -1,68 +1,54 @@
 package com.forkmyfolio.controller;
 
-import com.forkmyfolio.advice.ApiResponseWrapper;
 import com.forkmyfolio.dto.response.UserDto;
+import com.forkmyfolio.dto.update.UpdateUserAccountRequest;
 import com.forkmyfolio.mapper.UserMapper;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-/**
- * Controller for user-related operations, such as fetching user profiles.
- */
 @RestController
-@RequestMapping("/api/v1/users")
-@Tag(name = "Users", description = "Endpoints for user operations")
+@RequestMapping("/api/v1/me")
+@Tag(name = "User (Me)", description = "Endpoints for the authenticated user to manage their own profile.")
+@RequiredArgsConstructor
+@PreAuthorize("hasRole('USER')") // All endpoints in this controller require at least USER role
 public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
 
-    /**
-     * Constructs a UserController with the necessary UserService.
-     *
-     * @param userService The service for user-related business logic.
-     */
-    @Autowired
-    public UserController(UserService userService, UserMapper userMapper) {
-        this.userService = userService;
-        this.userMapper = userMapper;
+    @GetMapping
+    @Operation(summary = "Get current user's profile", description = "Retrieves the detailed profile information for the currently authenticated user.")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<UserDto> getMyProfile() {
+        User currentUser = userService.getCurrentAuthenticatedUser();
+        UserDto userDto = userMapper.toDto(currentUser);
+        // The ApiResponseWrapper will be applied automatically
+        return ResponseEntity.ok(userDto);
     }
 
-    /**
-     * Retrieves the profile of the currently authenticated user.
-     * The user's password and other sensitive details are excluded.
-     *
-     * @return ResponseEntity containing the {@link UserDto} of the current user.
-     */
-    @GetMapping("/me/profile")
-    @PreAuthorize("isAuthenticated()") // Ensures the user is authenticated
-    @Operation(summary = "Get current user profile",
-            description = "Fetches the profile information for the currently authenticated user. Excludes sensitive data like password.",
-            security = @SecurityRequirement(name = "bearerAuth"), // References the security scheme in OpenApiConfig
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Successfully retrieved user profile",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ApiResponseWrapper.class))),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized - JWT token is missing or invalid",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ApiResponseWrapper.class))),
-                    @ApiResponse(responseCode = "404", description = "User not found (should not happen if authenticated)",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ApiResponseWrapper.class)))
-            })
-    public UserDto getCurrentUserProfile() {
+    @PutMapping
+    @Operation(summary = "Update current user's profile", description = "Updates the first name, last name, and profile image URL for the currently authenticated user.")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<UserDto> updateMyProfile(@Valid @RequestBody UpdateUserAccountRequest request) {
         User currentUser = userService.getCurrentAuthenticatedUser();
-        return userMapper.toDto(currentUser);
+
+        // Controller passes primitives to the service, adhering to our architecture
+        User updatedUser = userService.updateUserProfile(
+                currentUser.getId(),
+                request.getFirstName(),
+                request.getLastName(),
+                request.getProfileImageUrl()
+        );
+
+        UserDto updatedDto = userMapper.toDto(updatedUser);
+        return ResponseEntity.ok(updatedDto);
     }
 }

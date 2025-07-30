@@ -1,5 +1,6 @@
 package com.forkmyfolio.model;
 
+import com.forkmyfolio.model.enums.AuthProvider;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,8 +10,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +28,8 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Table(name = "users", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "email")
+        @UniqueConstraint(columnNames = "email"),
+        @UniqueConstraint(columnNames = "slug") // Added unique constraint for slug
 })
 @Getter
 @Setter
@@ -39,13 +43,20 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    /**
-     * Unique identifier for the user.     * Universally unique identifier for the user.
-     */
 
+    /**
+     * Universally unique identifier for the user.
+     */
     @UuidGenerator
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "uuid", nullable = false, updatable = false, unique = true)
     private UUID uuid;
+
+    /**
+     * The unique, URL-friendly identifier for the user's public portfolio.
+     */
+    @Column(name = "slug", unique = true, nullable = false, length = 50)
+    private String slug;
 
     /**
      * User's email address. Must be unique and a valid email format.
@@ -70,11 +81,9 @@ public class User implements UserDetails {
     private String lastName;
 
     /**
-     * Hashed password for the user. Stored securely.
+     * Hashed password for the user. Can be null for OAuth2 users.
      */
-    @NotBlank(message = "Password cannot be blank")
     @Size(min = 8, message = "Password must be at least 8 characters long") // Validation for length before hashing
-    @Column(nullable = false)
     private String password;
 
     /**
@@ -82,22 +91,64 @@ public class User implements UserDetails {
      */
     private String profileImageUrl;
 
-    // 'mappedBy = "user"' tells Hibernate that the `PortfolioProfile` entity owns the relationship
-    // (i.e., the `user_id` foreign key is in the 'profiles' table).
-    // 'cascade = CascadeType.ALL' means if you delete a User, their PortfolioProfile is also deleted.
+    /**
+     * Flag indicating if the user's account is active. Can be used for soft deletes or email verification.
+     */
+    @Column(nullable = false)
+    private boolean active = true;
+
+    /**
+     * Flag indicating if the user's email has been verified.
+     * OAuth2 providers are assumed to have verified emails.
+     */
+    @Column(nullable = false)
+    private boolean emailVerified = false;
+
+    /**
+     * The authentication provider used to register this user (e.g., LOCAL, GOOGLE).
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AuthProvider provider;
+
+    /**
+     * The unique identifier for the user from the external provider.
+     * This will be null for users with LOCAL provider.
+     */
+    private String providerId;
+
+
+    // 'mappedBy = "user"' tells Hibernate that the other entity owns the relationship
+    // (i.e., the `user_id` foreign key is in the other table).
+    // 'cascade = CascadeType.ALL' means if you delete a User, their associated entities are also deleted.
     // 'orphanRemoval = true' handles cases where the link is severed.
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private PortfolioProfile portfolioProfile;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Project> projects = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Qualification> qualifications = new ArrayList<>();
+    private List<Skill> skills = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Experience> experiences = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Qualification> qualifications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Testimonial> testimonials = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ContactMessage> contactMessages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserSetting> userSettings = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RefreshToken> refreshTokens = new ArrayList<>();
+
     /**
      * Roles assigned to the user (e.g., ADMIN, USER).
      * Stored as a set of Role enums.
@@ -186,6 +237,6 @@ public class User implements UserDetails {
      */
     @Override
     public boolean isEnabled() {
-        return true; // Account enabling/disabling not implemented
+        return this.active; // Use the active flag to enable/disable users
     }
 }

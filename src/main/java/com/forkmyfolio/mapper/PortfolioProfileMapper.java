@@ -27,7 +27,9 @@ public class PortfolioProfileMapper {
         // --- Data from User Entity ---
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
-        // REMOVED: dto.setProfileImageUrl(user.getProfileImageUrl()); // THIS LINE IS GONE.
+        // --- THIS IS THE FIX ---
+        // The DTO's 'imageUrl' should be populated from the User's 'profileImageUrl'.
+        dto.setImageUrl(user.getProfileImageUrl());
 
         // --- Data from PortfolioProfile Entity ---
         dto.setHeadline(portfolioProfile.getHeadline());
@@ -44,9 +46,6 @@ public class PortfolioProfileMapper {
         return dto;
     }
 
-    /**
-     * Applies updates from an UpdatePortfolioProfileRequest DTO to an existing PortfolioProfile entity.
-     */
     /**
      * Applies updates from a PortfolioProfileDto (from a backup) to an existing PortfolioProfile entity.
      */

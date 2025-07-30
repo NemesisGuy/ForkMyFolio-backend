@@ -1,90 +1,49 @@
 package com.forkmyfolio.controller;
 
-import com.forkmyfolio.advice.ApiResponseWrapper;
 import com.forkmyfolio.aop.TrackVisitor;
 import com.forkmyfolio.dto.create.CreateContactMessageRequest;
 import com.forkmyfolio.mapper.ContactMessageMapper;
 import com.forkmyfolio.model.ContactMessage;
+import com.forkmyfolio.model.User;
 import com.forkmyfolio.model.enums.VisitorStatType;
 import com.forkmyfolio.service.ContactMessageService;
-import com.forkmyfolio.service.VisitorStatsService;
-import com.forkmyfolio.util.SecurityUtils;
+import com.forkmyfolio.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.Map;
 
-/**
- * Controller for handling incoming contact messages.
- */
 @RestController
-@RequestMapping("/api/v1/contact-messages")
-@Tag(name = "Contact Messages", description = "Endpoints for submitting contact messages")
+@RequestMapping("/api/v1/portfolios/{slug}/contact-messages")
+@Tag(name = "Contact Messages", description = "Endpoints for submitting contact messages to a specific user.")
+@RequiredArgsConstructor
+@Slf4j
 public class ContactMessageController {
 
-    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(ContactMessageController.class);
     private final ContactMessageService contactMessageService;
+    private final UserService userService;
     private final ContactMessageMapper contactMessageMapper;
-    private final VisitorStatsService visitorStatsService;
-    private final SecurityUtils securityUtils;
 
-    /**
-     * Constructs a ContactMessageController with the necessary service.
-     *
-     * @param contactMessageService Service for contact message operations.
-     * @param contactMessageMapper  Mapper for converting between DTOs and entities.
-     */
-    @Autowired
-    public ContactMessageController(ContactMessageService contactMessageService, ContactMessageMapper contactMessageMapper, VisitorStatsService visitorStatsService, SecurityUtils securityUtils) {
-        this.contactMessageService = contactMessageService;
-        this.contactMessageMapper = contactMessageMapper;
-        this.visitorStatsService = visitorStatsService;
-        this.securityUtils = securityUtils;
-    }
-
-    /**
-     * Submits a new contact message.
-     * This endpoint is publicly accessible.
-     *
-     * @param createContactMessageRequest DTO containing the contact message details.
-     * @return A map containing a success message.
-     */
     @PostMapping
-    @Operation(summary = "Submit a new contact message",
-            description = "Allows users to submit a contact message. This endpoint is publicly accessible.")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Message submitted successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseWrapper.class))),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseWrapper.class)))
-    })
+    @Operation(summary = "Submit a new contact message to a user",
+            description = "Allows visitors to submit a contact message to the user identified by the slug.")
     @ResponseStatus(HttpStatus.CREATED)
     @TrackVisitor(VisitorStatType.CONTACT_MESSAGE_SUBMISSION)
-    public Map<String, String> submitContactMessage(@Valid @RequestBody CreateContactMessageRequest createContactMessageRequest) {
-        // Log the incoming request with key details at INFO level
-        logger.info("Received a new contact message from: {} <{}>",
-                createContactMessageRequest.getName(),
-                createContactMessageRequest.getEmail());
+    public Map<String, String> submitContactMessage(
+            @Parameter(description = "The unique, URL-friendly slug of the user to contact.", example = "jane-doe")
+            @PathVariable String slug,
+            @Valid @RequestBody CreateContactMessageRequest createRequest) {
 
-        // Log the full message content at DEBUG level for development troubleshooting
-        logger.debug("Contact message details: {}", createContactMessageRequest);
+        log.info("Received contact message for user with slug '{}' from: {}", slug, createRequest.getEmail());
+        contactMessageService.saveMessage(slug, createRequest);
+        log.info("Successfully saved contact message for user with slug '{}'.", slug);
 
-        // Convert DTO to entity and call the service to save the message
-        ContactMessage messageToSave = contactMessageMapper.toEntity(createContactMessageRequest);
-        contactMessageService.saveMessage(messageToSave);
-
-        // Log the successful outcome at INFO level
-        logger.info("Successfully saved contact message from '{}'.", createContactMessageRequest.getEmail());
-
-        return Collections.singletonMap("message", "Contact message submitted successfully.");
+        return Map.of("message", "Contact message submitted successfully.");
     }
 }

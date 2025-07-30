@@ -1,128 +1,89 @@
 package com.forkmyfolio.security;
 
+import com.forkmyfolio.config.AppProperties;
 import com.forkmyfolio.model.User;
+import com.forkmyfolio.security.oauth2.UserPrincipal;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
-import javax.crypto.SecretKey;
+import java.security.Key;
 import java.util.Date;
-import java.util.stream.Collectors;
 
+/**
+ * Unified component for creating and validating JWT tokens for both standard login and OAuth2 flows.
+ * This is the single source of truth for all JWT operations in the application.
+ */
 @Component
 public class JwtTokenProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
+    private final AppProperties appProperties;
+    private final Key key;
 
-    @Value("${jwt.expiration.ms}")
-    private long jwtExpirationInMs;
+    public JwtTokenProvider(AppProperties appProperties) {
+        this.appProperties = appProperties;
+        String secret = appProperties.getJwt().getSecret();
 
-    private SecretKey key;
-
-    @PostConstruct
-    public void init() {
-        if (jwtSecret == null || jwtSecret.isBlank()) {
-            logger.error("JWT secret is null or empty. Please check property 'jwt.secret'.");
-            throw new IllegalArgumentException("JWT secret cannot be null or empty.");
+        // FIX: Add validation to ensure the JWT secret is configured.
+        // This prevents the application from crashing with a cryptic error if the secret is missing.
+        if (!StringUtils.hasText(secret)) {
+            throw new IllegalStateException("JWT secret key is not configured. Please set the 'app.jwt.secret' property in your environment or application properties.");
         }
-        logger.info("Initializing JwtTokenProvider with secret: '{}...'", jwtSecret.substring(0, Math.min(jwtSecret.length(), 10)));
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
     /**
-     * Generates a JWT token from Authentication (safe now).
+     * Creates a JWT access token from an Authentication object.
+     * The token's subject will be the user's database ID.
+     *
+     * @param authentication The Authentication object from Spring Security.
+     * @return A signed JWT string.
      */
-    public String generateToken(Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return generateToken(userDetails);
-    }
+    public String createToken(Authentication authentication) {
+        Object principal = authentication.getPrincipal();
+        Long userId;
 
-    /**
-     * Preferred method: generates a JWT token from UserDetails.
-     * Uses the user's unique identifier (email or username) as subject.
-     */
-    public String generateToken(UserDetails userDetails) {
+        if (principal instanceof UserPrincipal) {
+            userId = ((UserPrincipal) principal).getId();
+        } else if (principal instanceof User) {
+            userId = ((User) principal).getId();
+        } else {
+            throw new IllegalArgumentException("Cannot create token for unsupported principal type: " + principal.getClass().getName());
+        }
+
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
-
-        String authorities = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-        String email = userDetails.getUsername();
-        Long userId = (userDetails instanceof User) ? ((User) userDetails).getId() : null;
+        Date expiryDate = new Date(now.getTime() + appProperties.getJwt().getExpirationMs());
 
         return Jwts.builder()
-                .subject(userDetails.getUsername()) // username is typically email
-                .claim("userId", userId)
-                .claim("roles", authorities)
-                .issuedAt(now)
-                .expiration(expiryDate)
-                .signWith(key, Jwts.SIG.HS512)
+                .setSubject(userId.toString())
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
 
-
-
-
-    /*  *//**
-     * Extracts username (subject) from JWT token.
-     * Note: Since you used username/email as subject, this returns the username string.
-     *//*
-    public String getUsernameFromJWT(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.getSubject();
-    }*/
-
     /**
-     * Extracts the username/email (subject) from the JWT token.
-     * The subject was set to the user's email during token creation.
-     *
-     * @param token The JWT token.
-     * @return The email/username from the token subject.
-     */
-    public String getUsernameFromJWT(String token) {
-        Claims claims = getClaimsFromJWT(token);
-        return claims.getSubject(); // which is the email
-    }
-
-    /**
-     * Extracts the user ID from the JWT token claims.
+     * Extracts the user ID from the JWT token's subject.
      *
      * @param token The JWT token.
      * @return The user ID (as Long).
      */
-    public Long getUserIdFromJWT(String token) {
-        Claims claims = getClaimsFromJWT(token);
-        return claims.get("userId", Long.class);
-    }
-
-
-    /**
-     * Retrieves claims from the JWT token.
-     */
-    public Claims getClaimsFromJWT(String token) {
-        return Jwts.parser()
-                .verifyWith(key)
+    public Long getUserIdFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(key)
                 .build()
-                .parseSignedClaims(token)
-                .getPayload();
+                .parseClaimsJws(token)
+                .getBody();
+        return Long.parseLong(claims.getSubject());
     }
 
     /**
@@ -130,15 +91,10 @@ public class JwtTokenProvider {
      */
     public boolean validateToken(String authToken) {
         try {
-            Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(authToken);
+            Jwts.parser().setSigningKey(key).build().parseClaimsJws(authToken);
             return true;
-        } catch (SignatureException ex) {
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException ex) {
             logger.error("Invalid JWT signature");
-        } catch (MalformedJwtException ex) {
-            logger.error("Invalid JWT token");
         } catch (ExpiredJwtException ex) {
             logger.error("Expired JWT token");
         } catch (UnsupportedJwtException ex) {

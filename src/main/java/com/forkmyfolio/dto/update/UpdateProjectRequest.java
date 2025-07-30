@@ -1,60 +1,49 @@
 package com.forkmyfolio.dto.update;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+import org.hibernate.validator.constraints.URL;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
-/**
- * Data Transfer Object for requests to update an existing project.
- * All fields are optional, allowing partial updates.
- * Validation constraints ensure that if a value is provided, it is valid.
- */
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
+@Schema(name = "UpdateProjectRequest", description = "Request body for updating an existing project.")
 public class UpdateProjectRequest {
 
-    private UUID uuid;
+    @NotBlank(message = "Project title cannot be blank")
+    @Size(min = 3, max = 100, message = "Project title must be between 3 and 100 characters")
+    @Schema(description = "The title of the project.", example = "My Awesome App v2", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String title;
 
-    /**
-     * New title for the project.
-     * If provided, must be between 3 and 100 characters. (Validation on entity)
-     */
-    private Optional<String> title = Optional.empty();
+    @NotBlank(message = "Project description cannot be blank")
+    @Size(min = 10, max = 2000, message = "Project description must be between 10 and 2000 characters")
+    @Schema(description = "A detailed description of the project.", example = "This application now has more features...", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String description;
 
-    /**
-     * New detailed description for the project.
-     * If provided, must be between 10 and 2000 characters. (Validation on entity)
-     */
-    private Optional<String> description = Optional.empty();
+    @URL(message = "Repository URL must be a valid URL")
+    @Schema(description = "URL to the project's code repository (e.g., GitHub).", example = "https://github.com/user/my-awesome-app")
+    private String repoUrl;
 
-    /**
-     * New list of technologies or tools used in the project.
-     * If provided, replaces the existing list.
-     */
-    private Optional<List<String>> techStack = Optional.empty();
+    @URL(message = "Live URL must be a valid URL")
+    @Schema(description = "URL to the live deployment of the project.", example = "https://my-awesome-app.com")
+    private String liveUrl;
 
-    /**
-     * New URL to the project's code repository.
-     * If provided, must be a valid URL. (Validation on entity)
-     */
-    private Optional<String> repoUrl = Optional.empty();
+    @URL(message = "Image URL must be a valid URL")
+    @Schema(description = "URL to a preview image for the project.", example = "https://cdn.images.com/my-awesome-app-v2.png")
+    private String imageUrl;
 
-    /**
-     * New URL to the live deployment of the project.
-     * If provided, must be a valid URL. (Validation on entity)
-     */
-    private Optional<String> liveUrl = Optional.empty();
+    @NotNull(message = "Visibility status cannot be null.")
+    @Schema(description = "Whether the project is visible on the public portfolio.", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Boolean visible;
 
-    /**
-     * New URL to an image representing the project.
-     * If provided, must be a valid URL. (Validation on entity)
-     */
-    private Optional<String> imageUrl = Optional.empty();
+    @NotNull(message = "Display order cannot be null.")
+    @Schema(description = "The order in which to display this project.", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Integer displayOrder;
+
+    @Schema(description = "A set of UUIDs for the skills used in this project.")
+    private Set<UUID> skillUuids;
 }

@@ -2,7 +2,7 @@ package com.forkmyfolio.service.pdf.templates;
 
 import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.model.User;
-import com.forkmyfolio.service.PdfGenerationService;
+import com.forkmyfolio.service.impl.PdfGenerationService;
 import com.forkmyfolio.service.pdf.PortfolioData;
 import com.itextpdf.barcodes.BarcodeQRCode;
 import com.itextpdf.kernel.colors.ColorConstants;

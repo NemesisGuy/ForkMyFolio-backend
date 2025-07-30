@@ -3,6 +3,7 @@ package com.forkmyfolio.controller;
 import com.forkmyfolio.dto.response.SettingDto;
 import com.forkmyfolio.mapper.SettingMapper;
 import com.forkmyfolio.service.SettingService;
+import com.forkmyfolio.service.impl.PdfGenerationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -21,19 +22,22 @@ import java.util.List;
 @Slf4j
 public class PublicSettingController {
     private final SettingService settingService;
-    private final SettingMapper settingMapper; // Inject the mapper
+    private final SettingMapper settingMapper;
+    private final PdfGenerationService pdfGenerationService;
 
-    /**
-     * --- THIS IS THE FIX ---
-     * The method now returns a List of SettingDto objects.
-     * This provides a rich, consistent data structure with uuid, name, and value
-     * for every setting, which is exactly what the frontend needs.
-     */
     @Operation(summary = "Get all public settings as a list of objects")
     @GetMapping
     public ResponseEntity<List<SettingDto>> getPublicSettings() {
         log.info("Request received for public settings list");
         var settings = settingService.getAllSettings();
         return ResponseEntity.ok(settingMapper.toDtoList(settings));
+    }
+
+    @GetMapping("/pdf-templates")
+    @Operation(summary = "Get the list of available PDF template names")
+    public ResponseEntity<List<String>> getAvailablePdfTemplates() {
+        log.info("Request received for available PDF templates");
+        List<String> templateNames = pdfGenerationService.getAvailableTemplateNames();
+        return ResponseEntity.ok(templateNames);
     }
 }

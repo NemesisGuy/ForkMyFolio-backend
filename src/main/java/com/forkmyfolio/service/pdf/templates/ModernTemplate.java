@@ -1,7 +1,7 @@
 package com.forkmyfolio.service.pdf.templates;
 
 import com.forkmyfolio.model.*;
-import com.forkmyfolio.service.PdfGenerationService;
+import com.forkmyfolio.service.impl.PdfGenerationService;
 import com.forkmyfolio.service.pdf.PortfolioData;
 import com.itextpdf.barcodes.BarcodeQRCode;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -19,6 +19,7 @@ import com.itextpdf.layout.properties.UnitValue;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.stream.Collectors;
 
 /**
  * The "Modern" PDF template implementation. Contains all layout logic for this specific design.
@@ -124,6 +125,7 @@ public class ModernTemplate implements PortfolioPdfTemplate {
                         case BEGINNER -> { filledDots = 1; dotColor = SKILL_BEGINNER_COLOR; }
                         case INTERMEDIATE -> { filledDots = 3; dotColor = SKILL_INTERMEDIATE_COLOR; }
                         case EXPERT -> { filledDots = 5; dotColor = SKILL_EXPERT_COLOR; }
+                        case ADVANCED -> { filledDots = 4; dotColor = ACCENT_COLOR; } // Added missing ADVANCED case
                     }
                 }
                 if (ctx.solidIconFont != null) {
@@ -272,9 +274,9 @@ public class ModernTemplate implements PortfolioPdfTemplate {
         }
         Paragraph titleParagraph = new Paragraph(titleText);
         cell.add(titleParagraph);
-        if (proj.getTechStack() != null && !proj.getTechStack().isEmpty()) {
+        if (proj.getSkills() != null && !proj.getSkills().isEmpty()) {
             titleParagraph.setMarginBottom(2);
-            String techStackString = String.join(" • ", proj.getTechStack());
+            String techStackString = proj.getSkills().stream().map(Skill::getName).collect(Collectors.joining(" • "));
             Paragraph techStackParagraph = new Paragraph(techStackString).setFont(ctx.itemSubtitleFont).setFontSize(9).setFontColor(SECONDARY_COLOR).setMarginBottom(5);
             cell.add(techStackParagraph);
         } else {

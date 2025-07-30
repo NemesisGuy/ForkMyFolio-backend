@@ -1,40 +1,36 @@
 package com.forkmyfolio.service.impl;
 
-import com.forkmyfolio.exception.ConflictException;
 import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.repository.PortfolioProfileRepository;
 import com.forkmyfolio.repository.UserRepository;
 import com.forkmyfolio.service.PortfolioProfileService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class PortfolioProfileServiceImpl implements PortfolioProfileService {
 
-    private final UserRepository userRepository;
     private final PortfolioProfileRepository portfolioProfileRepository;
-
-    @Autowired
-    public PortfolioProfileServiceImpl(UserRepository userRepository, PortfolioProfileRepository portfolioProfileRepository) {
-        this.userRepository = userRepository;
-        this.portfolioProfileRepository = portfolioProfileRepository;
-    }
+    private final UserRepository userRepository;
 
     @Override
     @Transactional(readOnly = true)
     public PortfolioProfile getPublicProfile() {
+        // This is a legacy method from the single-user architecture.
+        // It finds the first user and returns their profile.
         User owner = userRepository.findFirstByOrderByIdAsc()
-                .orElseThrow(() -> new IllegalStateException("Portfolio owner user not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Portfolio owner user not found."));
         return getProfileByUser(owner);
     }
 
     @Override
     @Transactional(readOnly = true)
     public PortfolioProfile getProfileByUser(User user) {
-        // This now calls the cleaner @EntityGraph-enhanced method
         return portfolioProfileRepository.findByUser(user)
                 .orElseThrow(() -> new ResourceNotFoundException("PortfolioProfile not found for user: " + user.getEmail()));
     }
@@ -42,26 +38,23 @@ public class PortfolioProfileServiceImpl implements PortfolioProfileService {
     @Override
     @Transactional
     public PortfolioProfile createProfile(PortfolioProfile portfolioProfile) {
-        // Business rule: A user can only have one profile. Prevent duplicates.
+        // Basic check to prevent creating duplicate profiles for a user.
         portfolioProfileRepository.findByUser(portfolioProfile.getUser()).ifPresent(p -> {
-            throw new ConflictException("A portfolio profile already exists for this user. Use PUT to update.");
+            throw new IllegalStateException("A portfolio profile already exists for this user.");
         });
-
         PortfolioProfile savedProfile = portfolioProfileRepository.save(portfolioProfile);
-
-        // THIS IS THE FIX: After saving, we re-fetch the entity using our eager method.
-        // This guarantees the object returned to the controller is fully initialized.
-        return getProfileByUser(savedProfile.getUser());
+        // Explicitly initialize the lazy-loaded User proxy before the transaction ends.
+        Hibernate.initialize(savedProfile.getUser());
+        return savedProfile;
     }
 
     @Override
     @Transactional
     public PortfolioProfile save(PortfolioProfile portfolioProfile) {
-        // This method is for updating an existing entity.
-        portfolioProfileRepository.save(portfolioProfile);
-
-        // THIS IS THE FIX: Same pattern as create. Save the changes, then return a
-        // complete, eagerly-loaded entity for the controller to use.
-        return getProfileByUser(portfolioProfile.getUser());
+        // This method is used for updates. Ownership checks happen in the controller layer.
+        PortfolioProfile savedProfile = portfolioProfileRepository.save(portfolioProfile);
+        // Explicitly initialize the lazy-loaded User proxy before the transaction ends.
+        Hibernate.initialize(savedProfile.getUser());
+        return savedProfile;
     }
 }

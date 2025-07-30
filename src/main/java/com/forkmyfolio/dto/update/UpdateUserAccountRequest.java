@@ -18,7 +18,7 @@ public class UpdateUserAccountRequest {
 
     // Note: email and password are intentionally excluded.
     // Changing those would require separate, more secure endpoints.
-    // --- ADD THIS FIELD ---
+
     @URL(message = "Profile image must be a valid URL.")
     @Size(max = 255)
     private String profileImageUrl;

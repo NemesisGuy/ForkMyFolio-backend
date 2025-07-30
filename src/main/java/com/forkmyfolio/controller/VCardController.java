@@ -5,8 +5,8 @@ import com.forkmyfolio.aop.TrackVisitor;
 import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.model.enums.VisitorStatType;
 import com.forkmyfolio.service.PortfolioProfileService;
-import com.forkmyfolio.service.VCardService;
-import com.forkmyfolio.service.VisitorStatsService;
+import com.forkmyfolio.service.impl.VCardService;
+import com.forkmyfolio.service.impl.VisitorStatsService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class VCardController {
         log.info("GET /api/v1/vcard/download - Received request for vCard");
         try {
             PortfolioProfile profile = portfolioProfileService.getPublicProfile();
-            VCardService.VCardFile vCardFile = vCardService.generateVCard(profile);
+            VCardService.VCardFile vCardFile = vCardService.generateVCard(String.valueOf(profile));
 
             HttpHeaders headers = new HttpHeaders();
             headers.set(HttpHeaders.CONTENT_TYPE, "text/vcard; charset=utf-8");

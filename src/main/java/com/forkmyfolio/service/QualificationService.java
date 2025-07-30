@@ -1,55 +1,65 @@
 package com.forkmyfolio.service;
 
 import com.forkmyfolio.model.Qualification;
-import com.forkmyfolio.model.User;
-import org.springframework.security.access.AccessDeniedException;
+import com.forkmyfolio.model.enums.QualificationLevel;
 
 import java.util.List;
 import java.util.UUID;
 
 /**
- * Service interface for business logic related to Qualifications.
- * This service operates solely on domain models and is DTO-agnostic.
+ * Service interface for managing Qualification entities.
+ * Defines the business logic for qualification-related operations,
+ * ensuring that all actions are performed on behalf of the currently authenticated user.
  */
 public interface QualificationService {
 
     /**
-     * Retrieves the list of public qualifications for the portfolio owner.
+     * Retrieves all qualifications for the currently authenticated user.
      *
      * @return A list of {@link Qualification} entities.
      */
-    List<Qualification> getPublicQualifications();
+    List<Qualification> getQualificationsForCurrentUser();
 
     /**
-     * Retrieves a single qualification by its public UUID.
+     * Retrieves a single qualification by its UUID, ensuring it belongs to the current user.
      *
-     * @param uuid The UUID of the qualification.
-     * @return The {@link Qualification} entity.
+     * @param qualificationUuid The UUID of the qualification to retrieve.
+     * @return The found {@link Qualification} entity.
+     * @throws com.forkmyfolio.exception.ResourceNotFoundException if the qualification does not exist or does not belong to the user.
      */
-    Qualification getQualificationByUuid(UUID uuid);
+    Qualification getQualificationByUuidForCurrentUser(UUID qualificationUuid);
 
     /**
-     * Creates and persists a new qualification.
+     * Creates a new qualification and associates it with the currently authenticated user.
      *
-     * @param qualification The pre-constructed qualification entity to save.
-     * @return The persisted {@link Qualification} entity.
+     * @param qualificationName  The name of the qualification.
+     * @param institutionName    The name of the institution.
+     * @param institutionLogoUrl URL for the institution's logo.
+     * @param institutionWebsite URL for the institution's website.
+     * @param fieldOfStudy       The field of study.
+     * @param level              The academic level.
+     * @param startYear          The start year.
+     * @param completionYear     The completion year.
+     * @param stillStudying      Flag for ongoing studies.
+     * @param grade              The grade achieved.
+     * @param credentialUrl      URL for a verifiable credential.
+     * @param visible            Visibility on the public portfolio.
+     * @return The newly created and persisted {@link Qualification} entity.
      */
-    Qualification createQualification(Qualification qualification);
+    Qualification createQualificationForCurrentUser(String qualificationName, String institutionName, String institutionLogoUrl, String institutionWebsite, String fieldOfStudy, QualificationLevel level, Integer startYear, Integer completionYear, Boolean stillStudying, String grade, String credentialUrl, boolean visible);
 
     /**
-     * Saves an updated qualification entity.
+     * Updates an existing qualification for the currently authenticated user.
      *
-     * @param qualification The qualification entity with updated fields to be saved.
+     * @param qualificationUuid The UUID of the qualification to update.
      * @return The updated and persisted {@link Qualification} entity.
      */
-    Qualification save(Qualification qualification);
+    Qualification updateQualificationForCurrentUser(UUID qualificationUuid, String qualificationName, String institutionName, String institutionLogoUrl, String institutionWebsite, String fieldOfStudy, QualificationLevel level, Integer startYear, Integer completionYear, Boolean stillStudying, String grade, String credentialUrl, Boolean visible);
 
     /**
-     * Deletes a qualification by its public UUID.
+     * Deletes a qualification for the currently authenticated user.
      *
-     * @param uuid        The UUID of the qualification to delete.
-     * @param currentUser The user performing the action.
-     * @throws AccessDeniedException if the user is not authorized.
+     * @param qualificationUuid The UUID of the qualification to delete.
      */
-    void deleteQualification(UUID uuid, User currentUser);
+    void deleteQualificationForCurrentUser(UUID qualificationUuid);
 }
