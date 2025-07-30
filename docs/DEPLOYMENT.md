@@ -1,135 +1,111 @@
-# ForkMyFolio - Docker Compose Deployment Guide
+# Deployment Guide
 
-This guide provides step-by-step instructions for deploying the entire ForkMyFolio application stack (Frontend, Backend, and Database) using Docker Compose.
-
-This setup uses the official, pre-built Docker images from Docker Hub and the deployment configuration from the official GitHub repository.
-
-- **Backend Repo**: [NemesisGuy/ForkMyFolio-backend on GitHub](https://github.com/NemesisGuy/ForkMyFolio-backend)
-- **Frontend Repo**: [NemesisGuy/ForkMyFolio-frontend on GitHub](https://github.com/NemesisGuy/ForkMyFolio-frontend)
-
-This setup is ideal for local development, testing, or a simple server deployment.
-
-## Table of Contents
-- [Prerequisites](#prerequisites)
-- Step 1: Get the Deployment Files
-- Step 2: Create the Environment File (`.env`)
-- Step 3: Understanding Environment Variables
-- Step 4: Running the Application
-- Step 5: Accessing the Application
-- Step 6: Managing the Stack
+This guide provides instructions for deploying the ForkMyFolio application. You can either deploy the full stack using Docker Compose or run the backend as a standalone Docker container.
 
 ---
 
-## Prerequisites
+## Full Stack Deployment with Docker Compose
 
-Before you begin, ensure you have the following installed on your system:
-- **Docker**: Get Docker
-- **Docker Compose**: Included with Docker Desktop. For Linux servers, you may need to install it separately.
+This is the recommended method for deploying the entire application stack (Frontend, Backend, and Database). This setup uses the official, pre-built Docker images from Docker Hub.
 
----
+### Prerequisites
 
-## Step 1: Get the Deployment Files
+-   **Docker**: [Get Docker](https://docs.docker.com/get-docker/)
+-   **Docker Compose**: Included with Docker Desktop. For Linux servers, you may need to install it separately.
 
-First, clone the backend repository which contains the `docker-compose.yaml` file needed to orchestrate the services.
+### Step 1: Get the Deployment Files
+
+Clone the backend repository which contains the `docker-compose.yaml` file:
 
 ```bash
 git clone https://github.com/NemesisGuy/ForkMyFolio-backend.git
 cd ForkMyFolio-backend
 ```
 
----
+### Step 2: Create the Environment File (`.env`)
 
-## Step 2: Create the Environment File (`.env`)
-
-Docker Compose uses an `.env` file in the same directory as the `docker-compose.yaml` file to manage secrets and configuration.
-
-Create a file named `.env` and paste the following content into it. You **must** fill in the placeholder values.
+Create a file named `.env` in the same directory as the `docker-compose.yaml` file and paste the following content into it. You **must** fill in the placeholder values.
 
 ```bash
 # .env - Configuration for ForkMyFolio Docker Stack
 
 ########### DATABASE CREDENTIALS ###########
-# For this Docker Compose setup, the application connects to the database as the 'root' user.
 DB_USERNAME=root
-# This password is for the 'root' user of the MySQL container.
-# It is used by both the backend service to connect and the database service to initialize.
 DB_PASSWORD=YourStrong_Db_Password123
 
 ########### BACKEND SECURITY ###########
-# A long, random, secret string for signing JWTs.
-# You can generate one here: https://www.uuidgenerator.net/version4
 JWT_SECRET_KEY=YourSuperSecret_Long_And_Random_JwtKey_Here
-
-# The initial password for the default admin user ('admin@forkmyfolio.com').
 DEFAULT_ADMIN_PASSWORD=YourSecure_Admin_Password123
 
 ########### FRONTEND <-> BACKEND COMMUNICATION ###########
-# The public URL where the frontend will be accessible.
-# This is CRITICAL for CORS security on the backend.
-# For this local deployment guide, this matches the port exposed by the frontend service.
 APP_CORS_ALLOWED_ORIGINS=http://localhost:8089
-
-# The public URL where the backend API can be reached.
-# This is CRITICAL for the frontend to make API calls.
-# For this local deployment guide, this matches the port exposed by the backend service.
 API_BASE_URL=http://localhost:8080/api/v1
 ```
 
----
+### Step 3: Understanding Environment Variables
 
-## Step 2: Understanding Environment Variables
+| Variable                 | Service(s) Used By | Description                                                                                             |
+| :----------------------- | :----------------- | :------------------------------------------------------------------------------------------------------ |
+| `DB_PASSWORD`            | Backend, Database  | The **root password** for the MySQL container. **This must be a strong, secret value.**                 |
+| `JWT_SECRET_KEY`         | Backend            | The secret key used to sign and verify JSON Web Tokens. **This must be a long, random, and securely stored secret.** |
+| `DEFAULT_ADMIN_PASSWORD` | Backend            | The initial password for the default admin user (`admin@forkmyfolio.com`).                              |
+| `APP_CORS_ALLOWED_ORIGINS`| Backend            | The URL of your frontend, for CORS security.                                                          |
+| `API_BASE_URL`           | Frontend           | The full, public-facing URL of the backend API.                                                         |
 
-It is crucial to understand what each variable does.
+### Step 4: Running the Application
 
-| Variable                 | Service(s) Used By | Description                                                                                                                                                            |
-| :----------------------- | :----------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DB_PASSWORD`            | Backend, Database  | The **root password** for the MySQL container. The backend uses this to connect. **This must be a strong, secret value.**                                                |
-| `JWT_SECRET_KEY`         | Backend            | The secret key used to sign and verify JSON Web Tokens. **This must be a long, random, and securely stored secret.**                                                   |
-| `DEFAULT_ADMIN_PASSWORD` | Backend            | On the very first startup, the backend will create a default user `admin@forkmyfolio.com` with this password.                                                            |
-| `APP_CORS_ALLOWED_ORIGINS`| Backend            | A security feature (CORS) that tells the backend to only accept API requests from this URL. This should be the full URL of your frontend.                               |
-| `API_BASE_URL`           | Frontend           | The full, public-facing URL of the backend API. The frontend's JavaScript (running in the user's browser) will send all requests to this address.                         |
-
----
-
-## Step 3: Running the Application
-
-With your `docker-compose.yaml` and your completed `.env` file in the same directory, open a terminal in that directory and run:
+With your `docker-compose.yaml` and your completed `.env` file in the same directory, run:
 
 ```bash
-# This command will pull the images, create the network and volumes,
-# and start all three services in the background.
 docker-compose up -d
 ```
 
-The first time you run this, it will take a few minutes to download the Docker images from Docker Hub.
+### Step 5: Accessing the Application
+
+-   **Frontend Application**: [http://localhost:8089](http://localhost:8089)
+-   **Backend API Documentation (Swagger UI)**: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+### Step 6: Managing the Stack
+
+-   **View logs:** `docker-compose logs -f`
+-   **Stop services:** `docker-compose stop`
+-   **Stop and remove all resources:** `docker-compose down -v`
 
 ---
 
-## Step 4: Accessing the Application
+## Standalone Backend Deployment with Docker
 
-- **Frontend Application**:
-  Open your web browser and navigate to the URL you set in `APP_CORS_ALLOWED_ORIGINS`.
-  > **http://localhost:8089**
+This method is for running the backend as a standalone Docker container, for example, to connect to an external database.
 
-- **Backend API Documentation (Swagger UI)**:
-  You can view all the available API endpoints by navigating to:
-  > **http://localhost:8080/swagger-ui.html**
+### Building the Docker Image
 
----
+The project includes a multi-stage `Dockerfile` for optimized, small production images. To build the image, run:
 
-## Step 5: Managing the Stack
+```bash
+docker build -t forkmyfolio-backend .
+```
 
-- **To see the live logs for all services:**
-  ```bash
-  docker-compose logs -f
-  ```
+### Running the Docker Container
 
-- **To stop the services without removing them:**
-  ```bash
-  docker-compose stop
-  ```
+You must provide the necessary environment variables when running the container.
 
-- **To stop and remove the containers, network, and volumes:**
-  ```bash
-  docker-compose down -v
-  ```
+#### Production Profile Example (with external PostgreSQL)
+
+```bash
+docker run -d -p 8080:8080 \
+  -e SPRING_PROFILES_ACTIVE=prod \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://your-db-host:5432/your-db-name \
+  -e DB_USERNAME=your-db-user \
+  -e DB_PASSWORD=your-db-password \
+  -e JWT_SECRET_KEY=your-super-strong-and-secret-jwt-key \
+  -e APP_CORS_ALLOWED_ORIGINS=https://your-frontend-domain.com \
+  -e DEFAULT_ADMIN_PASSWORD=a-secure-admin-password \
+  --name forkmyfolio-backend-prod \
+  nemesisguy/forkmyfolio-backend:latest
+```
+
+#### Development Profile Example (with in-memory H2 database)
+
+```bash
+docker run -d -p 8080:8080 --name forkmyfolio-backend-dev nemesisguy/forkmyfolio-backend:latest
+```
