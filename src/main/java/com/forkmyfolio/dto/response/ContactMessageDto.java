@@ -41,4 +41,24 @@ public class ContactMessageDto {
      * Timestamp of when the message was created/received.
      */
     private LocalDateTime createdAt;
+
+    /**
+     * Whether the message has been read by the portfolio owner.
+     */
+    private boolean isRead;
+
+    /**
+     * The priority level of the message (e.g., LOW, MEDIUM, HIGH).
+     */
+    private String priority;
+
+    /**
+     * Flag to indicate if the message has been replied to.
+     */
+    private boolean isReplied;
+
+    /**
+     * Soft delete flag to archive the message.
+     */
+    private boolean isArchived;
 }

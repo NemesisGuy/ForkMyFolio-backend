@@ -9,7 +9,6 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.Set;
-import java.util.UUID;
 
 @Data
 @Schema(name = "CreateExperienceRequest", description = "Request body for creating a new work experience.")
@@ -63,5 +62,5 @@ public class CreateExperienceRequest {
     private Integer displayOrder = 0;
 
     @Schema(description = "A set of UUIDs for the skills used in this experience.")
-    private Set<UUID> skillUuids;
+    private Set<String> skills;
 }

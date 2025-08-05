@@ -1,0 +1,402 @@
+[
+  {
+    "name": "Proxmox",
+    "level": "BEGINNER",
+    "category": "Homelab",
+    "description": "Open-source virtualization platform for homelab servers.",
+    "icon": "fa-solid fa-server",
+    "visible": true
+  },
+  {
+    "name": "TrueNAS",
+    "level": "BEGINNER",
+    "category": "Homelab",
+    "description": "Open-source storage solution for homelab NAS setups.",
+    "icon": "fa-solid fa-hdd",
+    "visible": true
+  },
+  {
+    "name": "Unraid",
+    "level": "BEGINNER",
+    "category": "Homelab",
+    "description": "OS for managing storage and containers in homelabs.",
+    "icon": "fa-solid fa-hdd",
+    "visible": true
+  },
+  {
+    "name": "OpenMediaVault",
+    "level": "BEGINNER",
+    "category": "Homelab",
+    "description": "NAS solution for file sharing and storage.",
+    "icon": "fa-solid fa-hdd",
+    "visible": true
+  },
+  {
+    "name": "Plex",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Self-hosted media server for streaming content.",
+    "icon": "fa-solid fa-video",
+    "visible": true
+  },
+  {
+    "name": "Jellyfin",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Open-source media server alternative to Plex.",
+    "icon": "fa-solid fa-video",
+    "visible": true
+  },
+  {
+    "name": "Nextcloud",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Self-hosted cloud storage and collaboration platform.",
+    "icon": "fa-solid fa-cloud",
+    "visible": true
+  },
+  {
+    "name": "Home Assistant",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Open-source platform for home automation.",
+    "icon": "fa-solid fa-home",
+    "visible": true
+  },
+  {
+    "name": "Pi-hole",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Network-wide ad blocker for homelab networks.",
+    "icon": "fa-solid fa-shield-alt",
+    "visible": true
+  },
+  {
+    "name": "pfSense",
+    "level": "BEGINNER",
+    "category": "Homelab",
+    "description": "Open-source firewall and router software for homelabs.",
+    "icon": "fa-solid fa-network-wired",
+    "visible": true
+  },
+  {
+    "name": "OPNsense",
+    "level": "BEGINNER",
+    "category": "Homelab",
+    "description": "Firewall and routing platform for network security.",
+    "icon": "fa-solid fa-network-wired",
+    "visible": true
+  },
+  {
+    "name": "Traefik",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Reverse proxy for containerized environments.",
+    "icon": "fa-solid fa-network-wired",
+    "visible": true
+  },
+  {
+    "name": "Portainer",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Web-based UI for managing Docker containers.",
+    "icon": "fa-brands fa-docker",
+    "visible": true
+  },
+  {
+    "name": "Rancher",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Platform for managing Kubernetes clusters.",
+    "icon": "fa-solid fa-cubes",
+    "visible": true
+  },
+  {
+    "name": "K3s",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Lightweight Kubernetes distribution for homelabs.",
+    "icon": "fa-solid fa-cubes",
+    "visible": true
+  },
+  {
+    "name": "MicroK8s",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Lightweight Kubernetes for development and homelabs.",
+    "icon": "fa-solid fa-cubes",
+    "visible": true
+  },
+  {
+    "name": "Harbor",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Container registry for secure image storage.",
+    "icon": "fa-brands fa-docker",
+    "visible": true
+  },
+  {
+    "name": "Vaultwarden",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Self-hosted password manager compatible with Bitwarden.",
+    "icon": "fa-solid fa-lock",
+    "visible": true
+  },
+  {
+    "name": "Syncthing",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Open-source file synchronization tool.",
+    "icon": "fa-solid fa-sync",
+    "visible": true
+  },
+  {
+    "name": "OwnCloud",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Self-hosted file storage and collaboration platform.",
+    "icon": "fa-solid fa-cloud",
+    "visible": true
+  },
+  {
+    "name": "Seafile",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "High-performance file sync and share platform.",
+    "icon": "fa-solid fa-cloud",
+    "visible": true
+  },
+  {
+    "name": "Gitea",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Lightweight self-hosted Git service.",
+    "icon": "fa-solid fa-code-branch",
+    "visible": true
+  },
+  {
+    "name": "GitLab CE",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Community edition of GitLab for self-hosted DevOps.",
+    "icon": "fa-brands fa-gitlab",
+    "visible": true
+  },
+  {
+    "name": "Drone CI",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Self-hosted CI/CD system for automated pipelines.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  },
+  {
+    "name": "Woodpecker CI",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Lightweight CI/CD system for homelabs.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  },
+  {
+    "name": "HAProxy",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "High-performance TCP and HTTP load balancer.",
+    "icon": "fa-solid fa-balance-scale",
+    "visible": true
+  },
+  {
+    "name": "Caddy",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Web server with automatic HTTPS for homelabs.",
+    "icon": "fa-solid fa-server",
+    "visible": true
+  },
+  {
+    "name": "Uptime Kuma",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Self-hosted monitoring tool for uptime and status.",
+    "icon": "fa-solid fa-tachometer-alt",
+    "visible": true
+  },
+  {
+    "name": "Netdata",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Real-time monitoring for homelab systems.",
+    "icon": "fa-solid fa-tachometer-alt",
+    "visible": true
+  },
+  {
+    "name": "ZFS",
+    "level": "BEGINNER",
+    "category": "Homelab",
+    "description": "Advanced filesystem for storage reliability in homelabs.",
+    "icon": "fa-solid fa-hdd",
+    "visible": true
+  },
+  {
+    "name": "LXC",
+    "level": "BEGINNER",
+    "category": "Homelab",
+    "description": "Lightweight containerization for homelab environments.",
+    "icon": "fa-solid fa-box",
+    "visible": true
+  },
+  {
+    "name": "LXD",
+    "level": "BEGINNER",
+    "category": "Homelab",
+    "description": "Container and VM manager for homelab setups.",
+    "icon": "fa-solid fa-box",
+    "visible": true
+  },
+  {
+    "name": "OpenVPN",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Self-hosted VPN for secure remote access.",
+    "icon": "fa-solid fa-lock",
+    "visible": true
+  },
+  {
+    "name": "WireGuard",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Modern VPN protocol for secure networking.",
+    "icon": "fa-solid fa-lock",
+    "visible": true
+  },
+  {
+    "name": "Nginx Proxy Manager",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Web-based tool for managing Nginx proxies.",
+    "icon": "fa-solid fa-server",
+    "visible": true
+  },
+  {
+    "name": "Cloudflared",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Cloudflare tunnel for exposing homelab services.",
+    "icon": "fa-solid fa-cloud",
+    "visible": true
+  },
+  {
+    "name": "MinIO",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "S3-compatible object storage for homelabs.",
+    "icon": "fa-solid fa-cloud",
+    "visible": true
+  },
+  {
+    "name": "Vaultpress",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Backup and security solution for self-hosted WordPress.",
+    "icon": "fa-brands fa-wordpress",
+    "visible": true
+  },
+  {
+    "name": "Bookstack",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Self-hosted platform for documentation and wikis.",
+    "icon": "fa-solid fa-book",
+    "visible": true
+  },
+  {
+    "name": "Wiki.js",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Modern self-hosted wiki platform.",
+    "icon": "fa-solid fa-book",
+    "visible": true
+  },
+  {
+    "name": "Homer",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Self-hosted dashboard for homelab services.",
+    "icon": "fa-solid fa-tachometer-alt",
+    "visible": true
+  },
+  {
+    "name": "Heimdall",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Application dashboard for homelab services.",
+    "icon": "fa-solid fa-tachometer-alt",
+    "visible": true
+  },
+  {
+    "name": "Glances",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "System monitoring tool for homelab servers.",
+    "icon": "fa-solid fa-tachometer-alt",
+    "visible": true
+  },
+  {
+    "name": "Ansible Tower",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Web-based interface for managing Ansible automation.",
+    "icon": "fa-solid fa-cog",
+    "visible": true
+  },
+  {
+    "name": "Salt Project",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Open-source automation for configuration management.",
+    "icon": "fa-solid fa-cog",
+    "visible": true
+  },
+  {
+    "name": "FluxCD",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "GitOps tool for continuous deployment on Kubernetes.",
+    "icon": "fa-solid fa-code-branch",
+    "visible": true
+  },
+  {
+    "name": "Tekton",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Kubernetes-native CI/CD pipeline framework.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  },
+  {
+    "name": "Spinnaker",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Multi-cloud continuous deployment platform.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  },
+  {
+    "name": "Weaveworks",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Tools for Kubernetes management and GitOps.",
+    "icon": "fa-solid fa-cubes",
+    "visible": true
+  },
+  {
+    "name": "Cloud Custodian",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Policy-driven cloud resource management tool.",
+    "icon": "fa-solid fa-cloud",
+    "visible": true
+  }
+]

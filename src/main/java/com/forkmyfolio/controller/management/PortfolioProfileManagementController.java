@@ -2,6 +2,7 @@ package com.forkmyfolio.controller.management;
 
 import com.forkmyfolio.dto.response.PortfolioProfileDto;
 import com.forkmyfolio.dto.update.UpdatePortfolioProfileRequest;
+import com.forkmyfolio.dto.update.UpdateProfileVisibilityRequest;
 import com.forkmyfolio.mapper.PortfolioProfileMapper;
 import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.model.User;
@@ -34,6 +35,11 @@ public class PortfolioProfileManagementController {
         User currentUser = userService.getCurrentAuthenticatedUser();
         PortfolioProfile profile = portfolioProfileService.getProfileByUser(currentUser);
         PortfolioProfileDto dto = portfolioProfileMapper.toDto(profile);
+
+        // FIX: Explicitly set the public status to ensure it matches the entity's true state,
+        // overriding any potential inconsistencies in the mapping layer.
+        dto.setPublic(profile.isPublic());
+
         return ResponseEntity.ok(dto);
     }
 
@@ -50,6 +56,23 @@ public class PortfolioProfileManagementController {
         PortfolioProfile updatedProfile = portfolioProfileService.save(profileToUpdate);
 
         PortfolioProfileDto responseDto = portfolioProfileMapper.toDto(updatedProfile);
+        // FIX: Ensure the returned DTO is consistent with the updated entity's state.
+        responseDto.setPublic(updatedProfile.isPublic());
+
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @PutMapping("/visibility")
+    @Operation(summary = "Update my portfolio's visibility", description = "Sets the master public/private toggle for the authenticated user's portfolio and returns the updated profile.")
+    public ResponseEntity<PortfolioProfileDto> updateMyPortfolioVisibility(@Valid @RequestBody UpdateProfileVisibilityRequest request) {
+        User currentUser = userService.getCurrentAuthenticatedUser();
+        // The service now returns the updated profile entity
+        PortfolioProfile updatedProfile = portfolioProfileService.updateProfileVisibility(currentUser, request.getIsPublic());
+        // Map the updated entity to a DTO to be sent in the response
+        PortfolioProfileDto responseDto = portfolioProfileMapper.toDto(updatedProfile);
+        // FIX: Ensure the returned DTO is consistent with the updated entity's state.
+        responseDto.setPublic(updatedProfile.isPublic());
+
         return ResponseEntity.ok(responseDto);
     }
 }

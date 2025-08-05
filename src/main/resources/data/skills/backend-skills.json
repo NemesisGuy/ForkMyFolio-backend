@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Java",
+    "category": "Programming Language",
+    "description": "Object-oriented programming language for backend and enterprise applications.",
+    "icon": "fa-brands fa-java"
+  },
+  {
+    "name": "Spring Boot",
+    "category": "Framework",
+    "description": "Java framework for building microservices and web applications.",
+    "icon": "fa-solid fa-leaf"
+  },
+  {
+    "name": "JavaScript",
+    "category": "Programming Language",
+    "description": "A versatile language used in both backend (Node.js) and frontend.",
+    "icon": "fa-brands fa-js"
+  },
+  {
+    "name": "Docker",
+    "category": "DevOps Tool",
+    "description": "Containerization platform for deploying applications.",
+    "icon": "fa-brands fa-docker"
+  }
+]

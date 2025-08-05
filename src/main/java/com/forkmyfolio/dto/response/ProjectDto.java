@@ -35,7 +35,7 @@ public class ProjectDto {
     @Schema(description = "The order in which to display this project.", example = "1")
     private Integer displayOrder;
 
-    @Schema(description = "A set of skills associated with this project.")
+    @Schema(description = "A set of full skill objects associated with this project.")
     private Set<SkillDto> skills;
 
     @Schema(description = "The timestamp when the project was created.")

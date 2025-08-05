@@ -39,7 +39,6 @@ public class UpdateUserRequest {
     //active bool
 
 
-
     // You could add other fields here in the future, for example:
     /*
     @Size(max = 5000, message = "Bio must not exceed 5000 characters.")

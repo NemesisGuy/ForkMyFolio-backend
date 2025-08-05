@@ -9,13 +9,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * Repository interface for {@link ContactMessage} entities.
- */
 @Repository
 public interface ContactMessageRepository extends JpaRepository<ContactMessage, Long> {
 
+    boolean existsByUser(User user);
+
     Optional<ContactMessage> findByUuid(UUID uuid);
+
+    List<ContactMessage> findByUserOrderByCreatedAtDesc(User user);
 
     List<ContactMessage> findAllByOrderByCreatedAtDesc();
 
@@ -23,5 +24,12 @@ public interface ContactMessageRepository extends JpaRepository<ContactMessage, 
 
     void deleteByUuid(UUID uuid);
 
-    List<ContactMessage> findByUserOrderByCreatedAtDesc(User user);
+    /**
+     * Counts the number of messages for a specific user that are marked as unread
+     * and are not archived.
+     *
+     * @param user The user whose unread messages are to be counted.
+     * @return The total count of unread, non-archived messages.
+     */
+    long countByUserAndIsReadFalseAndIsArchivedFalse(User user);
 }

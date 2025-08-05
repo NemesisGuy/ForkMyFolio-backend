@@ -1,8 +1,10 @@
 package com.forkmyfolio.model;
 
+import com.forkmyfolio.model.enums.MessagePriority;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -40,7 +42,6 @@ public class ContactMessage {
      */
     @UuidGenerator
     @JdbcTypeCode(SqlTypes.VARCHAR)
-
     @Column(name = "uuid", nullable = false, updatable = false, unique = true)
     private UUID uuid;
 
@@ -86,4 +87,33 @@ public class ContactMessage {
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    /**
+     * Whether the message has been read by the portfolio owner. Defaults to false.
+     */
+    @NotNull
+    @Column(nullable = false)
+    private boolean isRead = false;
+
+    /**
+     * The priority level of the message. Defaults to MEDIUM.
+     */
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private MessagePriority priority = MessagePriority.MEDIUM;
+
+    /**
+     * Flag to indicate if the message has been replied to. Defaults to false.
+     */
+    @NotNull
+    @Column(nullable = false)
+    private boolean isReplied = false;
+
+    /**
+     * Soft delete flag to archive the message instead of permanent deletion. Defaults to false.
+     */
+    @NotNull
+    @Column(nullable = false)
+    private boolean isArchived = false;
 }

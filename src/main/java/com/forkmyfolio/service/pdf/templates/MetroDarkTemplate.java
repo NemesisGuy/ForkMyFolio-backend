@@ -19,8 +19,8 @@ import java.io.InputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.stream.Collectors;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MetroDarkTemplate implements PortfolioPdfTemplate {
 
@@ -29,12 +29,10 @@ public class MetroDarkTemplate implements PortfolioPdfTemplate {
     private static final Color TEXT_COLOR = new DeviceRgb(235, 235, 235);   // #EBEBEB (Bright Off-white)
     private static final Color ACCENT_COLOR = new DeviceRgb(0, 150, 255);   // #0096FF (Vibrant Blue)
     private static final Color SUBTLE_COLOR = new DeviceRgb(160, 160, 160); // #A0A0A0 (Medium Gray)
-
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM yyyy");
     private PdfFont headingFont;
     private PdfFont bodyFont;
     private PdfFont bodyItalicFont;
-
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM yyyy");
 
     @Override
     public void generate(Document document, PdfGenerationService.PdfContext ctx, PortfolioData data) throws IOException {

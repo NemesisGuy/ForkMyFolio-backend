@@ -107,7 +107,8 @@ public class SecurityConfig {
                                 "/api/v1/portfolios/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST,
-                                "/api/v1/contact-messages",
+                                // THIS IS THE FIX: Correctly match the contact message endpoint with a wildcard
+                                "/api/v1/portfolios/*/contact-messages",
                                 "/api/v1/stats/**"
                         ).permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")

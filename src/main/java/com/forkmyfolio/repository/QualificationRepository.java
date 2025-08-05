@@ -60,4 +60,7 @@ public interface QualificationRepository extends JpaRepository<Qualification, Lo
     void deleteByUser(User user);
 
     List<Qualification> findByUserOrderByCompletionYearDescStartYearDesc(User user);
+
+    long countByUser(User user);
+
 }

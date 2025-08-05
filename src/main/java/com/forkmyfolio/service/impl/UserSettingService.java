@@ -1,18 +1,21 @@
-package com.forkmyfolio.service;
+package com.forkmyfolio.service.impl;
 
 import com.forkmyfolio.dto.response.UserSettingDto;
 import com.forkmyfolio.dto.update.UpdateUserSettingRequest;
+import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.model.Setting;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.model.UserSetting;
 import com.forkmyfolio.repository.SettingRepository;
 import com.forkmyfolio.repository.UserSettingRepository;
+import com.forkmyfolio.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -77,6 +80,7 @@ public class UserSettingService {
                 .map(globalSetting -> {
                     String effectiveValue = userOverridesMap.getOrDefault(globalSetting.getName(), globalSetting.getValue());
                     return new UserSettingDto(
+                            globalSetting.getUuid(),
                             globalSetting.getName(),
                             effectiveValue,
                             globalSetting.getDescription()
@@ -107,21 +111,32 @@ public class UserSettingService {
     public List<UserSettingDto> updateMySettings(List<UpdateUserSettingRequest> requests) {
         User currentUser = userService.getCurrentAuthenticatedUser();
 
-        // Fetch existing settings for this user to avoid multiple DB hits inside the loop.
-        Map<String, UserSetting> existingSettingsMap = userSettingRepository.findByUser(currentUser).stream()
+        // 1. Get all global settings to validate UUIDs and get names.
+        Map<UUID, Setting> globalSettingsMap = settingRepository.findAll().stream()
+                .collect(Collectors.toMap(Setting::getUuid, Function.identity()));
+
+        // 2. Fetch existing user-specific settings for this user.
+        Map<String, UserSetting> existingUserSettingsMap = userSettingRepository.findByUser(currentUser).stream()
                 .collect(Collectors.toMap(UserSetting::getName, Function.identity()));
 
         List<UserSetting> settingsToSave = requests.stream().map(request -> {
-            // Check if a setting with this name already exists for the user.
-            UserSetting setting = existingSettingsMap.get(request.getName());
-            if (setting != null) {
+            // 3. Validate that the UUID from the request corresponds to a real global setting.
+            Setting globalSetting = globalSettingsMap.get(request.getUuid());
+            if (globalSetting == null) {
+                throw new ResourceNotFoundException("Setting with UUID " + request.getUuid() + " not found.");
+            }
+            String settingName = globalSetting.getName();
+
+            // 4. Check if a user-specific setting already exists.
+            UserSetting userSetting = existingUserSettingsMap.get(settingName);
+            if (userSetting != null) {
                 // If it exists, update its value.
-                setting.setValue(request.getValue());
+                userSetting.setValue(request.getValue());
             } else {
                 // If not, create a new UserSetting.
-                setting = new UserSetting(currentUser, request.getName(), request.getValue());
+                userSetting = new UserSetting(currentUser, settingName, request.getValue());
             }
-            return setting;
+            return userSetting;
         }).collect(Collectors.toList());
 
         userSettingRepository.saveAll(settingsToSave);

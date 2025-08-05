@@ -11,5 +11,9 @@ public interface SettingService {
 
     List<Setting> updateSettings(Map<UUID, String> settingsToUpdate);
 
-   // Map<String, Boolean> getPublicSettings();
+    /**
+     * Ensures that a default set of application settings exists in the database.
+     * This is an idempotent operation; it will only create settings that are missing.
+     */
+    void createDefaultSettings();
 }

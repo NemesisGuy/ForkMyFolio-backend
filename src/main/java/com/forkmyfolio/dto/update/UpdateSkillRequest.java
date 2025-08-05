@@ -1,38 +1,25 @@
 package com.forkmyfolio.dto.update;
 
 import com.forkmyfolio.model.Skill;
+import com.forkmyfolio.model.enums.SkillLevel;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-@Schema(name = "UpdateSkillRequest", description = "Request body for updating an existing skill.")
+@Schema(name = "UpdateSkillRequest", description = "Data required to update the current user's relationship with a skill.")
 public class UpdateSkillRequest {
 
-    @NotBlank(message = "Skill name is required.")
-    @Size(max = 50)
-    @Schema(description = "The name of the skill.", example = "Java", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String name;
+    @NotNull(message = "Skill level cannot be null.")
+    @Schema(description = "The user's updated proficiency level with this skill.", example = "EXPERT", requiredMode = Schema.RequiredMode.REQUIRED)
+    private SkillLevel level;
 
-    @NotNull(message = "Skill level is required.")
-    @Schema(description = "The proficiency level of the skill.", example = "EXPERT", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Skill.SkillLevel level;
+    @NotNull(message = "Visibility must be specified.")
+    @Schema(description = "Updated visibility for this skill on the user's public portfolio.", example = "false")
+    private boolean visible;
 
-    @NotNull(message = "Visibility status is required.")
-    @Schema(description = "Whether the skill is visible on the public portfolio.", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Boolean visible;
-
-    @Size(max = 100)
-    @Schema(description = "The category the skill belongs to.", example = "Backend Development")
-    private String category;
-
-    @Size(max = 100)
-    @Schema(description = "An icon representing the skill (e.g., a CSS class like 'devicon-java-plain').", example = "devicon-java-plain")
-    private String icon;
-
-    @Size(max = 255)
-    @Schema(description = "A brief description of the skill.", example = "A popular object-oriented programming language used for enterprise applications.")
+    @Size(max = 5000, message = "Description cannot exceed 5000 characters.")
+    @Schema(description = "Updated personal description or notes about this skill.", example = "Now using it for state management with Redux.")
     private String description;
 }

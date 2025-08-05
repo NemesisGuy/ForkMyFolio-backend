@@ -14,6 +14,11 @@ import lombok.NoArgsConstructor;
 @Schema(name = "PortfolioProfileDto", description = "Publicly available profile information for the portfolio owner.")
 public class PortfolioProfileDto {
 
+    /**
+     * The master visibility toggle for the entire portfolio.
+     * This is the FIX: This field was missing, causing the frontend to not receive the portfolio's status.
+     */
+    private boolean isPublic;
     // --- From User Entity ---
     @Schema(description = "The first name of the portfolio owner.", example = "Jane")
     private String firstName;

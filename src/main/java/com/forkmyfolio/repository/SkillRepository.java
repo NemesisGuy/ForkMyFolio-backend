@@ -1,36 +1,57 @@
 package com.forkmyfolio.repository;
 
 import com.forkmyfolio.model.Skill;
-import com.forkmyfolio.model.User;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /**
- * Spring Data JPA repository for {@link Skill} entities.
- * Provides standard CRUD operations for skills.
- * Additional query methods can be added here as needed.
+ * Repository for the global Skill entity.
+ * This repository handles operations on the master list of all skills in the system.
  */
 @Repository
 public interface SkillRepository extends JpaRepository<Skill, Long> {
 
     /**
-     * Finds all skills associated with a specific user ID.
+     * Finds a skill by its unique UUID.
      *
-     * @param userId The ID of the user whose skills are to be retrieved.
-     * @return A list of {@link Skill} entities belonging to the specified user.
-     * Returns an empty list if the user has no skills or the user does not exist.
+     * @param uuid The UUID of the skill.
+     * @return An Optional containing the skill if found.
      */
-    List<Skill> findByUserId(Long userId);
-
-    List<Skill> findByUser(User owner);
-
     Optional<Skill> findByUuid(UUID uuid);
 
-    void deleteByUser(User user);
+    /**
+     * Finds a skill by its unique name (case-insensitive).
+     *
+     * @param name The name of the skill.
+     * @return An Optional containing the skill if found.
+     */
+    Optional<Skill> findByNameIgnoreCase(String name);
 
-    List<Skill> findByUserAndVisibleTrue(User user);
+    /**
+     * Finds a set of skills from a given collection of names.
+     * This is useful for batch lookups.
+     *
+     * @param names A set of skill names to find.
+     * @return A set of matching Skill entities.
+     */
+    Set<Skill> findByNameIn(Set<String> names);
+
+    /**
+     * FIX: Add the missing method to find all skills by a set of UUIDs.
+     * This is a highly efficient bulk operation used by the restore service.
+     * Spring Data JPA will automatically generate the implementation.
+     *
+     * @param uuids The set of skill UUIDs to find.
+     * @return A set of matching Skill entities.
+     */
+    Set<Skill> findAllByUuidIn(Set<UUID> uuids);
+
+    boolean existsByName(String name);
+
+    Optional<Skill> findByName(@NotBlank(message = "Skill name cannot be blank.") String name);
 }

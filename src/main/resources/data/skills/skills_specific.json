@@ -1,0 +1,122 @@
+[
+  {
+    "name": "CSS3",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Advanced CSS for styling modern web applications.",
+    "icon": "fa-brands fa-css3-alt",
+    "visible": true
+  },
+  {
+    "name": "Docker-Compose",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Tool for defining and running multi-container Docker applications.",
+    "icon": "fa-brands fa-docker",
+    "visible": true
+  },
+  {
+    "name": "Home Lab",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Setting up and managing personal server environments for testing.",
+    "icon": "fa-solid fa-server",
+    "visible": true
+  },
+  {
+    "name": "HTML5",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Modern markup language for structuring web content.",
+    "icon": "fa-brands fa-html5",
+    "visible": true
+  },
+  {
+    "name": "Selfhosting",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Deploying and managing applications on personal servers.",
+    "icon": "fa-solid fa-server",
+    "visible": true
+  },
+  {
+    "name": "Spring Security",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Framework for securing Java applications with authentication and authorization.",
+    "icon": "fa-solid fa-shield-alt",
+    "visible": true
+  },
+  {
+    "name": "Design Patterns",
+    "level": "BEGINNER",
+    "category": "Software Engineering",
+    "description": "Reusable solutions to common software design problems.",
+    "icon": "fa-solid fa-diagram-project",
+    "visible": true
+  },
+  {
+    "name": "ESXi",
+    "level": "BEGINNER",
+    "category": "Virtualization",
+    "description": "VMware's type-1 hypervisor for running multiple virtual machines.",
+    "icon": "fa-solid fa-server",
+    "visible": true
+  },
+  {
+    "name": "Agile",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Iterative approach to project management and software development.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  },
+  {
+    "name": "Waterfall",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Sequential project management methodology for structured development.",
+    "icon": "fa-solid fa-stream",
+    "visible": true
+  },
+  {
+    "name": "DDD",
+    "level": "BEGINNER",
+    "category": "Software Engineering",
+    "description": "Domain-Driven Design for modeling complex business domains.",
+    "icon": "fa-solid fa-diagram-project",
+    "visible": true
+  },
+  {
+    "name": "TDD",
+    "level": "BEGINNER",
+    "category": "Software Engineering",
+    "description": "Test-Driven Development for writing tests before code to ensure functionality.",
+    "icon": "fa-solid fa-vial",
+    "visible": true
+  },
+  {
+    "name": "BDD",
+    "level": "BEGINNER",
+    "category": "Software Engineering",
+    "description": "Behavior-Driven Development for specifying software behavior collaboratively.",
+    "icon": "fa-solid fa-vial",
+    "visible": true
+  },
+  {
+    "name": "Clean Code",
+    "level": "BEGINNER",
+    "category": "Software Engineering",
+    "description": "Principles for writing readable and maintainable code.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "CI/CD",
+    "level": "BEGINNER",
+    "category": "DevOps",
+    "description": "Continuous Integration and Continuous Deployment for automated software delivery.",
+    "icon": "fa-solid fa-sync",
+    "visible": true
+  }
+]

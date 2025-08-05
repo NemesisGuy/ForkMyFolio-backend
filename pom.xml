@@ -131,6 +131,13 @@
             <type>pom</type>
         </dependency>
 
+
+    <dependency>
+        <groupId>com.github.slugify</groupId>
+        <artifactId>slugify</artifactId>
+        <version>3.0.6</version>
+    </dependency>
+
         <!-- Spring Boot Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

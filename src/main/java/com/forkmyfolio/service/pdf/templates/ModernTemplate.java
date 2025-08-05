@@ -122,10 +122,22 @@ public class ModernTemplate implements PortfolioPdfTemplate {
                 DeviceRgb dotColor = SKILL_BEGINNER_COLOR;
                 if (skill.getLevel() != null) {
                     switch (skill.getLevel()) {
-                        case BEGINNER -> { filledDots = 1; dotColor = SKILL_BEGINNER_COLOR; }
-                        case INTERMEDIATE -> { filledDots = 3; dotColor = SKILL_INTERMEDIATE_COLOR; }
-                        case EXPERT -> { filledDots = 5; dotColor = SKILL_EXPERT_COLOR; }
-                        case ADVANCED -> { filledDots = 4; dotColor = ACCENT_COLOR; } // Added missing ADVANCED case
+                        case BEGINNER -> {
+                            filledDots = 1;
+                            dotColor = SKILL_BEGINNER_COLOR;
+                        }
+                        case INTERMEDIATE -> {
+                            filledDots = 3;
+                            dotColor = SKILL_INTERMEDIATE_COLOR;
+                        }
+                        case EXPERT -> {
+                            filledDots = 5;
+                            dotColor = SKILL_EXPERT_COLOR;
+                        }
+                        case ADVANCED -> {
+                            filledDots = 4;
+                            dotColor = ACCENT_COLOR;
+                        } // Added missing ADVANCED case
                     }
                 }
                 if (ctx.solidIconFont != null) {
@@ -190,11 +202,26 @@ public class ModernTemplate implements PortfolioPdfTemplate {
         String iconChar;
         PdfFont iconFont;
         switch (type.toLowerCase()) {
-            case "email" -> { iconChar = "\uf0e0"; iconFont = ctx.solidIconFont; }
-            case "website" -> { iconChar = "\uf0c1"; iconFont = ctx.solidIconFont; }
-            case "linkedin" -> { iconChar = "\uf08c"; iconFont = ctx.brandsIconFont; }
-            case "github" -> { iconChar = "\uf09b"; iconFont = ctx.brandsIconFont; }
-            default -> { iconChar = "[?]"; iconFont = ctx.bodyFont; }
+            case "email" -> {
+                iconChar = "\uf0e0";
+                iconFont = ctx.solidIconFont;
+            }
+            case "website" -> {
+                iconChar = "\uf0c1";
+                iconFont = ctx.solidIconFont;
+            }
+            case "linkedin" -> {
+                iconChar = "\uf08c";
+                iconFont = ctx.brandsIconFont;
+            }
+            case "github" -> {
+                iconChar = "\uf09b";
+                iconFont = ctx.brandsIconFont;
+            }
+            default -> {
+                iconChar = "[?]";
+                iconFont = ctx.bodyFont;
+            }
         }
         Cell iconCell = new Cell().setBorder(Border.NO_BORDER).setPadding(0).setWidth(UnitValue.createPercentValue(5));
         if (iconFont != null && iconFont.containsGlyph(iconChar.codePointAt(0))) {

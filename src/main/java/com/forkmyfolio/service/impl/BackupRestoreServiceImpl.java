@@ -1,108 +1,117 @@
 package com.forkmyfolio.service.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.forkmyfolio.model.*;
+import com.forkmyfolio.dto.response.PortfolioBackupDto;
+import com.forkmyfolio.dto.response.UserDto;
+import com.forkmyfolio.dto.response.UserFullBackupDto;
+import com.forkmyfolio.mapper.UserMapper;
+import com.forkmyfolio.model.User;
 import com.forkmyfolio.repository.*;
 import com.forkmyfolio.service.BackupRestoreService;
-import com.forkmyfolio.service.model.SystemBackup;
+import com.forkmyfolio.service.BackupService;
+import com.forkmyfolio.service.RestoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class BackupRestoreServiceImpl implements BackupRestoreService {
 
-    // Inject all repositories needed to fetch and wipe data
+    // Repositories for wiping data and fetching users
     private final UserRepository userRepository;
-    private final PortfolioProfileRepository portfolioProfileRepository;
-    private final ProjectRepository projectRepository;
-    private final SkillRepository skillRepository;
-    private final ExperienceRepository experienceRepository;
-    private final TestimonialRepository testimonialRepository;
-    private final QualificationRepository qualificationRepository;
     private final ContactMessageRepository contactMessageRepository;
-    private final SettingRepository settingRepository;
+    private final QualificationRepository qualificationRepository;
+    private final TestimonialRepository testimonialRepository;
+    private final ExperienceRepository experienceRepository;
+    private final ProjectRepository projectRepository;
+    private final PortfolioProfileRepository portfolioProfileRepository;
+    private final UserSkillRepository userSkillRepository;
     private final UserSettingRepository userSettingRepository;
+    private final SettingRepository settingRepository;
+    private final SkillRepository skillRepository;
 
-    // ObjectMapper configured to handle Java 8 time types
-    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    // Services and Mappers for creating and restoring data
+    private final BackupService backupService;
+    private final RestoreService restoreService;
+    private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional(readOnly = true)
-    public String generateSystemBackupJson() {
-        log.info("Starting system backup generation.");
-        try {
-            SystemBackup backup = new SystemBackup();
-            // Fetch all data from repositories
-            backup.setUsers(userRepository.findAll());
-            backup.setPortfolioProfiles(portfolioProfileRepository.findAll());
-            backup.setProjects(projectRepository.findAll());
-            backup.setSkills(skillRepository.findAll());
-            backup.setExperiences(experienceRepository.findAll());
-            backup.setTestimonials(testimonialRepository.findAll());
-            backup.setQualifications(qualificationRepository.findAll());
-            backup.setContactMessages(contactMessageRepository.findAll());
-            backup.setSettings(settingRepository.findAll());
-            backup.setUserSettings(userSettingRepository.findAll());
+    public List<UserFullBackupDto> createSystemBackupData() {
+        log.info("Starting system-wide backup data generation.");
+        List<User> allUsers = userRepository.findAll();
+        List<UserFullBackupDto> systemBackupData = new ArrayList<>();
 
-            String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(backup);
-            log.info("System backup generation completed successfully.");
-            return json;
-        } catch (Exception e) {
-            log.error("Error during system backup generation", e);
-            // Wrap in a runtime exception to ensure transaction rollback on failure
-            throw new RuntimeException("Failed to generate system backup", e);
+        for (User user : allUsers) {
+            // For each user, generate their complete portfolio backup
+            PortfolioBackupDto portfolioBackup = backupService.createBackupForUser(user);
+            // Convert the user entity to a DTO
+            UserDto userDto = userMapper.toDto(user);
+
+            // Combine them into the full backup DTO
+            systemBackupData.add(new UserFullBackupDto(userDto, portfolioBackup));
         }
+        log.info("Successfully generated backup data for {} users.", systemBackupData.size());
+        return systemBackupData;
     }
 
     @Override
     @Transactional
-    public void restoreSystemFromJson(InputStream inputStream) throws IOException {
-        log.warn("Starting system restore. THIS IS A DESTRUCTIVE OPERATION.");
+    public void restoreSystemFromData(List<UserFullBackupDto> backupData) {
+        log.warn("Starting system restore from backup data. THIS IS A DESTRUCTIVE OPERATION.");
 
-        // 1. Read and parse the backup file into our DTO
-        SystemBackup backup = objectMapper.readValue(inputStream, new TypeReference<SystemBackup>() {});
-        log.info("Backup file parsed successfully. Contains {} users.", backup.getUsers().size());
+        // 1. Wipe all existing data in the correct order to respect foreign key constraints
+        wipeAllData();
 
-        // 2. Wipe existing data in the correct order to respect foreign key constraints
-        log.info("Wiping existing data...");
-        // Delete entities that have dependencies on them last
+        // 2. Restore all users and their portfolios from the backup data
+        for (UserFullBackupDto userBackup : backupData) {
+            UserDto userDto = userBackup.getUser();
+            PortfolioBackupDto portfolioDto = userBackup.getPortfolio();
+
+            // Create the user entity from the DTO
+            User user = new User();
+            user.setUuid(userDto.getId());
+            user.setEmail(userDto.getEmail());
+            user.setFirstName(userDto.getFirstName());
+            user.setLastName(userDto.getLastName());
+            user.setSlug(userDto.getSlug());
+            user.setProfileImageUrl(userDto.getProfileImageUrl());
+            user.setRoles(userDto.getRoles());
+            user.setActive(userDto.isActive());
+            // Passwords are not included in backups for security. A temporary or random password should be set.
+            user.setPassword(passwordEncoder.encode("restored-password-" + UUID.randomUUID()));
+            User restoredUser = userRepository.save(user);
+
+            // Now, use the existing RestoreService to restore this new user's portfolio
+            restoreService.restoreForSpecificUser(portfolioDto, restoredUser);
+        }
+        log.warn("System restore completed successfully. {} users restored.", backupData.size());
+    }
+
+    private void wipeAllData() {
+        log.info("Wiping all existing portfolio and user data...");
+        // Order is critical to avoid foreign key constraint violations.
+        // Delete entities that depend on others first.
         contactMessageRepository.deleteAllInBatch();
+        userSkillRepository.deleteAllInBatch();
         qualificationRepository.deleteAllInBatch();
         testimonialRepository.deleteAllInBatch();
         experienceRepository.deleteAllInBatch();
-        skillRepository.deleteAllInBatch();
         projectRepository.deleteAllInBatch();
         portfolioProfileRepository.deleteAllInBatch();
         userSettingRepository.deleteAllInBatch();
-        userRepository.deleteAllInBatch(); // Users are deleted before settings
+        // After all dependencies are gone, delete the users and global skills/settings.
+        userRepository.deleteAllInBatch();
+        skillRepository.deleteAllInBatch();
         settingRepository.deleteAllInBatch();
-        log.info("Existing data wiped successfully.");
-
-        // 3. Restore data from the backup object
-        // The saveAll methods will insert the entities. The database will generate new primary keys.
-        // This approach works for a full-state restore where inter-entity relationships are preserved
-        // within the backup object itself (e.g., a Project object contains its User object).
-        log.info("Restoring data from backup...");
-        settingRepository.saveAll(backup.getSettings());
-        userRepository.saveAll(backup.getUsers());
-        portfolioProfileRepository.saveAll(backup.getPortfolioProfiles());
-        projectRepository.saveAll(backup.getProjects());
-        skillRepository.saveAll(backup.getSkills());
-        experienceRepository.saveAll(backup.getExperiences());
-        testimonialRepository.saveAll(backup.getTestimonials());
-        qualificationRepository.saveAll(backup.getQualifications());
-        contactMessageRepository.saveAll(backup.getContactMessages());
-        userSettingRepository.saveAll(backup.getUserSettings());
-
-        log.warn("System restore completed successfully.");
+        log.info("All data wiped successfully.");
     }
 }

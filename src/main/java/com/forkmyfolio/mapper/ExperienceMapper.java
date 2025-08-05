@@ -8,6 +8,7 @@ import com.forkmyfolio.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 /**
@@ -49,9 +50,12 @@ public class ExperienceMapper {
         dto.setUpdatedAt(experience.getUpdatedAt());
 
         if (experience.getSkills() != null) {
+            // This now correctly calls the new toDto(Skill) method in SkillMapper
             dto.setSkills(experience.getSkills().stream()
                     .map(skillMapper::toDto)
                     .collect(Collectors.toSet()));
+        } else {
+            dto.setSkills(Collections.emptySet());
         }
 
         return dto;
@@ -86,6 +90,8 @@ public class ExperienceMapper {
             return null;
         }
         Experience experience = new Experience();
+        // FIX: Preserve the original UUID from the backup DTO. This is crucial for restores.
+        experience.setUuid(dto.getUuid());
         experience.setUser(user);
         experience.setJobTitle(dto.getJobTitle());
         experience.setCompanyName(dto.getCompanyName());

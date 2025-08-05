@@ -58,7 +58,7 @@ public class ExperienceManagementController {
     public ResponseEntity<ExperienceDto> createMyExperience(@Valid @RequestBody CreateExperienceRequest createRequest) {
         User currentUser = userService.getCurrentAuthenticatedUser();
         Experience newExperience = experienceMapper.toEntity(createRequest, currentUser);
-        Experience createdExperience = experienceService.createExperience(newExperience, createRequest.getSkillUuids());
+        Experience createdExperience = experienceService.createExperience(newExperience, createRequest.getSkills());
         return new ResponseEntity<>(experienceMapper.toDto(createdExperience), HttpStatus.CREATED);
     }
 
@@ -67,7 +67,7 @@ public class ExperienceManagementController {
     public ResponseEntity<ExperienceDto> updateMyExperience(@PathVariable UUID uuid, @Valid @RequestBody UpdateExperienceRequest updateRequest) {
         User currentUser = userService.getCurrentAuthenticatedUser();
         Experience updatedExperienceData = experienceMapper.toEntity(updateRequest);
-        Experience updatedExperience = experienceService.updateExperience(uuid, updatedExperienceData, updateRequest.getSkillUuids(), currentUser);
+        Experience updatedExperience = experienceService.updateExperience(uuid, updatedExperienceData, updateRequest.getSkills(), currentUser);
         return ResponseEntity.ok(experienceMapper.toDto(updatedExperience));
     }
 

@@ -16,7 +16,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,7 +29,6 @@ public class MarkdownGenerationService {
     private final PortfolioProfileRepository portfolioProfileRepository;
     private final ExperienceRepository experienceRepository;
     private final ProjectRepository projectRepository;
-    private final SkillRepository skillRepository;
     private final QualificationRepository qualificationRepository;
     //</editor-fold>
 
@@ -55,7 +53,25 @@ public class MarkdownGenerationService {
         List<Experience> experiences = experienceRepository.findByUserOrderByDisplayOrderAsc(user);
         List<Qualification> qualifications = qualificationRepository.findByUserOrderByCompletionYearDescStartYearDesc(user);
         List<Project> projects = projectRepository.findByUserOrderByDisplayOrderAsc(user);
-        List<Skill> skills = skillRepository.findByUser(user);
+
+        // Fetch skills from the User entity's relationships, combining global and user-specific data.
+        List<Skill> skills = user.getUserSkills().stream()
+                .filter(UserSkill::isVisible) // Only include skills the user wants to show
+                .map(userSkill -> {
+                    Skill globalSkill = userSkill.getSkill();
+                    // Create a transient Skill object for the Markdown, populated with the correct data
+                    Skill mdSkill = new Skill();
+                    mdSkill.setName(globalSkill.getName());
+                    mdSkill.setCategory(globalSkill.getCategory());
+                    mdSkill.setIcon(globalSkill.getIcon());
+                    // Use user-specific data where it exists
+                    mdSkill.setLevel(userSkill.getLevel());
+                    mdSkill.setDescription(userSkill.getDescription());
+                    mdSkill.setVisible(userSkill.isVisible());
+                    return mdSkill;
+                })
+                .collect(Collectors.toList());
+
         PortfolioData portfolioData = new PortfolioData(profile, experiences, qualifications, projects, skills);
 
         log.info("Generating Markdown for user: {}", user.getEmail());
@@ -254,5 +270,6 @@ public class MarkdownGenerationService {
         md.append("\n");
     }
 
-    public record MarkdownFile(byte[] content, String suggestedFilename) {}
+    public record MarkdownFile(byte[] content, String suggestedFilename) {
+    }
 }

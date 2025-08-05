@@ -2,11 +2,15 @@ package com.forkmyfolio.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(name = "PortfolioDto", description = "A comprehensive DTO representing a user's full public portfolio.")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PortfolioDto {

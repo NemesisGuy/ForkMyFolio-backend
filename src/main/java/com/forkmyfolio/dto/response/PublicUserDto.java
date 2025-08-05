@@ -25,14 +25,14 @@ public class PublicUserDto {
 
     @Schema(description = "Indicates whether the user account is active.", example = "true")
     private boolean active;
-//role
-    @Schema (description = "The set of roles assigned to the user.", example = "[\"USER\"]")
+    //role
+    @Schema(description = "The set of roles assigned to the user.", example = "[\"USER\"]")
     private Set<Role> roles;
     //created at
-    @Schema (description = "The timestamp of when the user account was created.", example = "2020-01-01T00:00:00Z")
+    @Schema(description = "The timestamp of when the user account was created.", example = "2020-01-01T00:00:00Z")
     private LocalDateTime createdAt;
     //updated at
-    @Schema (description = "The timestamp of when the user account was last updated.", example ="2020-01-01T00:00:00Z")
+    @Schema(description = "The timestamp of when the user account was last updated.", example = "2020-01-01T00:00:00Z")
     private LocalDateTime updatedAt;
 
 }

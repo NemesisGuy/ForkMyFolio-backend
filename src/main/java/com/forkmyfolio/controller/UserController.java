@@ -38,11 +38,8 @@ public class UserController {
     @Operation(summary = "Update current user's profile", description = "Updates the first name, last name, and profile image URL for the currently authenticated user.")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<UserDto> updateMyProfile(@Valid @RequestBody UpdateUserAccountRequest request) {
-        User currentUser = userService.getCurrentAuthenticatedUser();
-
-        // Controller passes primitives to the service, adhering to our architecture
+        // The service now gets the user from the security context, so we don't need to pass an ID.
         User updatedUser = userService.updateUserProfile(
-                currentUser.getId(),
                 request.getFirstName(),
                 request.getLastName(),
                 request.getProfileImageUrl()

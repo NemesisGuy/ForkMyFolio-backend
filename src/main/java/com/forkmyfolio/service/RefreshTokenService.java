@@ -3,8 +3,6 @@ package com.forkmyfolio.service;
 import com.forkmyfolio.exception.TokenRefreshException;
 import com.forkmyfolio.model.RefreshToken;
 import com.forkmyfolio.model.User;
-import com.nimbusds.oauth2.sdk.TokenIntrospectionRequest;
-import org.springframework.security.core.Authentication;
 
 import java.util.Optional;
 

@@ -44,13 +44,10 @@ public class DateRangeValidator implements ConstraintValidator<ValidDateRange, O
             return true;
         }
 
-        if (!(startDateValue instanceof LocalDate) || !(endDateValue instanceof LocalDate)) {
+        if (!(startDateValue instanceof LocalDate startDate) || !(endDateValue instanceof LocalDate endDate)) {
             // This is a developer error; the annotation is used on the wrong type.
             throw new IllegalArgumentException("Fields for @ValidDateRange must be of type java.time.LocalDate.");
         }
-
-        LocalDate startDate = (LocalDate) startDateValue;
-        LocalDate endDate = (LocalDate) endDateValue;
 
         // The validation logic: endDate must not be before startDate.
         return !endDate.isBefore(startDate);

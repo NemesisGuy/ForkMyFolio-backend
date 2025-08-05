@@ -1,0 +1,402 @@
+[
+  {
+    "name": "Hugging Face",
+    "level": "BEGINNER",
+    "category": "AI/ML",
+    "description": "Platform for building and deploying machine learning models.",
+    "icon": "fa-solid fa-brain",
+    "visible": true
+  },
+  {
+    "name": "ONNX",
+    "level": "BEGINNER",
+    "category": "AI/ML",
+    "description": "Open format for interoperable ML model deployment.",
+    "icon": "fa-solid fa-brain",
+    "visible": true
+  },
+  {
+    "name": "TensorFlow Serving",
+    "level": "BEGINNER",
+    "category": "AI/ML",
+    "description": "Serving system for deploying TensorFlow models in production.",
+    "icon": "fa-solid fa-server",
+    "visible": true
+  },
+  {
+    "name": "MLflow",
+    "level": "BEGINNER",
+    "category": "AI/ML",
+    "description": "Platform for managing the machine learning lifecycle.",
+    "icon": "fa-solid fa-brain",
+    "visible": true
+  },
+  {
+    "name": "Kubeflow",
+    "level": "BEGINNER",
+    "category": "AI/ML",
+    "description": "Kubernetes-based platform for ML workflows.",
+    "icon": "fa-solid fa-cubes",
+    "visible": true
+  },
+  {
+    "name": "Ray",
+    "level": "BEGINNER",
+    "category": "AI/ML",
+    "description": "Framework for distributed machine learning and reinforcement learning.",
+    "icon": "fa-solid fa-brain",
+    "visible": true
+  },
+  {
+    "name": "PyTorch Lightning",
+    "level": "BEGINNER",
+    "category": "AI/ML",
+    "description": "Lightweight wrapper for PyTorch to simplify ML training.",
+    "icon": "fa-solid fa-bolt",
+    "visible": true
+  },
+  {
+    "name": "XGBoost",
+    "level": "BEGINNER",
+    "category": "AI/ML",
+    "description": "Gradient boosting library for machine learning.",
+    "icon": "fa-solid fa-brain",
+    "visible": true
+  },
+  {
+    "name": "LightGBM",
+    "level": "BEGINNER",
+    "category": "AI/ML",
+    "description": "High-performance gradient boosting framework.",
+    "icon": "fa-solid fa-brain",
+    "visible": true
+  },
+  {
+    "name": "Edge AI",
+    "level": "BEGINNER",
+    "category": "AI/ML",
+    "description": "Deploying AI models on edge devices for low-latency inference.",
+    "icon": "fa-solid fa-microchip",
+    "visible": true
+  },
+  {
+    "name": "Ethical Hacking",
+    "level": "BEGINNER",
+    "category": "Cybersecurity",
+    "description": "Testing systems for vulnerabilities to improve security.",
+    "icon": "fa-solid fa-user-shield",
+    "visible": true
+  },
+  {
+    "name": "Threat Modeling",
+    "level": "BEGINNER",
+    "category": "Cybersecurity",
+    "description": "Identifying and mitigating potential security threats.",
+    "icon": "fa-solid fa-shield-alt",
+    "visible": true
+  },
+  {
+    "name": "OWASP",
+    "level": "BEGINNER",
+    "category": "Cybersecurity",
+    "description": "Security framework for identifying web application vulnerabilities.",
+    "icon": "fa-solid fa-shield-alt",
+    "visible": true
+  },
+  {
+    "name": "Burp Suite",
+    "level": "BEGINNER",
+    "category": "Cybersecurity",
+    "description": "Tool for web application security testing.",
+    "icon": "fa-solid fa-user-shield",
+    "visible": true
+  },
+  {
+    "name": "Metasploit",
+    "level": "BEGINNER",
+    "category": "Cybersecurity",
+    "description": "Penetration testing framework for security assessments.",
+    "icon": "fa-solid fa-user-shield",
+    "visible": true
+  },
+  {
+    "name": "GDPR Compliance",
+    "level": "BEGINNER",
+    "category": "Cybersecurity",
+    "description": "Ensuring data protection under EU regulations.",
+    "icon": "fa-solid fa-lock",
+    "visible": true
+  },
+  {
+    "name": "ISO 27001",
+    "level": "BEGINNER",
+    "category": "Cybersecurity",
+    "description": "Standard for information security management systems.",
+    "icon": "fa-solid fa-lock",
+    "visible": true
+  },
+  {
+    "name": "Keycloak",
+    "level": "BEGINNER",
+    "category": "Cybersecurity",
+    "description": "Open-source identity and access management solution.",
+    "icon": "fa-solid fa-key",
+    "visible": true
+  },
+  {
+    "name": "Android SDK",
+    "level": "BEGINNER",
+    "category": "Mobile Development",
+    "description": "Toolkit for building native Android applications.",
+    "icon": "fa-brands fa-android",
+    "visible": true
+  },
+  {
+    "name": "SwiftUI",
+    "level": "BEGINNER",
+    "category": "Mobile Development",
+    "description": "Apple framework for building iOS and macOS UI.",
+    "icon": "fa-brands fa-swift",
+    "visible": true
+  },
+  {
+    "name": "Jetpack Compose",
+    "level": "BEGINNER",
+    "category": "Mobile Development",
+    "description": "Modern toolkit for building native Android UI.",
+    "icon": "fa-brands fa-android",
+    "visible": true
+  },
+  {
+    "name": "Capacitor",
+    "level": "BEGINNER",
+    "category": "Mobile Development",
+    "description": "Cross-platform framework for building mobile apps with web tech.",
+    "icon": "fa-solid fa-mobile-alt",
+    "visible": true
+  },
+  {
+    "name": "Cordova",
+    "level": "BEGINNER",
+    "category": "Mobile Development",
+    "description": "Framework for building mobile apps with HTML, CSS, and JS.",
+    "icon": "fa-solid fa-mobile-alt",
+    "visible": true
+  },
+  {
+    "name": "Xamarin",
+    "level": "BEGINNER",
+    "category": "Mobile Development",
+    "description": ".NET framework for cross-platform mobile development.",
+    "icon": "fa-brands fa-microsoft",
+    "visible": true
+  },
+  {
+    "name": "Mobile Testing",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Testing mobile applications for functionality and performance.",
+    "icon": "fa-solid fa-mobile-alt",
+    "visible": true
+  },
+  {
+    "name": "Appium",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Tool for automating mobile app testing.",
+    "icon": "fa-solid fa-robot",
+    "visible": true
+  },
+  {
+    "name": "Airflow",
+    "level": "BEGINNER",
+    "category": "Data Engineering",
+    "description": "Platform for orchestrating data workflows and pipelines.",
+    "icon": "fa-solid fa-stream",
+    "visible": true
+  },
+  {
+    "name": "Apache Nifi",
+    "level": "BEGINNER",
+    "category": "Data Engineering",
+    "description": "Tool for automating data flows between systems.",
+    "icon": "fa-solid fa-stream",
+    "visible": true
+  },
+  {
+    "name": "dbt",
+    "level": "BEGINNER",
+    "category": "Data Engineering",
+    "description": "Tool for transforming data in warehouses with SQL.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Snowflake",
+    "level": "BEGINNER",
+    "category": "Data Engineering",
+    "description": "Cloud-based data platform for analytics and warehousing.",
+    "icon": "fa-solid fa-snowflake",
+    "visible": true
+  },
+  {
+    "name": "Redshift",
+    "level": "BEGINNER",
+    "category": "Data Engineering",
+    "description": "AWS data warehouse for large-scale analytics.",
+    "icon": "fa-brands fa-aws",
+    "visible": true
+  },
+  {
+    "name": "BigQuery",
+    "level": "BEGINNER",
+    "category": "Data Engineering",
+    "description": "Google Cloud data warehouse for analytics.",
+    "icon": "fa-brands fa-google",
+    "visible": true
+  },
+  {
+    "name": "ETL Processes",
+    "level": "BEGINNER",
+    "category": "Data Engineering",
+    "description": "Extracting, transforming, and loading data for analysis.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Stream Processing",
+    "level": "BEGINNER",
+    "category": "Data Engineering",
+    "description": "Real-time processing of continuous data streams.",
+    "icon": "fa-solid fa-stream",
+    "visible": true
+  },
+  {
+    "name": "Apache Flink",
+    "level": "BEGINNER",
+    "category": "Data Engineering",
+    "description": "Framework for stateful stream processing.",
+    "icon": "fa-solid fa-stream",
+    "visible": true
+  },
+  {
+    "name": "Quantum Computing",
+    "level": "BEGINNER",
+    "category": "Emerging Technology",
+    "description": "Using quantum mechanics for advanced computation.",
+    "icon": "fa-solid fa-atom",
+    "visible": true
+  },
+  {
+    "name": "Qiskit",
+    "level": "BEGINNER",
+    "category": "Emerging Technology",
+    "description": "IBM framework for quantum computing development.",
+    "icon": "fa-solid fa-atom",
+    "visible": true
+  },
+  {
+    "name": "IoT Development",
+    "level": "BEGINNER",
+    "category": "Emerging Technology",
+    "description": "Building applications for Internet of Things devices.",
+    "icon": "fa-solid fa-microchip",
+    "visible": true
+  },
+  {
+    "name": "Arduino",
+    "level": "BEGINNER",
+    "category": "Emerging Technology",
+    "description": "Platform for building IoT and hardware projects.",
+    "icon": "fa-solid fa-microchip",
+    "visible": true
+  },
+  {
+    "name": "Raspberry Pi",
+    "level": "BEGINNER",
+    "category": "Homelab",
+    "description": "Single-board computer for homelab and IoT projects.",
+    "icon": "fa-solid fa-microchip",
+    "visible": true
+  },
+  {
+    "name": "Chaos Engineering",
+    "level": "BEGINNER",
+    "category": "DevOps",
+    "description": "Testing system resilience through controlled failures.",
+    "icon": "fa-solid fa-bolt",
+    "visible": true
+  },
+  {
+    "name": "Chaos Monkey",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Netflix tool for testing system resilience.",
+    "icon": "fa-solid fa-bolt",
+    "visible": true
+  },
+  {
+    "name": "Backup Management",
+    "level": "BEGINNER",
+    "category": "Homelab",
+    "description": "Implementing backup strategies for homelab data.",
+    "icon": "fa-solid fa-hdd",
+    "visible": true
+  },
+  {
+    "name": "Duplicati",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Open-source backup software for homelabs.",
+    "icon": "fa-solid fa-hdd",
+    "visible": true
+  },
+  {
+    "name": "Immich",
+    "level": "BEGINNER",
+    "category": "Self-Hosted",
+    "description": "Self-hosted photo and video backup solution.",
+    "icon": "fa-solid fa-camera",
+    "visible": true
+  },
+  {
+    "name": "Customer Discovery",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Identifying customer needs for startup product development.",
+    "icon": "fa-solid fa-users",
+    "visible": true
+  },
+  {
+    "name": "Pitching",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Presenting startup ideas to investors or stakeholders.",
+    "icon": "fa-solid fa-microphone",
+    "visible": true
+  },
+  {
+    "name": "Product Management",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Overseeing product development from ideation to launch.",
+    "icon": "fa-solid fa-tasks",
+    "visible": true
+  },
+  {
+    "name": "Lean Startup",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Methodology for iterative startup development.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  },
+  {
+    "name": "MVP Development",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Building minimum viable products for rapid validation.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  }
+]

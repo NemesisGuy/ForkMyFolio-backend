@@ -1,6 +1,9 @@
 package com.forkmyfolio.service.impl;
 
 import com.forkmyfolio.dto.create.CreateContactMessageRequest;
+import com.forkmyfolio.dto.response.ContactMessageDto;
+import com.forkmyfolio.dto.response.UnreadMessageCountDto;
+import com.forkmyfolio.dto.update.UpdateContactMessageRequest;
 import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.mapper.ContactMessageMapper;
 import com.forkmyfolio.model.ContactMessage;
@@ -9,6 +12,7 @@ import com.forkmyfolio.repository.ContactMessageRepository;
 import com.forkmyfolio.repository.UserRepository;
 import com.forkmyfolio.service.ContactMessageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +22,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ContactMessageServiceImpl implements ContactMessageService {
 
     private final ContactMessageRepository contactMessageRepository;
@@ -37,8 +42,9 @@ public class ContactMessageServiceImpl implements ContactMessageService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ContactMessage> findAll() {
-        return contactMessageRepository.findAllByOrderByCreatedAtDesc();
+    public List<ContactMessageDto> findAll() {
+        List<ContactMessage> messages = contactMessageRepository.findAllByOrderByCreatedAtDesc();
+        return contactMessageMapper.toDtoList(messages);
     }
 
     @Override
@@ -52,8 +58,9 @@ public class ContactMessageServiceImpl implements ContactMessageService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ContactMessage> getMessagesForUser(User user) {
-        return contactMessageRepository.findByUserOrderByCreatedAtDesc(user);
+    public List<ContactMessageDto> getMessagesForUser(User user) {
+        List<ContactMessage> messages = contactMessageRepository.findByUserOrderByCreatedAtDesc(user);
+        return contactMessageMapper.toDtoList(messages);
     }
 
     @Override
@@ -66,5 +73,46 @@ public class ContactMessageServiceImpl implements ContactMessageService {
             throw new AccessDeniedException("You are not authorized to delete this message.");
         }
         contactMessageRepository.delete(message);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UnreadMessageCountDto getUnreadMessageCount(User user) {
+        log.debug("Counting unread messages for user: {}", user.getEmail());
+        long count = contactMessageRepository.countByUserAndIsReadFalseAndIsArchivedFalse(user);
+        log.info("Found {} unread messages for user: {}", count, user.getEmail());
+        return new UnreadMessageCountDto(count);
+    }
+
+    @Override
+    @Transactional
+    public ContactMessageDto updateMessage(UUID messageUuid, UpdateContactMessageRequest request, User owner) {
+        log.debug("Attempting to update message {} for user {}", messageUuid, owner.getEmail());
+        ContactMessage message = contactMessageRepository.findByUuid(messageUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("ContactMessage not found with UUID: " + messageUuid));
+
+        if (!message.getUser().getId().equals(owner.getId())) {
+            log.warn("User {} attempted to update message {}, but does not own it.", owner.getEmail(), messageUuid);
+            throw new AccessDeniedException("You are not authorized to modify this message.");
+        }
+
+        // Partially update fields only if they are provided in the request
+        if (request.getPriority() != null) {
+            message.setPriority(request.getPriority());
+        }
+        if (request.getRead() != null) {
+            message.setRead(request.getRead());
+        }
+        if (request.getReplied() != null) {
+            message.setReplied(request.getReplied());
+        }
+        if (request.getArchived() != null) {
+            message.setArchived(request.getArchived());
+        }
+
+        ContactMessage updatedMessage = contactMessageRepository.save(message);
+        log.info("Successfully updated message {}", messageUuid);
+
+        return contactMessageMapper.toDto(updatedMessage);
     }
 }

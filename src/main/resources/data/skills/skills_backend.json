@@ -1,0 +1,402 @@
+[
+  {
+    "name": "Fastify",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "High-performance Node.js framework for building APIs.",
+    "icon": "fa-brands fa-node-js",
+    "visible": true
+  },
+  {
+    "name": "Koa",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Lightweight Node.js framework for modern web apps.",
+    "icon": "fa-brands fa-node-js",
+    "visible": true
+  },
+  {
+    "name": "AdonisJS",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Full-stack Node.js framework for MVC applications.",
+    "icon": "fa-brands fa-node-js",
+    "visible": true
+  },
+  {
+    "name": "Play Framework",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Scala and Java framework for reactive web apps.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Dropwizard",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Java framework for building RESTful microservices.",
+    "icon": "fa-solid fa-leaf",
+    "visible": true
+  },
+  {
+    "name": "JAX-RS",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Java API for building RESTful web services.",
+    "icon": "fa-solid fa-link",
+    "visible": true
+  },
+  {
+    "name": "Spring MVC",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Spring module for building web applications.",
+    "icon": "fa-solid fa-leaf",
+    "visible": true
+  },
+  {
+    "name": "Spring WebFlux",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Reactive Spring framework for non-blocking applications.",
+    "icon": "fa-solid fa-leaf",
+    "visible": true
+  },
+  {
+    "name": "Jersey",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Java framework for building RESTful web services.",
+    "icon": "fa-solid fa-link",
+    "visible": true
+  },
+  {
+    "name": "Akka",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Toolkit for building concurrent and distributed systems in Scala.",
+    "icon": "fa-solid fa-cogs",
+    "visible": true
+  },
+  {
+    "name": "Vert.x",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Reactive toolkit for building event-driven applications.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Ratpack",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Lightweight Java framework for high-performance web apps.",
+    "icon": "fa-solid fa-leaf",
+    "visible": true
+  },
+  {
+    "name": "GORM",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "ORM library for Go applications.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Sequelize",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Node.js ORM for relational databases.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "TypeORM",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "TypeScript ORM for multiple databases.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Prisma",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Modern ORM for Node.js and TypeScript.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "SQLAlchemy",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Python ORM and SQL toolkit for database operations.",
+    "icon": "fa-brands fa-python",
+    "visible": true
+  },
+  {
+    "name": "Knex.js",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "SQL query builder for Node.js applications.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Redis Streams",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Redis feature for real-time data streaming.",
+    "icon": "fa-solid fa-stream",
+    "visible": true
+  },
+  {
+    "name": "TimescaleDB",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Time-series database built on PostgreSQL.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "ArangoDB",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Multi-model NoSQL database for graphs and documents.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "RavenDB",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "NoSQL document database for .NET applications.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "HBase",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Distributed NoSQL database for big data.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "FaunaDB",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Serverless NoSQL database with GraphQL support.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Dgraph",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Distributed graph database for scalable queries.",
+    "icon": "fa-solid fa-diagram-project",
+    "visible": true
+  },
+  {
+    "name": "Memcached",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "In-memory caching system for performance optimization.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Graphene",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Python library for building GraphQL APIs.",
+    "icon": "fa-solid fa-network-wired",
+    "visible": true
+  },
+  {
+    "name": "Apollo Server",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Node.js library for building GraphQL servers.",
+    "icon": "fa-solid fa-network-wired",
+    "visible": true
+  },
+  {
+    "name": "RESTEasy",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Java framework for building RESTful services.",
+    "icon": "fa-solid fa-link",
+    "visible": true
+  },
+  {
+    "name": "Falcon",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Minimalist Python framework for building APIs.",
+    "icon": "fa-brands fa-python",
+    "visible": true
+  },
+  {
+    "name": "Bottle",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Lightweight Python micro-framework for web APIs.",
+    "icon": "fa-brands fa-python",
+    "visible": true
+  },
+  {
+    "name": "Sinatra",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Ruby framework for simple web applications.",
+    "icon": "fa-brands fa-gem",
+    "visible": true
+  },
+  {
+    "name": "Rocket",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Rust web framework for fast and secure APIs.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  },
+  {
+    "name": "Actix Web",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "High-performance Rust framework for web applications.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "AMQP",
+    "level": "BEGINNER",
+    "category": "Messaging",
+    "description": "Protocol for message-oriented middleware.",
+    "icon": "fa-solid fa-stream",
+    "visible": true
+  },
+  {
+    "name": "MQTT",
+    "level": "BEGINNER",
+    "category": "Messaging",
+    "description": "Lightweight protocol for IoT messaging.",
+    "icon": "fa-solid fa-stream",
+    "visible": true
+  },
+  {
+    "name": "Spring Cloud",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Tools for building cloud-native Java applications.",
+    "icon": "fa-solid fa-cloud",
+    "visible": true
+  },
+  {
+    "name": "Zookeeper",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Distributed coordination service for distributed systems.",
+    "icon": "fa-solid fa-cogs",
+    "visible": true
+  },
+  {
+    "name": "Consul Connect",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Service mesh feature for secure service communication.",
+    "icon": "fa-solid fa-network-wired",
+    "visible": true
+  },
+  {
+    "name": "Spring Batch",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Framework for batch processing in Java applications.",
+    "icon": "fa-solid fa-leaf",
+    "visible": true
+  },
+  {
+    "name": "Celery",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Distributed task queue for Python applications.",
+    "icon": "fa-brands fa-python",
+    "visible": true
+  },
+  {
+    "name": "Sidekiq",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Background job processing for Ruby applications.",
+    "icon": "fa-brands fa-gem",
+    "visible": true
+  },
+  {
+    "name": "Database Migration",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Managing database schema changes over time.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Flyway",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Database migration tool for version control.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Liquibase",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Database schema change management tool.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "API Gateway",
+    "level": "BEGINNER",
+    "category": "Architecture",
+    "description": "Managing and routing API requests in microservices.",
+    "icon": "fa-solid fa-network-wired",
+    "visible": true
+  },
+  {
+    "name": "Spring Integration",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Framework for enterprise integration patterns in Java.",
+    "icon": "fa-solid fa-leaf",
+    "visible": true
+  },
+  {
+    "name": "CQRS Pattern",
+    "level": "BEGINNER",
+    "category": "Architecture",
+    "description": "Separating command and query operations for scalability.",
+    "icon": "fa-solid fa-divide",
+    "visible": true
+  },
+  {
+    "name": "Event-Driven Architecture",
+    "level": "BEGINNER",
+    "category": "Architecture",
+    "description": "Building systems that respond to events.",
+    "icon": "fa-solid fa-stream",
+    "visible": true
+  },
+  {
+    "name": "Load Balancing",
+    "level": "BEGINNER",
+    "category": "Architecture",
+    "description": "Distributing traffic across servers for scalability.",
+    "icon": "fa-solid fa-balance-scale",
+    "visible": true
+  }
+]

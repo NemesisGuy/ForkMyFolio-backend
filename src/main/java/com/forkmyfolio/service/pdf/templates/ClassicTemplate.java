@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
  */
 public class ClassicTemplate implements PortfolioPdfTemplate {
 
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy");
     private PdfFont headingFont;
     private PdfFont bodyFont;
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy");
 
     @Override
     public void generate(Document document, PdfGenerationService.PdfContext ctx, PortfolioData data) throws IOException {
@@ -83,7 +83,6 @@ public class ClassicTemplate implements PortfolioPdfTemplate {
         doc.add(new Paragraph(title.toUpperCase())
                 .setFont(headingFont).setFontSize(12));
     }
-
 
 
     private void createEntry(Document doc, String title, String date, String subtitle, String description) {

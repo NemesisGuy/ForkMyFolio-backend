@@ -1,78 +1,76 @@
 package com.forkmyfolio.service;
 
+import com.forkmyfolio.dto.create.CreateSkillRequest;
+import com.forkmyfolio.dto.update.UpdateSkillRequest;
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.User;
-import org.springframework.security.access.AccessDeniedException;
+import com.forkmyfolio.model.UserSkill;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
- * Service interface for managing skills.
- * Defines business logic for creating, retrieving, and deleting skills.
- * This service operates solely on domain models (e.g., Skill) and is DTO-agnostic.
+ * Service interface for managing user-skill relationships and the global skill pool.
  */
 public interface SkillService {
 
     /**
-     * Retrieves all skills belonging to a specific user.
-     *
-     * @param user The user whose skills are to be retrieved.
-     * @return A list of {@link Skill} entities for the specified user.
+     * Retrieves all skills available on the platform.
      */
-    List<Skill> getSkillsForUser(User user);
+    List<Skill> getAllPlatformSkills();
 
     /**
-     * Retrieves a single skill by its public UUID, without an ownership check.
+     * Retrieves all skill relationships for a given user.
      *
-     * @param uuid The UUID of the skill to find.
-     * @return The {@link Skill} entity.
-     * @throws com.forkmyfolio.exception.ResourceNotFoundException if no skill is found with the given UUID.
+     * @param user The user whose skills to retrieve.
+     * @return A list of the user's {@link UserSkill} relationships.
      */
-    Skill findSkillByUuid(UUID uuid);
+    List<UserSkill> getAllSkillsForUser(User user);
 
     /**
-     * Retrieves a single skill by its UUID, ensuring it belongs to the specified user.
+     * Retrieves a specific skill relationship for a user by the global skill's public UUID.
      *
-     * @param uuid The UUID of the skill.
-     * @param user The user who must own the skill.
-     * @return The {@link Skill} entity if found and owned by the user.
-     * @throws com.forkmyfolio.exception.ResourceNotFoundException if the skill is not found.
-     * @throws AccessDeniedException if the user does not own the skill.
+     * @param user      The user performing the action.
+     * @param skillUuid The public UUID of the global skill.
+     * @return The {@link UserSkill} relationship entity.
      */
-    Skill findSkillByUuidAndUser(UUID uuid, User user);
+    UserSkill getSkillForUser(User user, UUID skillUuid);
 
     /**
-     * Creates and persists a new skill.
+     * Adds a skill to a user's portfolio. If the skill doesn't exist globally, it's created first.
+     * If the user already has the skill, an exception is thrown.
      *
-     * @param skill The skill entity to save. The owner (User) must be set before calling this method.
-     * @return The persisted {@link Skill} entity, including its generated ID and UUID.
+     * @param request The DTO containing the skill name and user-specific details.
+     * @param user    The user to whom the skill will be added.
+     * @return The newly created {@link UserSkill} relationship entity.
      */
-    Skill createSkill(Skill skill);
+    UserSkill addSkillToUser(CreateSkillRequest request, User user);
 
     /**
-     * Deletes a skill by its public UUID.
-     * Implementations of this method must perform an authorization check.
+     * Updates a user's relationship with a skill (e.g., their proficiency level or visibility).
      *
-     * @param uuid        The UUID of the skill to delete.
-     * @param currentUser The user performing the action, for authorization checks.
-     * @throws com.forkmyfolio.exception.ResourceNotFoundException       if the skill is not found.
-     * @throws AccessDeniedException if the user is not authorized to delete the skill.
+     * @param skillUuid The public UUID of the global skill to update the relationship for.
+     * @param request   The DTO containing the updated user-specific details.
+     * @param user      The user performing the action.
+     * @return The updated {@link UserSkill} relationship entity.
      */
-    void deleteSkill(UUID uuid, User currentUser);
+    UserSkill updateSkillForUser(UUID skillUuid, UpdateSkillRequest request, User user);
 
     /**
-     * Updates an existing skill.
+     * Removes a skill from a user's portfolio. This does not delete the global skill itself.
      *
-     * @param uuid        The UUID of the skill to update.
-     * @param name        The new name for the skill.
-     * @param level       The new proficiency level for the skill.
-     * @param visible     The new visibility status for the skill.
-     * @param category    The new category for the skill.
-     * @param icon        The new icon for the skill.
-     * @param description The new description for the skill.
-     * @param currentUser The user performing the action.
-     * @return The updated Skill entity.
+     * @param skillUuid The public UUID of the global skill to remove from the user's profile.
+     * @param user      The user performing the action.
      */
-    Skill updateSkill(UUID uuid, String name, Skill.SkillLevel level, boolean visible, String category, String icon, String description, User currentUser);
+    void removeSkillFromUser(UUID skillUuid, User user);
+
+    /**
+     * Finds existing global skills by name or creates new ones if they don't exist.
+     * This is a utility method used when associating skills with projects or experiences.
+     *
+     * @param skillNames A set of skill names from the frontend.
+     * @return A set of persisted global {@link Skill} entities, including both found and newly created ones.
+     */
+    Set<Skill> findOrCreateSkills(Set<String> skillNames);
 }

@@ -29,10 +29,23 @@ public class ContactMessageMapper {
         if (entity == null) {
             return null;
         }
-        return new ContactMessageDto(entity.getUuid(), entity.getName(), entity.getEmail(), entity.getMessage(), entity.getCreatedAt());
+        return new ContactMessageDto(
+                entity.getUuid(),
+                entity.getName(),
+                entity.getEmail(),
+                entity.getMessage(),
+                entity.getCreatedAt(),
+                entity.isRead(),
+                entity.getPriority().name(), // Convert enum to string
+                entity.isReplied(),
+                entity.isArchived()
+        );
     }
 
     public List<ContactMessageDto> toDtoList(List<ContactMessage> entities) {
+        if (entities == null) {
+            return null;
+        }
         return entities.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());

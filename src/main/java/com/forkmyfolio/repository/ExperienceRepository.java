@@ -52,4 +52,9 @@ public interface ExperienceRepository extends JpaRepository<Experience, Long> {
      */
     @Transactional
     void deleteByUser(User user);
+
+    List<Experience> findByUser(User user);
+
+    long countByUser(User user);
+
 }

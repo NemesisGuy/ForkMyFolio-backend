@@ -1,7 +1,6 @@
-// src/main/java/com/forkmyfolio/config/ApplicationConfig.java
-
 package com.forkmyfolio.config;
 
+import com.github.slugify.Slugify;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,7 +28,7 @@ public class ApplicationConfig {
     @Bean
     public AuthenticationProvider authenticationProvider(
             // THE FIX IS HERE: Add @Qualifier with the specific bean name
-            @Qualifier("customUserDetailsService") UserDetailsService userDetailsService,
+            @Qualifier("userServiceImpl") UserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder
     ) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -62,7 +61,14 @@ public class ApplicationConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Note: You do not need a UserDetailsService bean here because
-    // your CustomUserDetailsService is already annotated with @Service,
-    // making it a bean that can be injected into the authenticationProvider() method.
+    /**
+     * Creates a singleton instance of the Slugify library as a Spring bean.
+     * This allows it to be injected into any service that needs to generate URL-friendly slugs.
+     *
+     * @return A configured Slugify instance.
+     */
+    @Bean
+    public Slugify slugify() {
+        return Slugify.builder().build();
+    }
 }

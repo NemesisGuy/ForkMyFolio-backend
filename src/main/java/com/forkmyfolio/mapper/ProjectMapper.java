@@ -8,6 +8,7 @@ import com.forkmyfolio.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 /**
@@ -43,9 +44,12 @@ public class ProjectMapper {
         dto.setUpdatedAt(project.getUpdatedAt());
 
         if (project.getSkills() != null) {
+            // This now correctly calls the new toDto(Skill) method in SkillMapper
             dto.setSkills(project.getSkills().stream()
                     .map(skillMapper::toDto)
                     .collect(Collectors.toSet()));
+        } else {
+            dto.setSkills(Collections.emptySet());
         }
 
         return dto;
@@ -53,7 +57,6 @@ public class ProjectMapper {
 
     /**
      * Converts a CreateProjectRequest DTO to a new Project entity.
-     * The associated skills are handled separately in the service layer.
      *
      * @param request The DTO containing the creation data.
      * @param user    The user who will own this project.
@@ -64,7 +67,7 @@ public class ProjectMapper {
             return null;
         }
         Project project = new Project();
-        project.setUser(user); // Set owner
+        project.setUser(user);
         project.setTitle(request.getTitle());
         project.setDescription(request.getDescription());
         project.setRepoUrl(request.getRepoUrl());
@@ -87,6 +90,8 @@ public class ProjectMapper {
             return null;
         }
         Project project = new Project();
+        // FIX: Preserve the original UUID from the backup DTO. This is crucial for restores.
+        project.setUuid(dto.getUuid());
         project.setUser(user);
         project.setTitle(dto.getTitle());
         project.setDescription(dto.getDescription());
@@ -95,13 +100,11 @@ public class ProjectMapper {
         project.setImageUrl(dto.getImageUrl());
         project.setVisible(dto.isVisible());
         project.setDisplayOrder(dto.getDisplayOrder());
-        // Note: Skills are not mapped here; they are restored separately and then linked in the service.
         return project;
     }
 
     /**
      * Creates a transient Project entity from an UpdateProjectRequest DTO.
-     * This object is used by the service layer to update a persisted entity.
      *
      * @param request The DTO containing the update data.
      * @return A transient Project entity populated with data from the request.

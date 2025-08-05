@@ -1,7 +1,8 @@
 package com.forkmyfolio.service;
 
-import java.io.IOException;
-import java.io.InputStream;
+import com.forkmyfolio.dto.response.UserFullBackupDto;
+
+import java.util.List;
 
 /**
  * Service for handling system-wide backup and restore operations.
@@ -9,20 +10,20 @@ import java.io.InputStream;
 public interface BackupRestoreService {
 
     /**
-     * Generates a JSON string representing a full system backup.
+     * Creates a list of DTOs representing a full system backup.
      * This includes all users and their complete portfolio data.
      *
-     * @return A JSON string of the entire system's data.
+     * @return A list of {@link UserFullBackupDto} containing the system's data.
      */
-    String generateSystemBackupJson();
+    List<UserFullBackupDto> createSystemBackupData();
 
     /**
-     * Restores the system state from a JSON backup file.
+     * Restores the system state from a list of backup DTOs.
      * WARNING: This is a destructive operation. It will wipe existing data
-     * and replace it with the data from the backup file.
+     * and replace it with the data from the backup.
      *
-     * @param inputStream The input stream of the JSON backup file.
-     * @throws IOException if there is an error reading the stream.
+     * @param data The list of DTOs containing the backup data.
      */
-    void restoreSystemFromJson(InputStream inputStream) throws IOException;
+    void restoreSystemFromData(List<UserFullBackupDto> data);
+
 }

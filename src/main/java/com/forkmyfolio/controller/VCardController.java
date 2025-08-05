@@ -1,6 +1,6 @@
 package com.forkmyfolio.controller;
 
-import com.forkmyfolio.aop.SkipApiResponseWrapper; // <-- IMPORT
+import com.forkmyfolio.aop.SkipApiResponseWrapper;
 import com.forkmyfolio.aop.TrackVisitor;
 import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.model.enums.VisitorStatType;

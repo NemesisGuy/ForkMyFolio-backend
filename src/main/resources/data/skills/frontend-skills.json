@@ -1,0 +1,26 @@
+[
+  {
+    "name": "HTML",
+    "category": "Markup Language",
+    "description": "Standard markup language for creating web pages.",
+    "icon": "fa-brands fa-html5"
+  },
+  {
+    "name": "CSS",
+    "category": "Styling Language",
+    "description": "Style sheet language used for describing the presentation of a document.",
+    "icon": "fa-brands fa-css3-alt"
+  },
+  {
+    "name": "JavaScript",
+    "category": "Programming Language",
+    "description": "The core language of the web, enabling interactive features.",
+    "icon": "fa-brands fa-js"
+  },
+  {
+    "name": "Vue.js",
+    "category": "Framework",
+    "description": "A progressive framework for building user interfaces.",
+    "icon": "fa-brands fa-vuejs"
+  }
+]

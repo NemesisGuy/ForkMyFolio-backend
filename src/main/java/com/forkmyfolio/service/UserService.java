@@ -4,56 +4,32 @@ import com.forkmyfolio.model.Role;
 import com.forkmyfolio.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 /**
- * Service interface for user-related operations.
- * Extends Spring Security's {@link UserDetailsService} for integration with authentication mechanisms.
+ * Service interface for user-related business logic.
+ * The implementation of this service also handles Spring Security's UserDetailsService contract.
  */
-public interface UserService extends UserDetailsService {
+public interface UserService {
 
     /**
-     * Registers a new user based on the provided registration request.
-     * This involves creating a new {@link User} entity, hashing the password,
-     * and saving it to the database.
+     * Registers a new user. Can be used for public registration or admin creation.
+     * Default roles and active status are applied if not provided.
      *
      * @param email           The user's email.
      * @param password        The user's raw password.
      * @param firstName       The user's first name.
      * @param lastName        The user's last name.
-     * @param profileImageUrl The URL for the user's profile image.
-     * @param roles           The roles to assign to the user.
-     * @param active          The active status of the user.
+     * @param profileImageUrl The URL for the user's profile image (can be null).
+     * @param roles           The roles to assign to the user (can be null for default).
+     * @param active          The active status of the user (can be null for default).
      * @return The created {@link User} entity.
-     * @throws com.forkmyfolio.exception.EmailAlreadyExistsException if the email is already in use.
+     * @throws com.forkmyfolio.exception.DuplicateResourceException if the email is already in use.
      */
-    @Transactional
     User registerUser(String email, String password, String firstName, String lastName, String profileImageUrl, Set<Role> roles, Boolean active);
-
-    /**
-     * Finds a user by their email address.
-     *
-     * @param email The email address to search for.
-     * @return The {@link User} entity if found.
-     * @throws org.springframework.security.core.userdetails.UsernameNotFoundException if user is not found.
-     */
-    User findByEmail(String email);
-
-    @Transactional(readOnly = true)
-    User getUserById(Long userId);
-
-    /**
-     * Checks if a user exists with the given email address.
-     *
-     * @param email The email address to check.
-     * @return {@code true} if a user with the email exists, {@code false} otherwise.
-     */
-    boolean existsByEmail(String email);
 
     /**
      * Retrieves the currently authenticated user from the security context.
@@ -63,18 +39,15 @@ public interface UserService extends UserDetailsService {
      */
     User getCurrentAuthenticatedUser();
 
-    User getPublicProfile();
-
     /**
-     * Updates the profile information for a given user.
+     * Updates the profile information for the currently authenticated user.
      *
-     * @param userId          The ID of the user to update.
      * @param firstName       The new first name.
      * @param lastName        The new last name.
      * @param profileImageUrl The new profile image URL.
      * @return The updated {@link User} entity.
      */
-    User updateUserProfile(Long userId, String firstName, String lastName, String profileImageUrl);
+    User updateUserProfile(String firstName, String lastName, String profileImageUrl);
 
     /**
      * Retrieves a paginated list of all users. For administrative purposes.
@@ -87,7 +60,7 @@ public interface UserService extends UserDetailsService {
     /**
      * Updates a user's details from an admin context.
      *
-     * @param userId    The UUID of the user to update.
+     * @param uuid      The UUID of the user to update.
      * @param firstName The user's new first name.
      * @param lastName  The user's new last name.
      * @param slug      The user's new slug.
@@ -95,16 +68,40 @@ public interface UserService extends UserDetailsService {
      * @param active    The user's new active status.
      * @return The updated {@link User} entity.
      */
-    User updateUserByAdmin(UUID userId, String firstName, String lastName, String slug, Set<Role> roles, Boolean active);
+    User updateUserByAdmin(UUID uuid, String firstName, String lastName, String slug, Set<Role> roles, Boolean active);
 
     /**
      * Deactivates a user's account (soft delete).
      *
-     * @param userId The UUID of the user to deactivate.
+     * @param uuid The UUID of the user to deactivate.
      */
-    void deactivateUser(UUID userId);
+    void deactivateUser(UUID uuid);
 
+    /**
+     * Finds a user by their public portfolio slug.
+     *
+     * @param slug The slug to search for.
+     * @return An {@link Optional} containing the {@link User} if found.
+     */
     Optional<User> findBySlug(String slug);
 
-    User getUserByUuid(UUID userId);
+    /**
+     * Finds a user by their public UUID.
+     *
+     * @param uuid The UUID of the user to find.
+     * @return The found {@link User} entity.
+     * @throws com.forkmyfolio.exception.ResourceNotFoundException if no user is found.
+     */
+    User getUserByUuid(UUID uuid);
+
+    /**
+     * Ensures the default administrator user exists, creating or updating it as needed
+     * based on application properties. This is an idempotent operation.
+     *
+     * @param email     The admin's email.
+     * @param password  The admin's raw password.
+     * @param firstName The admin's first name.
+     * @param lastName  The admin's last name.
+     */
+    void createOrUpdateAdminUser(String email, String password, String firstName, String lastName);
 }

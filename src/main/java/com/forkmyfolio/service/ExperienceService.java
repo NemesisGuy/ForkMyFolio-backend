@@ -30,29 +30,29 @@ public interface ExperienceService {
      * @param user The user who must own the experience.
      * @return The {@link Experience} entity if found and owned by the user.
      * @throws com.forkmyfolio.exception.ResourceNotFoundException if the experience is not found.
-     * @throws AccessDeniedException if the user does not own the experience.
+     * @throws AccessDeniedException                               if the user does not own the experience.
      */
     Experience findExperienceByUuidAndUser(UUID uuid, User user);
 
     /**
      * Creates and persists a new experience.
      *
-     * @param experience The experience entity to save. The owner (User) must be set before calling this method.
-     * @param skillUuids A set of UUIDs for skills to associate with this experience.
-     * @return The persisted {@link Experience} entity, including its generated ID and UUID.
+     * @param experience The experience entity to save. The owner (User) must be set.
+     * @param skillNames A set of skill names to find and associate with this experience.
+     * @return The persisted {@link Experience} entity.
      */
-    Experience createExperience(Experience experience, Set<UUID> skillUuids);
+    Experience createExperience(Experience experience, Set<String> skillNames);
 
     /**
      * Updates an existing experience.
      *
-     * @param uuid The UUID of the experience to update.
-     * @param updatedExperience An Experience object containing the new data to be applied.
-     * @param skillUuids A set of UUIDs for skills to associate with this experience.
-     * @param currentUser The user performing the action, for authorization.
-     * @return The updated Experience entity.
+     * @param id                The UUID of the experience to update.
+     * @param experienceDetails An Experience object containing the new data.
+     * @param skillNames        A set of skill names to associate with this experience.
+     * @param user              The current user, for authorization.
+     * @return The updated {@link Experience} entity.
      */
-    Experience updateExperience(UUID uuid, Experience updatedExperience, Set<UUID> skillUuids, User currentUser);
+    Experience updateExperience(UUID id, Experience experienceDetails, Set<String> skillNames, User user);
 
     /**
      * Deletes an experience by its public UUID.
@@ -61,7 +61,7 @@ public interface ExperienceService {
      * @param uuid        The UUID of the experience to delete.
      * @param currentUser The user performing the action, for authorization checks.
      * @throws com.forkmyfolio.exception.ResourceNotFoundException if the experience is not found.
-     * @throws AccessDeniedException if the user is not authorized to delete the experience.
+     * @throws AccessDeniedException                               if the user is not authorized to delete the experience.
      */
     void deleteExperience(UUID uuid, User currentUser);
 }

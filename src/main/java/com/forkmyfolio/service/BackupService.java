@@ -1,6 +1,7 @@
 package com.forkmyfolio.service;
 
-import com.forkmyfolio.service.model.PortfolioBackupData;
+import com.forkmyfolio.dto.response.PortfolioBackupDto;
+import com.forkmyfolio.model.User;
 
 /**
  * Service responsible for creating data backups.
@@ -8,9 +9,11 @@ import com.forkmyfolio.service.model.PortfolioBackupData;
 public interface BackupService {
 
     /**
-     * Creates a complete portfolio data backup for the currently authenticated user.
+     * Creates a complete portfolio data transfer object for the currently authenticated user.
      *
-     * @return A {@link PortfolioBackupData} object containing all portfolio domain entities.
+     * @return A {@link PortfolioBackupDto} object containing all portfolio data ready for response.
      */
-    PortfolioBackupData createBackupForCurrentUser();
+    PortfolioBackupDto createBackupForCurrentUser();
+
+    PortfolioBackupDto createBackupForUser(User user);
 }

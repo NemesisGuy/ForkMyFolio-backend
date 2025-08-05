@@ -1,7 +1,6 @@
 package com.forkmyfolio.exception;
 
 
-
 import org.springframework.security.core.AuthenticationException;
 
 public class OAuth2AuthenticationProcessingException extends AuthenticationException {

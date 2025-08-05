@@ -1,0 +1,794 @@
+[
+  {
+    "name": "Dart",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Language optimized for UI, used with Flutter for cross-platform apps.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Perl",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Scripting language for text processing and system administration.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Lua",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Lightweight scripting language for embedded systems and games.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Elixir",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Functional language for scalable and concurrent applications.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Haskell",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Purely functional programming language with strong typing.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Erlang",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Language for concurrent, distributed systems and real-time apps.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Clojure",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Functional Lisp dialect for JVM-based applications.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Objective-C",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Language for iOS and macOS app development before Swift.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Groovy",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Dynamic language for JVM, used with Gradle and Jenkins.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "F#",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Functional-first language for .NET applications.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "MATLAB",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Language for numerical computing and simulations.",
+    "icon": "fa-solid fa-calculator",
+    "visible": true
+  },
+  {
+    "name": "Assembly",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Low-level programming for hardware control.",
+    "icon": "fa-solid fa-microchip",
+    "visible": true
+  },
+  {
+    "name": "Shell Scripting",
+    "level": "BEGINNER",
+    "category": "Scripting",
+    "description": "Writing scripts for Unix-based system automation.",
+    "icon": "fa-solid fa-terminal",
+    "visible": true
+  },
+  {
+    "name": "Racket",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Lisp-based language for scripting and education.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Fortran",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Language for high-performance scientific computing.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Phoenix",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Elixir framework for real-time web applications.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "FastAPI",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Python framework for building high-performance APIs.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  },
+  {
+    "name": "SvelteKit",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Full-stack framework for Svelte applications.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Gatsby",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "React-based framework for static site generation.",
+    "icon": "fa-brands fa-react",
+    "visible": true
+  },
+  {
+    "name": "NestJS",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Node.js framework for scalable server-side applications.",
+    "icon": "fa-brands fa-node-js",
+    "visible": true
+  },
+  {
+    "name": "Quarkus",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Java framework optimized for Kubernetes and serverless.",
+    "icon": "fa-solid fa-leaf",
+    "visible": true
+  },
+  {
+    "name": "Micronaut",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "JVM framework for building lightweight microservices.",
+    "icon": "fa-solid fa-leaf",
+    "visible": true
+  },
+  {
+    "name": "ASP.NET",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Microsoft framework for building web applications.",
+    "icon": "fa-brands fa-microsoft",
+    "visible": true
+  },
+  {
+    "name": "Symfony",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "PHP framework for robust web applications.",
+    "icon": "fa-brands fa-php",
+    "visible": true
+  },
+  {
+    "name": "CodeIgniter",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Lightweight PHP framework for web development.",
+    "icon": "fa-brands fa-php",
+    "visible": true
+  },
+  {
+    "name": "Ember.js",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "JavaScript framework for ambitious web applications.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Backbone.js",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Lightweight JavaScript framework for structured web apps.",
+    "icon": "fa-brands fa-js",
+    "visible": true
+  },
+  {
+    "name": "Meteor",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Full-stack JavaScript platform for web apps.",
+    "icon": "fa-solid fa-meteor",
+    "visible": true
+  },
+  {
+    "name": "Keras",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "High-level API for building neural networks.",
+    "icon": "fa-solid fa-brain",
+    "visible": true
+  },
+  {
+    "name": "SciPy",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Python library for scientific and technical computing.",
+    "icon": "fa-solid fa-calculator",
+    "visible": true
+  },
+  {
+    "name": "D3.js",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "JavaScript library for interactive data visualizations.",
+    "icon": "fa-solid fa-chart-bar",
+    "visible": true
+  },
+  {
+    "name": "Lodash",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "JavaScript utility library for functional programming.",
+    "icon": "fa-brands fa-js",
+    "visible": true
+  },
+  {
+    "name": "Moment.js",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "JavaScript library for date and time manipulation.",
+    "icon": "fa-solid fa-clock",
+    "visible": true
+  },
+  {
+    "name": "Axios",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Promise-based HTTP client for JavaScript.",
+    "icon": "fa-solid fa-network-wired",
+    "visible": true
+  },
+  {
+    "name": "RxJS",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Reactive programming library for JavaScript.",
+    "icon": "fa-brands fa-js",
+    "visible": true
+  },
+  {
+    "name": "Three.js",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "JavaScript library for 3D graphics in the browser.",
+    "icon": "fa-solid fa-cube",
+    "visible": true
+  },
+  {
+    "name": "Chart.js",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "JavaScript library for creating responsive charts.",
+    "icon": "fa-solid fa-chart-bar",
+    "visible": true
+  },
+  {
+    "name": "Ant Design",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "React UI library for enterprise-grade applications.",
+    "icon": "fa-brands fa-react",
+    "visible": true
+  },
+  {
+    "name": "Material-UI",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "React component library implementing Material Design.",
+    "icon": "fa-brands fa-react",
+    "visible": true
+  },
+  {
+    "name": "Helm",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Package manager for Kubernetes applications.",
+    "icon": "fa-solid fa-cubes",
+    "visible": true
+  },
+  {
+    "name": "ArgoCD",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "GitOps continuous delivery tool for Kubernetes.",
+    "icon": "fa-solid fa-code-branch",
+    "visible": true
+  },
+  {
+    "name": "CircleCI",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "CI/CD platform for automated pipelines.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  },
+  {
+    "name": "Travis CI",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "CI/CD system integrated with GitHub.",
+    "icon": "fa-solid fa-code-branch",
+    "visible": true
+  },
+  {
+    "name": "Bitbucket Pipelines",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "CI/CD tool for Bitbucket repositories.",
+    "icon": "fa-brands fa-bitbucket",
+    "visible": true
+  },
+  {
+    "name": "Puppet",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Configuration management tool for infrastructure automation.",
+    "icon": "fa-solid fa-cog",
+    "visible": true
+  },
+  {
+    "name": "Chef",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Automation platform for infrastructure configuration.",
+    "icon": "fa-solid fa-cog",
+    "visible": true
+  },
+  {
+    "name": "SaltStack",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Automation tool for configuration and orchestration.",
+    "icon": "fa-solid fa-cog",
+    "visible": true
+  },
+  {
+    "name": "Vault",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Tool for managing secrets and sensitive data.",
+    "icon": "fa-solid fa-lock",
+    "visible": true
+  },
+  {
+    "name": "Consul",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Service mesh for service discovery and configuration.",
+    "icon": "fa-solid fa-network-wired",
+    "visible": true
+  },
+  {
+    "name": "Cassandra",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Distributed NoSQL database for high availability.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "DynamoDB",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "AWS NoSQL database for serverless applications.",
+    "icon": "fa-brands fa-aws",
+    "visible": true
+  },
+  {
+    "name": "MariaDB",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Open-source relational database, MySQL-compatible.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "SQLite",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Lightweight embedded relational database.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "CouchDB",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "NoSQL database with JSON-based document storage.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Neo4j",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Graph database for relationship-based data.",
+    "icon": "fa-solid fa-diagram-project",
+    "visible": true
+  },
+  {
+    "name": "InfluxDB",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Time-series database for metrics and events.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "CockroachDB",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Distributed SQL database for scalability.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Oracle Database",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Enterprise-grade relational database.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Microsoft SQL Server",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Relational database for enterprise applications.",
+    "icon": "fa-brands fa-microsoft",
+    "visible": true
+  },
+  {
+    "name": "Mocha",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "JavaScript testing framework for Node.js.",
+    "icon": "fa-solid fa-vial",
+    "visible": true
+  },
+  {
+    "name": "Chai",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Assertion library for JavaScript testing.",
+    "icon": "fa-solid fa-vial",
+    "visible": true
+  },
+  {
+    "name": "Cypress",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "End-to-end testing framework for web applications.",
+    "icon": "fa-solid fa-vial-circle-check",
+    "visible": true
+  },
+  {
+    "name": "TestNG",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Java testing framework for advanced test configurations.",
+    "icon": "fa-solid fa-vial",
+    "visible": true
+  },
+  {
+    "name": "Mockito",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Java mocking framework for unit tests.",
+    "icon": "fa-solid fa-vial",
+    "visible": true
+  },
+  {
+    "name": "Pytest",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Python testing framework for simple and scalable tests.",
+    "icon": "fa-solid fa-vial",
+    "visible": true
+  },
+  {
+    "name": "SpecFlow",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": ".NET framework for behavior-driven development.",
+    "icon": "fa-solid fa-vial-circle-check",
+    "visible": true
+  },
+  {
+    "name": "Cucumber",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Tool for behavior-driven development with Gherkin.",
+    "icon": "fa-solid fa-vial-circle-check",
+    "visible": true
+  },
+  {
+    "name": "OpenAPI",
+    "level": "BEGINNER",
+    "category": "API",
+    "description": "Specification for designing and documenting REST APIs.",
+    "icon": "fa-solid fa-link",
+    "visible": true
+  },
+  {
+    "name": "Swagger",
+    "level": "BEGINNER",
+    "category": "API",
+    "description": "Tools for designing and testing OpenAPI specifications.",
+    "icon": "fa-solid fa-link",
+    "visible": true
+  },
+  {
+    "name": "Istio",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Service mesh for managing microservices traffic.",
+    "icon": "fa-solid fa-network-wired",
+    "visible": true
+  },
+  {
+    "name": "Linkerd",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Lightweight service mesh for Kubernetes.",
+    "icon": "fa-solid fa-network-wired",
+    "visible": true
+  },
+  {
+    "name": "Envoy",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "High-performance proxy for service mesh architectures.",
+    "icon": "fa-solid fa-network-wired",
+    "visible": true
+  },
+  {
+    "name": "Zabbix",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Monitoring tool for networks and applications.",
+    "icon": "fa-solid fa-tachometer-alt",
+    "visible": true
+  },
+  {
+    "name": "Nagios",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Open-source monitoring system for infrastructure.",
+    "icon": "fa-solid fa-tachometer-alt",
+    "visible": true
+  },
+  {
+    "name": "Splunk",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Platform for searching and analyzing log data.",
+    "icon": "fa-solid fa-search",
+    "visible": true
+  },
+  {
+    "name": "ELK Stack",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Log analysis suite with Elasticsearch, Logstash, and Kibana.",
+    "icon": "fa-solid fa-search",
+    "visible": true
+  },
+  {
+    "name": "Log4j",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Java logging framework for application logs.",
+    "icon": "fa-solid fa-file-alt",
+    "visible": true
+  },
+  {
+    "name": "SLF4J",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Simple logging facade for Java applications.",
+    "icon": "fa-solid fa-file-alt",
+    "visible": true
+  },
+  {
+    "name": "Apache Log4j2",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Advanced logging framework for Java applications.",
+    "icon": "fa-solid fa-file-alt",
+    "visible": true
+  },
+  {
+    "name": "Hibernate",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Java ORM framework for database operations.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "JPA",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Java Persistence API for object-relational mapping.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Spring Data",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Spring module for simplified database access.",
+    "icon": "fa-solid fa-leaf",
+    "visible": true
+  },
+  {
+    "name": "MyBatis",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Java persistence framework for SQL mapping.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Redux",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "State management library for JavaScript applications.",
+    "icon": "fa-brands fa-js",
+    "visible": true
+  },
+  {
+    "name": "MobX",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Reactive state management for JavaScript apps.",
+    "icon": "fa-brands fa-js",
+    "visible": true
+  },
+  {
+    "name": "Apache Camel",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Integration framework for message-oriented middleware.",
+    "icon": "fa-solid fa-exchange-alt",
+    "visible": true
+  },
+  {
+    "name": "ActiveMQ",
+    "level": "BEGINNER",
+    "category": "Messaging",
+    "description": "Open-source message broker for Java applications.",
+    "icon": "fa-solid fa-stream",
+    "visible": true
+  },
+  {
+    "name": "ZeroMQ",
+    "level": "BEGINNER",
+    "category": "Messaging",
+    "description": "High-performance messaging library for distributed systems.",
+    "icon": "fa-solid fa-stream",
+    "visible": true
+  },
+  {
+    "name": "NATS",
+    "level": "BEGINNER",
+    "category": "Messaging",
+    "description": "Lightweight messaging system for cloud-native apps.",
+    "icon": "fa-solid fa-stream",
+    "visible": true
+  },
+  {
+    "name": "Protobuf",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Protocol Buffers for efficient data serialization.",
+    "icon": "fa-solid fa-file-code",
+    "visible": true
+  },
+  {
+    "name": "Avro",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Data serialization framework for big data.",
+    "icon": "fa-solid fa-file-code",
+    "visible": true
+  },
+  {
+    "name": "Thrift",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Framework for scalable cross-language services.",
+    "icon": "fa-solid fa-file-code",
+    "visible": true
+  },
+  {
+    "name": "Vagrant",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Tool for building and managing virtualized environments.",
+    "icon": "fa-solid fa-box",
+    "visible": true
+  },
+  {
+    "name": "Packer",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Tool for creating machine images for multiple platforms.",
+    "icon": "fa-solid fa-box",
+    "visible": true
+  },
+  {
+    "name": "AWS Lambda",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Serverless compute service for event-driven applications.",
+    "icon": "fa-brands fa-aws",
+    "visible": true
+  },
+  {
+    "name": "Azure Functions",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Serverless compute platform for Azure applications.",
+    "icon": "fa-brands fa-microsoft",
+    "visible": true
+  },
+  {
+    "name": "Google Cloud Functions",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Serverless compute for Google Cloud applications.",
+    "icon": "fa-brands fa-google",
+    "visible": true
+  },
+  {
+    "name": "OpenShift",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Kubernetes-based platform for containerized applications.",
+    "icon": "fa-solid fa-cubes",
+    "visible": true
+  },
+  {
+    "name": "Knative",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Kubernetes platform for serverless workloads.",
+    "icon": "fa-solid fa-cubes",
+    "visible": true
+  }
+]

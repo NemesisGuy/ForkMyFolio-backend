@@ -48,6 +48,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
      * @return An {@link Optional} containing the refresh token if found.
      */
     Optional<RefreshToken> findByUser(User user); // Useful if one user has one refresh token
+
     /**
      * --- THIS IS THE FIX ---
      * A new method that finds a refresh token and simultaneously fetches the associated
@@ -59,7 +60,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
      */
     @Query("SELECT rt FROM RefreshToken rt JOIN FETCH rt.user u JOIN FETCH u.roles WHERE rt.token = :token")
     Optional<RefreshToken> findByTokenAndFetchUserWithRoles(@Param("token") String token);
-
 
 
     void deleteByToken(String token);

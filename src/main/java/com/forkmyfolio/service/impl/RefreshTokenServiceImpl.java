@@ -97,6 +97,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public void deleteByToken(String token) {
         refreshTokenRepository.findByToken(token).ifPresent(refreshTokenRepository::delete);
     }
+
     /**
      * {@inheritDoc}
      */

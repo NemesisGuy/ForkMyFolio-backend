@@ -1,4 +1,4 @@
-package com.forkmyfolio.service.model;
+package com.forkmyfolio.service.servicemodel;
 
 
 import com.forkmyfolio.model.*;

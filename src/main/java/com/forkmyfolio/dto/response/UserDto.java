@@ -43,7 +43,6 @@ public class UserDto {
 
     /**
      * User's slug.
-     *
      */
     private String slug;
 

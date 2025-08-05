@@ -55,7 +55,7 @@ public class ExperienceDto {
     @Schema(description = "The order in which to display this experience.", example = "1")
     private Integer displayOrder;
 
-    @Schema(description = "A set of skills associated with this experience.")
+    @Schema(description = "A set of full skill objects associated with this experience.")
     private Set<SkillDto> skills;
 
     @Schema(description = "The timestamp when the experience was created.")

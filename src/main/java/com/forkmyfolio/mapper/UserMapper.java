@@ -34,8 +34,7 @@ public class UserMapper {
         dto.setProviderId(user.getProviderId());
         dto.setActive(user.isActive());
         dto.setRoles(user.getRoles());
-        dto.setCreatedAt(user.getCreatedAt());
-        dto.setUpdatedAt(user.getUpdatedAt());
+
 
         return dto;
     }
@@ -74,8 +73,7 @@ public class UserMapper {
         dto.setProfileImageUrl(user.getProfileImageUrl());
         dto.setActive(user.isActive());
         dto.setRoles(user.getRoles());
-        dto.setCreatedAt(user.getCreatedAt());
-        dto.setUpdatedAt(user.getUpdatedAt());
+
         return dto;
     }
 }

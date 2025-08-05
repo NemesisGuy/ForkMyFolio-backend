@@ -1,67 +1,58 @@
 package com.forkmyfolio.model;
 
+import com.forkmyfolio.model.enums.SkillLevel;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.UuidGenerator;
-import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
 @Table(name = "skills")
 @Data
+@EqualsAndHashCode(of = "uuid") // Important for collections
+@ToString(exclude = {"projects", "experiences"}) // Avoid recursion
 public class Skill {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @UuidGenerator
-    @Column(nullable = false, unique = true, updatable = false)
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    private UUID uuid;
+    @Column(nullable = false, updatable = false, unique = true)
+    private UUID uuid = UUID.randomUUID();
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, unique = true) // The skill name must be unique across the entire platform
     private String name;
 
+    // FIX: Switched to the top-level SkillLevel enum
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private SkillLevel level;
+    private SkillLevel level; // This can now represent a "suggested" or "default" level
 
-    @Column(nullable = false)
-    private boolean visible = true;
+    private boolean visible = true; // Can be used by admins to hide a skill from suggestions
 
-    @Column(length = 100)
     private String category;
 
-    @Column(length = 100)
     private String icon;
 
-    @Column(length = 255)
-    private String description;
+    @Lob
+    private String description; // A global description of the skill
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @ManyToMany(mappedBy = "skills")
+    private Set<Project> projects = new HashSet<>();
+
+    @ManyToMany(mappedBy = "skills")
+    private Set<Experience> experiences = new HashSet<>();
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
-
-
-    public enum SkillLevel {
-        BEGINNER,
-        INTERMEDIATE,
-        ADVANCED,
-        EXPERT
-    }
 }

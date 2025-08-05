@@ -27,8 +27,6 @@ public class VCardService {
     private final UserRepository userRepository;
     private final PortfolioProfileRepository portfolioProfileRepository;
 
-    public record VCardFile(byte[] content, String suggestedFilename) {}
-
     @Transactional(readOnly = true)
     public VCardFile generateVCard(String slug) {
         User user = userRepository.findBySlugAndActiveTrue(slug)
@@ -90,5 +88,8 @@ public class VCardService {
             log.error("Failed to fetch or encode image for vCard from URL '{}': {}", imageUrl, e.getMessage());
             return Optional.empty();
         }
+    }
+
+    public record VCardFile(byte[] content, String suggestedFilename) {
     }
 }

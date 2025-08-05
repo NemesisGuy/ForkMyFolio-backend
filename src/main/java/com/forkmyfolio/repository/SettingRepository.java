@@ -1,7 +1,6 @@
 package com.forkmyfolio.repository;
 
 import com.forkmyfolio.model.Setting;
-import com.forkmyfolio.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

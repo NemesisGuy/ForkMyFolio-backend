@@ -30,7 +30,7 @@ public interface ProjectService {
      * @param user The user who must own the project.
      * @return The {@link Project} entity if found and owned by the user.
      * @throws com.forkmyfolio.exception.ResourceNotFoundException if the project is not found.
-     * @throws AccessDeniedException if the user does not own the project.
+     * @throws AccessDeniedException                               if the user does not own the project.
      */
     Project findProjectByUuidAndUser(UUID uuid, User user);
 
@@ -38,21 +38,21 @@ public interface ProjectService {
      * Creates and persists a new project.
      *
      * @param project    The project entity to save. The owner (User) must be set before calling this method.
-     * @param skillUuids A set of UUIDs for skills to associate with this project.
+     * @param skillNames A set of skill names to find and associate with this project.
      * @return The persisted {@link Project} entity, including its generated ID and UUID.
      */
-    Project createProject(Project project, Set<UUID> skillUuids);
+    Project createProject(Project project, Set<String> skillNames);
 
     /**
      * Updates an existing project.
      *
-     * @param uuid                The UUID of the project to update.
-     * @param updatedProjectData  A Project object containing the new data to be applied.
-     * @param skillUuids          A set of UUIDs for skills to associate with this project.
-     * @param currentUser         The user performing the action, for authorization.
+     * @param uuid               The UUID of the project to update.
+     * @param updatedProjectData A Project object containing the new data to be applied.
+     * @param skillNames         A set of skill names to find and associate with this project.
+     * @param currentUser        The user performing the action, for authorization.
      * @return The updated Project entity.
      */
-    Project updateProject(UUID uuid, Project updatedProjectData, Set<UUID> skillUuids, User currentUser);
+    Project updateProject(UUID uuid, Project updatedProjectData, Set<String> skillNames, User currentUser);
 
     /**
      * Deletes a project by its public UUID.
@@ -61,7 +61,7 @@ public interface ProjectService {
      * @param uuid        The UUID of the project to delete.
      * @param currentUser The user performing the action, for authorization checks.
      * @throws com.forkmyfolio.exception.ResourceNotFoundException if the project is not found.
-     * @throws AccessDeniedException if the user is not authorized to delete the project.
+     * @throws AccessDeniedException                               if the user is not authorized to delete the project.
      */
     void deleteProject(UUID uuid, User currentUser);
 }

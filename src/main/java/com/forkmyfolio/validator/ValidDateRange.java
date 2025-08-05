@@ -12,8 +12,8 @@ import java.lang.annotation.Target;
  * A custom validation annotation to ensure that an end date is not before a start date.
  * This annotation must be applied at the class level to a DTO or entity that contains
  * both a start date and an end date field.
- *
- = *
+ * <p>
+ * = *
  * Example usage:
  * <pre>
  * {@code
@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  * </pre>
  */
 @Constraint(validatedBy = DateRangeValidator.class)
-@Target({ ElementType.TYPE })
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidDateRange {
 

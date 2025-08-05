@@ -1,6 +1,7 @@
 package com.forkmyfolio.dto.create;
 
 import com.forkmyfolio.model.Skill;
+import com.forkmyfolio.model.enums.SkillLevel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -8,30 +9,23 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-@Schema(name = "CreateSkillRequest", description = "Request body for creating a new skill.")
+@Schema(name = "CreateSkillRequest", description = "Data required to add a skill to the current user's portfolio. If the skill doesn't exist globally, it will be created.")
 public class CreateSkillRequest {
 
-    @NotBlank(message = "Skill name is required.")
-    @Size(max = 50)
-    @Schema(description = "The name of the skill.", example = "Java", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "Skill name cannot be blank.")
+    @Size(min = 1, max = 100, message = "Skill name must be between 1 and 100 characters.")
+    @Schema(description = "The name of the skill to add. This is case-insensitive.", example = "React", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
-    @NotNull(message = "Skill level is required.")
-    @Schema(description = "The proficiency level of the skill.", example = "ADVANCED", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Skill.SkillLevel level;
+    @NotNull(message = "Skill level cannot be null.")
+    @Schema(description = "The user's proficiency level with this skill.", example = "ADVANCED", requiredMode = Schema.RequiredMode.REQUIRED)
+    private SkillLevel level;
 
-    @Schema(description = "Whether the skill is visible on the public portfolio.", example = "true")
+    @NotNull(message = "Visibility must be specified.")
+    @Schema(description = "Whether this skill should be visible on the user's public portfolio.", example = "true", defaultValue = "true")
     private boolean visible = true;
 
-    @Size(max = 100)
-    @Schema(description = "The category the skill belongs to.", example = "Programming")
-    private String category;
-
-    @Size(max = 100)
-    @Schema(description = "An icon representing the skill (e.g., a CSS class like 'devicon-java-plain').", example = "devicon-java-plain")
-    private String icon;
-
-    @Size(max = 255)
-    @Schema(description = "A brief description of the skill.", example = "A popular object-oriented programming language.")
+    @Size(max = 5000, message = "Description cannot exceed 5000 characters.")
+    @Schema(description = "A personal description or notes about this skill.", example = "Used for building interactive UIs.")
     private String description;
 }

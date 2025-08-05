@@ -37,13 +37,11 @@ public class EleganceTemplate implements PortfolioPdfTemplate {
     private static final Color TEXT_COLOR = new DeviceRgb(34, 40, 49); // #222831 (Dark Charcoal)
     private static final Color ACCENT_COLOR = new DeviceRgb(0, 173, 181); // #00ADB5 (Teal)
     private static final Color SUBTLE_COLOR = new DeviceRgb(108, 117, 125); // #6c757d (Medium Gray)
-
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM yyyy");
     // --- Template-Specific Fonts ---
     private PdfFont headingFont;
     private PdfFont bodyFont;
     private PdfFont bodyItalicFont;
-
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM yyyy");
 
     @Override
     public void generate(Document document, PdfGenerationService.PdfContext ctx, PortfolioData data) throws IOException {

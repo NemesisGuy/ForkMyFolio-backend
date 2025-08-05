@@ -58,7 +58,9 @@ public class ProjectManagementController {
     public ResponseEntity<ProjectDto> createMyProject(@Valid @RequestBody CreateProjectRequest createRequest) {
         User currentUser = userService.getCurrentAuthenticatedUser();
         Project newProject = projectMapper.toEntity(createRequest, currentUser);
-        Project createdProject = projectService.createProject(newProject, createRequest.getSkillUuids());
+        // CORRECT: Pass the set of skill names from the request DTO.
+        // Note: You must update CreateProjectRequest to have a `getSkills()` method returning Set<String>.
+        Project createdProject = projectService.createProject(newProject, createRequest.getSkills());
         return new ResponseEntity<>(projectMapper.toDto(createdProject), HttpStatus.CREATED);
     }
 
@@ -67,7 +69,9 @@ public class ProjectManagementController {
     public ResponseEntity<ProjectDto> updateMyProject(@PathVariable UUID uuid, @Valid @RequestBody UpdateProjectRequest updateRequest) {
         User currentUser = userService.getCurrentAuthenticatedUser();
         Project updatedProjectData = projectMapper.toEntity(updateRequest);
-        Project updatedProject = projectService.updateProject(uuid, updatedProjectData, updateRequest.getSkillUuids(), currentUser);
+        // CORRECT: Pass the set of skill names from the request DTO.
+        // Note: You must update UpdateProjectRequest to have a `getSkills()` method returning Set<String>.
+        Project updatedProject = projectService.updateProject(uuid, updatedProjectData, updateRequest.getSkills(), currentUser);
         return ResponseEntity.ok(projectMapper.toDto(updatedProject));
     }
 

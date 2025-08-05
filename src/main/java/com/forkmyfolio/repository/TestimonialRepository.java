@@ -20,4 +20,9 @@ public interface TestimonialRepository extends JpaRepository<Testimonial, Long> 
     void deleteByUser(User user);
 
     List<Testimonial> findByUserAndVisibleTrue(User user);
+
+    List<Testimonial> findByUser(User user);
+
+    long countByUser(User user);
+
 }

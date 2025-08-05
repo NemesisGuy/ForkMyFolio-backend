@@ -12,11 +12,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of the {@link ExperienceService} interface.
@@ -49,22 +47,16 @@ public class ExperienceServiceImpl implements ExperienceService {
 
     @Override
     @Transactional
-    public Experience createExperience(Experience experience, Set<UUID> skillUuids) {
-        // The user must be set on the experience object before calling this method.
-        User owner = experience.getUser();
-        if (skillUuids != null && !skillUuids.isEmpty()) {
-            Set<Skill> skills = skillUuids.stream()
-                    // Ensure the user owns the skills they are trying to link
-                    .map(skillUuid -> skillService.findSkillByUuidAndUser(skillUuid, owner))
-                    .collect(Collectors.toSet());
-            experience.setSkills(skills);
-        }
+    public Experience createExperience(Experience experience, Set<String> skillNames) {
+        // Delegate to SkillService to find or create the associated global skills.
+        Set<Skill> skills = skillService.findOrCreateSkills(skillNames);
+        experience.setSkills(skills);
         return experienceRepository.save(experience);
     }
 
     @Override
     @Transactional
-    public Experience updateExperience(UUID uuid, Experience updatedExperienceData, Set<UUID> skillUuids, User currentUser) {
+    public Experience updateExperience(UUID uuid, Experience updatedExperienceData, Set<String> skillNames, User currentUser) {
         Experience existingExperience = findExperienceByUuidAndUser(uuid, currentUser);
 
         // Update all fields from the provided data object
@@ -82,13 +74,8 @@ public class ExperienceServiceImpl implements ExperienceService {
         existingExperience.setVisible(updatedExperienceData.isVisible());
         existingExperience.setDisplayOrder(updatedExperienceData.getDisplayOrder());
 
-        // Update associated skills
-        Set<Skill> skillsToAssociate = new HashSet<>();
-        if (skillUuids != null && !skillUuids.isEmpty()) {
-            skillsToAssociate = skillUuids.stream()
-                    .map(skillUuid -> skillService.findSkillByUuidAndUser(skillUuid, currentUser))
-                    .collect(Collectors.toSet());
-        }
+        // Update associated skills by finding or creating them in the global pool.
+        Set<Skill> skillsToAssociate = skillService.findOrCreateSkills(skillNames);
         existingExperience.setSkills(skillsToAssociate);
 
         return experienceRepository.save(existingExperience);

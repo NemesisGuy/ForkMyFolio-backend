@@ -1,82 +1,151 @@
 package com.forkmyfolio.mapper;
 
-import com.forkmyfolio.dto.create.CreateSkillRequest;
 import com.forkmyfolio.dto.response.SkillDto;
+import com.forkmyfolio.dto.response.UserSkillDto;
+import com.forkmyfolio.dto.update.UpdateSkillRequest;
 import com.forkmyfolio.model.Skill;
-import com.forkmyfolio.model.User;
+import com.forkmyfolio.model.UserSkill;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
- * Mapper class responsible for converting between Skill domain models and Skill-related DTOs.
- * This keeps the conversion logic separate from the service and controller layers.
+ * Mapper for converting between Skill/UserSkill entities and their corresponding DTOs.
  */
 @Component
 public class SkillMapper {
 
     /**
-     * Converts a Skill entity to a SkillDto for API responses.
+     * Maps a UserSkill entity to a detailed SkillDto, intended for UI display.
+     * This DTO includes comprehensive user-specific details like proficiency level and visibility.
      *
-     * @param skill The Skill entity to convert.
-     * @return The corresponding SkillDto.
+     * @param userSkill The UserSkill entity.
+     * @return A detailed SkillDto.
+     */
+    public SkillDto toDetailDto(UserSkill userSkill) {
+        if (userSkill == null) {
+            return null;
+        }
+
+        SkillDto dto = new SkillDto();
+        // User-specific details from the UserSkill relationship
+        dto.setUserSkillId(userSkill.getUuid());
+        dto.setLevel(userSkill.getLevel());
+        dto.setVisible(userSkill.isVisible());
+        dto.setDescription(userSkill.getDescription());
+        dto.setCreatedAt(userSkill.getCreatedAt());
+        dto.setUpdatedAt(userSkill.getUpdatedAt());
+
+        // Global details from the underlying Skill
+        if (userSkill.getSkill() != null) {
+            dto.setSkillId(userSkill.getSkill().getUuid());
+            dto.setName(userSkill.getSkill().getName());
+            dto.setCategory(userSkill.getSkill().getCategory());
+            dto.setIcon(userSkill.getSkill().getIcon());
+        }
+
+        return dto;
+    }
+
+    /**
+     * Maps a global Skill entity to a SkillDto.
+     * This is required when displaying skills attached to a Project or Experience,
+     * where there is no user-specific context (like level or visibility).
+     *
+     * @param skill The global Skill entity.
+     * @return A lean SkillDto containing only global skill information.
      */
     public SkillDto toDto(Skill skill) {
         if (skill == null) {
             return null;
         }
         SkillDto dto = new SkillDto();
-        dto.setUuid(skill.getUuid());
+        // Global details from the Skill entity
+        dto.setSkillId(skill.getUuid());
         dto.setName(skill.getName());
-        dto.setLevel(skill.getLevel());
-        dto.setVisible(skill.isVisible());
         dto.setCategory(skill.getCategory());
         dto.setIcon(skill.getIcon());
-        dto.setDescription(skill.getDescription());
-        dto.setCreatedAt(skill.getCreatedAt());
-        dto.setUpdatedAt(skill.getUpdatedAt());
+        // Note: User-specific fields (userSkillId, level, visible, etc.) are intentionally left null
+        // as they do not apply in this context.
         return dto;
     }
 
     /**
-     * Converts a CreateSkillRequest DTO to a new Skill entity.
+     * Maps a list of UserSkill entities to a list of detailed SkillDtos.
      *
-     * @param request The DTO containing the creation data.
-     * @param user    The user who will own this skill.
-     * @return A new Skill entity, ready to be persisted.
+     * @param userSkills The list of UserSkill entities.
+     * @return A list of detailed SkillDtos.
      */
-    public Skill toEntity(CreateSkillRequest request, User user) {
-        if (request == null) {
-            return null;
+    public List<SkillDto> toDetailDtoList(List<UserSkill> userSkills) {
+        if (userSkills == null || userSkills.isEmpty()) {
+            return Collections.emptyList();
         }
-        Skill skill = new Skill();
-        skill.setName(request.getName());
-        skill.setLevel(request.getLevel());
-        skill.setVisible(request.isVisible());
-        skill.setCategory(request.getCategory());
-        skill.setIcon(request.getIcon());
-        skill.setDescription(request.getDescription());
-        skill.setUser(user); // Set the owner
-        return skill;
+        return userSkills.stream()
+                .map(this::toDetailDto)
+                .collect(Collectors.toList());
     }
 
     /**
-     * Converts a SkillDto (typically from a backup) to a new Skill entity.
+     * Maps a UserSkill entity to a lean UserSkillDto, intended for backups.
+     * This DTO contains only the essential information needed to restore the relationship.
      *
-     * @param dto  The DTO containing the skill data.
-     * @param user The user who will own this skill.
-     * @return A new Skill entity, ready to be persisted.
+     * @param userSkill The UserSkill entity.
+     * @return A lean UserSkillDto for backup purposes.
      */
-    public Skill toEntityFromDto(SkillDto dto, User user) {
-        if (dto == null) {
+    public UserSkillDto toBackupDto(UserSkill userSkill) {
+        if (userSkill == null) {
             return null;
         }
-        Skill skill = new Skill();
-        skill.setUser(user);
-        skill.setName(dto.getName());
-        skill.setLevel(dto.getLevel());
-        skill.setVisible(dto.isVisible());
-        skill.setCategory(dto.getCategory());
-        skill.setIcon(dto.getIcon());
-        skill.setDescription(dto.getDescription());
-        return skill;
+
+        UserSkillDto dto = new UserSkillDto();
+        dto.setUserSkillId(userSkill.getUuid());
+        dto.setLevel(userSkill.getLevel());
+
+        if (userSkill.getSkill() != null) {
+            dto.setSkillId(userSkill.getSkill().getUuid());
+            dto.setName(userSkill.getSkill().getName());
+        }
+
+        return dto;
+    }
+
+    /**
+     * Maps a list of UserSkill entities to a list of lean UserSkillDtos for backups.
+     *
+     * @param userSkills The list of UserSkill entities.
+     * @return A list of lean UserSkillDtos.
+     */
+    public List<UserSkillDto> toBackupDtoList(List<UserSkill> userSkills) {
+        if (userSkills == null || userSkills.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return userSkills.stream()
+                .map(this::toBackupDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * FIX: Implement the missing method to apply updates from a DTO to an entity.
+     * This method modifies the entity in-place.
+     *
+     * @param request The DTO containing the update data.
+     * @param entity  The UserSkill entity to be updated.
+     */
+    public void applyUpdateFromRequest(UpdateSkillRequest request, UserSkill entity) {
+        if (request == null || entity == null) {
+            return;
+        }
+        // Only update fields that are provided in the request to avoid unintentional nulling.
+        if (request.getLevel() != null) {
+            entity.setLevel(request.getLevel());
+        }
+
+            entity.setVisible(request.isVisible());
+
+        if (request.getDescription() != null) {
+            entity.setDescription(request.getDescription());
+        }
     }
 }

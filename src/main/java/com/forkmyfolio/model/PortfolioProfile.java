@@ -23,16 +23,24 @@ public class PortfolioProfile {
     private Long id;
 
 
-
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     /**
-     * Flag to control the visibility of the entire profile section on the public portfolio.
+     * Section-level Toggle: Controls the visibility of the profile summary section
+     * on an otherwise public portfolio page.
      */
     @Column(nullable = false)
     private boolean visible = true;
+
+    /**
+     * Master-level Toggle: Controls the visibility of the entire public-facing portfolio.
+     * If false, the public slug (e.g., /portfolio/john-doe) will be inaccessible.
+     * Defaults to false for security.
+     */
+    @Column(nullable = false)
+    private boolean isPublic = false;
 
     @Column(length = 100)
     private String headline;
@@ -55,7 +63,6 @@ public class PortfolioProfile {
     @URL
     private String resumeUrl; // URL to the downloadable PDF resume
 
-    // --- ADD THIS NEW FIELD ---
     @URL
     private String resumeImageUrl; // URL to a preview image of the resume (e.g., a PNG/JPG)
 

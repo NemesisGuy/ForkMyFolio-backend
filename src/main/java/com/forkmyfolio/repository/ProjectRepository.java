@@ -57,4 +57,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      */
     @Transactional
     void deleteByUser(User user);
+
+    long countByUser(User user);
+
 }

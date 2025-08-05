@@ -1,7 +1,7 @@
 package com.forkmyfolio.exception;
 
-import com.forkmyfolio.aop.SkipApiResponseWrapper;
 import com.forkmyfolio.advice.ApiResponseWrapper;
+import com.forkmyfolio.aop.SkipApiResponseWrapper;
 import com.forkmyfolio.dto.response.FieldErrorDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
@@ -22,7 +22,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestControllerAdvice(basePackages = "com.forkmyfolio.controller")
+// FIX: Removed the basePackages attribute to make this handler truly global.
+// This ensures it applies to all controllers, regardless of their package.
+@RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
 
@@ -89,6 +91,18 @@ public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
                 })
                 .collect(Collectors.toList());
         return new ApiResponseWrapper<>(errors, "validation_failed");
+    }
+
+    /**
+     * Handles permission denied errors specifically.
+     * This ensures a 403 Forbidden status is returned, which the frontend expects.
+     */
+    @ExceptionHandler(PermissionDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiResponseWrapper<Object> handlePermissionDenied(PermissionDeniedException ex) {
+        log.warn("Permission denied: {}", ex.getMessage());
+        List<FieldErrorDto> errors = List.of(new FieldErrorDto("authorization", ex.getMessage()));
+        return new ApiResponseWrapper<>(errors, "permission_denied");
     }
 
     /**

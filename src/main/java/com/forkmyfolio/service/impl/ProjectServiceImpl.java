@@ -12,11 +12,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of the {@link ProjectService} interface.
@@ -49,21 +47,16 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
-    public Project createProject(Project project, Set<UUID> skillUuids) {
-        User owner = project.getUser();
-        if (skillUuids != null && !skillUuids.isEmpty()) {
-            Set<Skill> skills = skillUuids.stream()
-                    // Ensure the user owns the skills they are trying to link
-                    .map(skillUuid -> skillService.findSkillByUuidAndUser(skillUuid, owner))
-                    .collect(Collectors.toSet());
-            project.setSkills(skills);
-        }
+    public Project createProject(Project project, Set<String> skillNames) {
+        // Delegate to SkillService to find or create the associated global skills.
+        Set<Skill> skills = skillService.findOrCreateSkills(skillNames);
+        project.setSkills(skills);
         return projectRepository.save(project);
     }
 
     @Override
     @Transactional
-    public Project updateProject(UUID uuid, Project updatedProjectData, Set<UUID> skillUuids, User currentUser) {
+    public Project updateProject(UUID uuid, Project updatedProjectData, Set<String> skillNames, User currentUser) {
         Project existingProject = findProjectByUuidAndUser(uuid, currentUser);
 
         // Update fields from the provided data object
@@ -75,13 +68,8 @@ public class ProjectServiceImpl implements ProjectService {
         existingProject.setVisible(updatedProjectData.isVisible());
         existingProject.setDisplayOrder(updatedProjectData.getDisplayOrder());
 
-        // Update associated skills
-        Set<Skill> skillsToAssociate = new HashSet<>();
-        if (skillUuids != null && !skillUuids.isEmpty()) {
-            skillsToAssociate = skillUuids.stream()
-                    .map(skillUuid -> skillService.findSkillByUuidAndUser(skillUuid, currentUser))
-                    .collect(Collectors.toSet());
-        }
+        // Update associated skills by finding or creating them in the global pool.
+        Set<Skill> skillsToAssociate = skillService.findOrCreateSkills(skillNames);
         existingProject.setSkills(skillsToAssociate);
 
         return projectRepository.save(existingProject);

@@ -27,7 +27,7 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
      * @param request the HttpServletRequest
      * @return the OAuth2AuthorizationRequest
      * @deprecated This method is deprecated in Spring Security 6.3 and will be removed in 7.0.
-     *             The loadAuthorizationRequest(HttpServletRequest) method should be used instead.
+     * The loadAuthorizationRequest(HttpServletRequest) method should be used instead.
      */
     @Override
     @Deprecated

@@ -19,8 +19,6 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class SlugServiceImpl implements SlugService {
 
-    private final UserRepository userRepository;
-
     // A pattern to match non-alphanumeric characters for slug generation.
     private static final Pattern NON_LATIN = Pattern.compile("[^\\w-]");
     // A pattern to match whitespace for replacement with hyphens.
@@ -32,6 +30,7 @@ public class SlugServiceImpl implements SlugService {
             "qualifications", "contact", "swagger-ui", "v3", "api-docs", "h2-console",
             "assets", "static", "images", "css", "js"
     );
+    private final UserRepository userRepository;
 
     /**
      * {@inheritDoc}

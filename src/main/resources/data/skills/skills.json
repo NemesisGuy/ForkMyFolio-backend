@@ -1,0 +1,1418 @@
+[
+  {
+    "name": "Java",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Object-oriented programming language for backend and enterprise applications.",
+    "icon": "fa-brands fa-java",
+    "visible": true
+  },
+  {
+    "name": "Python",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Versatile language for web development, data science, and automation.",
+    "icon": "fa-brands fa-python",
+    "visible": true
+  },
+  {
+    "name": "JavaScript",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Dynamic scripting language for web and frontend development.",
+    "icon": "fa-brands fa-js",
+    "visible": true
+  },
+  {
+    "name": "TypeScript",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Superset of JavaScript with static typing for scalable applications.",
+    "icon": "fa-brands fa-js",
+    "visible": true
+  },
+  {
+    "name": "C++",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "High-performance language for system programming and game development.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "C#",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Microsoft-developed language for .NET applications and game development.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Ruby",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Dynamic language for web development with Ruby on Rails.",
+    "icon": "fa-brands fa-gem",
+    "visible": true
+  },
+  {
+    "name": "Go",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Statically typed language for scalable backend systems.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Rust",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Safe and performant language for system programming.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "PHP",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Server-side scripting language for web development.",
+    "icon": "fa-brands fa-php",
+    "visible": true
+  },
+  {
+    "name": "Swift",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Language for iOS and macOS app development.",
+    "icon": "fa-brands fa-swift",
+    "visible": true
+  },
+  {
+    "name": "Kotlin",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Modern language for Android and backend development.",
+    "icon": "fa-brands fa-kotlin",
+    "visible": true
+  },
+  {
+    "name": "Scala",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Functional and object-oriented language for scalable systems.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "R",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Language for statistical computing and data analysis.",
+    "icon": "fa-solid fa-chart-bar",
+    "visible": true
+  },
+  {
+    "name": "SQL",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Query language for managing relational databases.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "HTML",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Markup language for structuring web content.",
+    "icon": "fa-brands fa-html5",
+    "visible": true
+  },
+  {
+    "name": "CSS",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Styling language for web design and layouts.",
+    "icon": "fa-brands fa-css3-alt",
+    "visible": true
+  },
+  {
+    "name": "Spring Boot",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Java framework for building microservices and web applications.",
+    "icon": "fa-solid fa-leaf",
+    "visible": true
+  },
+  {
+    "name": "React",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "JavaScript library for building user interfaces.",
+    "icon": "fa-brands fa-react",
+    "visible": true
+  },
+  {
+    "name": "Angular",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "TypeScript-based framework for dynamic web applications.",
+    "icon": "fa-brands fa-angular",
+    "visible": true
+  },
+  {
+    "name": "Vue.js",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Progressive JavaScript framework for building UIs.",
+    "icon": "fa-brands fa-vuejs",
+    "visible": true
+  },
+  {
+    "name": "Django",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Python framework for rapid web development.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Flask",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Lightweight Python framework for web applications.",
+    "icon": "fa-solid fa-flask",
+    "visible": true
+  },
+  {
+    "name": "Ruby on Rails",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Ruby framework for building web applications.",
+    "icon": "fa-brands fa-gem",
+    "visible": true
+  },
+  {
+    "name": "Express.js",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Node.js framework for building RESTful APIs.",
+    "icon": "fa-brands fa-node-js",
+    "visible": true
+  },
+  {
+    "name": ".NET Core",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Cross-platform framework for building modern applications.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Laravel",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "PHP framework for elegant web development.",
+    "icon": "fa-brands fa-laravel",
+    "visible": true
+  },
+  {
+    "name": "Node.js",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "JavaScript runtime for server-side development.",
+    "icon": "fa-brands fa-node",
+    "visible": true
+  },
+  {
+    "name": "TensorFlow",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Machine learning library for building AI models.",
+    "icon": "fa-solid fa-brain",
+    "visible": true
+  },
+  {
+    "name": "PyTorch",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Machine learning library for research and production.",
+    "icon": "fa-solid fa-brain",
+    "visible": true
+  },
+  {
+    "name": "Pandas",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Python library for data manipulation and analysis.",
+    "icon": "fa-solid fa-table",
+    "visible": true
+  },
+  {
+    "name": "NumPy",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Python library for numerical computations.",
+    "icon": "fa-solid fa-calculator",
+    "visible": true
+  },
+  {
+    "name": "jQuery",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "JavaScript library for DOM manipulation.",
+    "icon": "fa-brands fa-js",
+    "visible": true
+  },
+  {
+    "name": "Bootstrap",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "CSS framework for responsive web design.",
+    "icon": "fa-brands fa-bootstrap",
+    "visible": true
+  },
+  {
+    "name": "Tailwind CSS",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Utility-first CSS framework for rapid UI development.",
+    "icon": "fa-solid fa-paintbrush",
+    "visible": true
+  },
+  {
+    "name": "Docker",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Containerization platform for deploying applications.",
+    "icon": "fa-brands fa-docker",
+    "visible": true
+  },
+  {
+    "name": "Kubernetes",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Orchestration platform for managing containerized applications.",
+    "icon": "fa-solid fa-cubes",
+    "visible": true
+  },
+  {
+    "name": "Jenkins",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Automation server for CI/CD pipelines.",
+    "icon": "fa-solid fa-cogs",
+    "visible": true
+  },
+  {
+    "name": "Git",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Version control system for tracking code changes.",
+    "icon": "fa-brands fa-git",
+    "visible": true
+  },
+  {
+    "name": "GitHub Actions",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "CI/CD platform for automating workflows.",
+    "icon": "fa-brands fa-github",
+    "visible": true
+  },
+  {
+    "name": "Ansible",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Automation tool for configuration management.",
+    "icon": "fa-solid fa-cog",
+    "visible": true
+  },
+  {
+    "name": "Terraform",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Infrastructure-as-code tool for provisioning resources.",
+    "icon": "fa-solid fa-cloud",
+    "visible": true
+  },
+  {
+    "name": "AWS",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Cloud computing platform for scalable infrastructure.",
+    "icon": "fa-brands fa-aws",
+    "visible": true
+  },
+  {
+    "name": "Azure",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Microsoft cloud platform for building and deploying applications.",
+    "icon": "fa-brands fa-microsoft",
+    "visible": true
+  },
+  {
+    "name": "Google Cloud Platform",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Cloud platform for machine learning and infrastructure.",
+    "icon": "fa-brands fa-google",
+    "visible": true
+  },
+  {
+    "name": "CI/CD",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Practices for continuous integration and deployment.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  },
+  {
+    "name": "Agile Methodology",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Iterative approach for collaborative software development.",
+    "icon": "fa-solid fa-people-arrows",
+    "visible": true
+  },
+  {
+    "name": "Scrum",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Agile framework for managing complex projects.",
+    "icon": "fa-solid fa-users",
+    "visible": true
+  },
+  {
+    "name": "Kanban",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Workflow visualization for optimizing task management.",
+    "icon": "fa-solid fa-board",
+    "visible": true
+  },
+  {
+    "name": "Test-Driven Development",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Writing tests before code to ensure quality.",
+    "icon": "fa-solid fa-vial",
+    "visible": true
+  },
+  {
+    "name": "Behavior-Driven Development",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Collaborative approach to defining application behavior.",
+    "icon": "fa-solid fa-vial-circle-check",
+    "visible": true
+  },
+  {
+    "name": "Pair Programming",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Collaborative coding with two developers at one workstation.",
+    "icon": "fa-solid fa-user-group",
+    "visible": true
+  },
+  {
+    "name": "Code Review",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Peer review of code to improve quality and consistency.",
+    "icon": "fa-solid fa-code-compare",
+    "visible": true
+  },
+  {
+    "name": "DevOps",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Culture and practices for collaboration between development and operations.",
+    "icon": "fa-solid fa-cogs",
+    "visible": true
+  },
+  {
+    "name": "Communication",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Effective verbal and written communication skills.",
+    "icon": "fa-solid fa-comments",
+    "visible": true
+  },
+  {
+    "name": "Leadership",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Guiding and motivating teams to achieve goals.",
+    "icon": "fa-solid fa-user-tie",
+    "visible": true
+  },
+  {
+    "name": "Teamwork",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Collaborating effectively within a team environment.",
+    "icon": "fa-solid fa-users",
+    "visible": true
+  },
+  {
+    "name": "Problem Solving",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Analyzing and resolving complex issues creatively.",
+    "icon": "fa-solid fa-puzzle-piece",
+    "visible": true
+  },
+  {
+    "name": "Time Management",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Prioritizing tasks and managing deadlines efficiently.",
+    "icon": "fa-solid fa-clock",
+    "visible": true
+  },
+  {
+    "name": "Adaptability",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Adjusting to new challenges and environments.",
+    "icon": "fa-solid fa-arrows-rotate",
+    "visible": true
+  },
+  {
+    "name": "Critical Thinking",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Evaluating information to make informed decisions.",
+    "icon": "fa-solid fa-brain",
+    "visible": true
+  },
+  {
+    "name": "Creativity",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Generating innovative ideas and solutions.",
+    "icon": "fa-solid fa-lightbulb",
+    "visible": true
+  },
+  {
+    "name": "Emotional Intelligence",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Understanding and managing emotions in interpersonal interactions.",
+    "icon": "fa-solid fa-heart",
+    "visible": true
+  },
+  {
+    "name": "Conflict Resolution",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Mediating disputes and fostering positive outcomes.",
+    "icon": "fa-solid fa-handshake",
+    "visible": true
+  },
+  {
+    "name": "Singleton Pattern",
+    "level": "BEGINNER",
+    "category": "Design Pattern",
+    "description": "Ensures a class has only one instance with global access.",
+    "icon": "fa-solid fa-object-group",
+    "visible": true
+  },
+  {
+    "name": "Factory Pattern",
+    "level": "BEGINNER",
+    "category": "Design Pattern",
+    "description": "Creates objects without specifying the exact class.",
+    "icon": "fa-solid fa-industry",
+    "visible": true
+  },
+  {
+    "name": "Observer Pattern",
+    "level": "BEGINNER",
+    "category": "Design Pattern",
+    "description": "Defines a one-to-many dependency for state changes.",
+    "icon": "fa-solid fa-eye",
+    "visible": true
+  },
+  {
+    "name": "Strategy Pattern",
+    "level": "BEGINNER",
+    "category": "Design Pattern",
+    "description": "Enables interchangeable algorithms within a context.",
+    "icon": "fa-solid fa-chess",
+    "visible": true
+  },
+  {
+    "name": "Decorator Pattern",
+    "level": "BEGINNER",
+    "category": "Design Pattern",
+    "description": "Dynamically adds responsibilities to objects.",
+    "icon": "fa-solid fa-paint-roller",
+    "visible": true
+  },
+  {
+    "name": "Adapter Pattern",
+    "level": "BEGINNER",
+    "category": "Design Pattern",
+    "description": "Converts an interface to another expected by a client.",
+    "icon": "fa-solid fa-plug",
+    "visible": true
+  },
+  {
+    "name": "Microservices",
+    "level": "BEGINNER",
+    "category": "Architecture",
+    "description": "Architectural style for building distributed systems.",
+    "icon": "fa-solid fa-cubes",
+    "visible": true
+  },
+  {
+    "name": "REST API",
+    "level": "BEGINNER",
+    "category": "Architecture",
+    "description": "Design style for building scalable web services.",
+    "icon": "fa-solid fa-link",
+    "visible": true
+  },
+  {
+    "name": "MVC Pattern",
+    "level": "BEGINNER",
+    "category": "Architecture",
+    "description": "Separates application logic, UI, and input handling.",
+    "icon": "fa-solid fa-layer-group",
+    "visible": true
+  },
+  {
+    "name": "MySQL",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Relational database management system.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "PostgreSQL",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Advanced open-source relational database.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "MongoDB",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "NoSQL database for unstructured data.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Redis",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "In-memory data store for caching and messaging.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Elasticsearch",
+    "level": "BEGINNER",
+    "category": "Database",
+    "description": "Search and analytics engine for large datasets.",
+    "icon": "fa-solid fa-search",
+    "visible": true
+  },
+  {
+    "name": "Unit Testing",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Testing individual components of code for correctness.",
+    "icon": "fa-solid fa-vial",
+    "visible": true
+  },
+  {
+    "name": "Integration Testing",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Testing interactions between modules or services.",
+    "icon": "fa-solid fa-vials",
+    "visible": true
+  },
+  {
+    "name": "End-to-End Testing",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Testing the entire application flow.",
+    "icon": "fa-solid fa-vial-circle-check",
+    "visible": true
+  },
+  {
+    "name": "Jest",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "JavaScript testing framework for unit tests.",
+    "icon": "fa-solid fa-vial",
+    "visible": true
+  },
+  {
+    "name": "JUnit",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Java testing framework for unit tests.",
+    "icon": "fa-solid fa-vial",
+    "visible": true
+  },
+  {
+    "name": "Selenium",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Tool for automating browser-based tests.",
+    "icon": "fa-solid fa-robot",
+    "visible": true
+  },
+  {
+    "name": "Postman",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Tool for testing and debugging APIs.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  },
+  {
+    "name": "Linux",
+    "level": "BEGINNER",
+    "category": "Operating System",
+    "description": "Open-source operating system for servers and development.",
+    "icon": "fa-brands fa-linux",
+    "visible": true
+  },
+  {
+    "name": "Windows Server",
+    "level": "BEGINNER",
+    "category": "Operating System",
+    "description": "Microsoft OS for enterprise server management.",
+    "icon": "fa-brands fa-windows",
+    "visible": true
+  },
+  {
+    "name": "Bash Scripting",
+    "level": "BEGINNER",
+    "category": "Scripting",
+    "description": "Shell scripting for automating tasks in Linux.",
+    "icon": "fa-solid fa-terminal",
+    "visible": true
+  },
+  {
+    "name": "PowerShell",
+    "level": "BEGINNER",
+    "category": "Scripting",
+    "description": "Scripting language for Windows automation.",
+    "icon": "fa-solid fa-terminal",
+    "visible": true
+  },
+  {
+    "name": "Apache Kafka",
+    "level": "BEGINNER",
+    "category": "Messaging",
+    "description": "Distributed streaming platform for event-driven systems.",
+    "icon": "fa-solid fa-stream",
+    "visible": true
+  },
+  {
+    "name": "RabbitMQ",
+    "level": "BEGINNER",
+    "category": "Messaging",
+    "description": "Message broker for asynchronous communication.",
+    "icon": "fa-solid fa-stream",
+    "visible": true
+  },
+  {
+    "name": "GraphQL",
+    "level": "BEGINNER",
+    "category": "API",
+    "description": "Query language for flexible API data retrieval.",
+    "icon": "fa-solid fa-network-wired",
+    "visible": true
+  },
+  {
+    "name": "gRPC",
+    "level": "BEGINNER",
+    "category": "API",
+    "description": "High-performance RPC framework for microservices.",
+    "icon": "fa-solid fa-network-wired",
+    "visible": true
+  },
+  {
+    "name": "OAuth",
+    "level": "BEGINNER",
+    "category": "Security",
+    "description": "Authorization protocol for secure API access.",
+    "icon": "fa-solid fa-shield",
+    "visible": true
+  },
+  {
+    "name": "JWT",
+    "level": "BEGINNER",
+    "category": "Security",
+    "description": "JSON Web Tokens for secure authentication.",
+    "icon": "fa-solid fa-key",
+    "visible": true
+  },
+  {
+    "name": "SSL/TLS",
+    "level": "BEGINNER",
+    "category": "Security",
+    "description": "Protocols for secure communication over networks.",
+    "icon": "fa-solid fa-lock",
+    "visible": true
+  },
+  {
+    "name": "Penetration Testing",
+    "level": "BEGINNER",
+    "category": "Security",
+    "description": "Simulating attacks to identify security vulnerabilities.",
+    "icon": "fa-solid fa-user-shield",
+    "visible": true
+  },
+  {
+    "name": "Figma",
+    "level": "BEGINNER",
+    "category": "Design Tool",
+    "description": "Collaborative design tool for UI/UX prototyping.",
+    "icon": "fa-brands fa-figma",
+    "visible": true
+  },
+  {
+    "name": "Adobe XD",
+    "level": "BEGINNER",
+    "category": "Design Tool",
+    "description": "Design and prototyping tool for web and mobile apps.",
+    "icon": "fa-solid fa-pen-ruler",
+    "visible": true
+  },
+  {
+    "name": "Sketch",
+    "level": "BEGINNER",
+    "category": "Design Tool",
+    "description": "Design tool for creating user interfaces.",
+    "icon": "fa-solid fa-pen-ruler",
+    "visible": true
+  },
+  {
+    "name": "UI/UX Design",
+    "level": "BEGINNER",
+    "category": "Design",
+    "description": "Designing user-friendly interfaces and experiences.",
+    "icon": "fa-solid fa-paintbrush",
+    "visible": true
+  },
+  {
+    "name": "Wireframing",
+    "level": "BEGINNER",
+    "category": "Design",
+    "description": "Creating low-fidelity layouts for UI design.",
+    "icon": "fa-solid fa-drafting-compass",
+    "visible": true
+  },
+  {
+    "name": "Prototyping",
+    "level": "BEGINNER",
+    "category": "Design",
+    "description": "Building interactive models of applications.",
+    "icon": "fa-solid fa-object-ungroup",
+    "visible": true
+  },
+  {
+    "name": "Data Visualization",
+    "level": "BEGINNER",
+    "category": "Data Science",
+    "description": "Creating visual representations of data.",
+    "icon": "fa-solid fa-chart-pie",
+    "visible": true
+  },
+  {
+    "name": "Machine Learning",
+    "level": "BEGINNER",
+    "category": "Data Science",
+    "description": "Building models to learn from data.",
+    "icon": "fa-solid fa-brain",
+    "visible": true
+  },
+  {
+    "name": "Deep Learning",
+    "level": "BEGINNER",
+    "category": "Data Science",
+    "description": "Neural network-based machine learning techniques.",
+    "icon": "fa-solid fa-brain",
+    "visible": true
+  },
+  {
+    "name": "Data Analysis",
+    "level": "BEGINNER",
+    "category": "Data Science",
+    "description": "Interpreting and extracting insights from data.",
+    "icon": "fa-solid fa-chart-line",
+    "visible": true
+  },
+  {
+    "name": "Big Data",
+    "level": "BEGINNER",
+    "category": "Data Science",
+    "description": "Handling and analyzing large-scale datasets.",
+    "icon": "fa-solid fa-server",
+    "visible": true
+  },
+  {
+    "name": "Apache Spark",
+    "level": "BEGINNER",
+    "category": "Data Science",
+    "description": "Distributed computing framework for big data processing.",
+    "icon": "fa-solid fa-bolt",
+    "visible": true
+  },
+  {
+    "name": "Hadoop",
+    "level": "BEGINNER",
+    "category": "Data Science",
+    "description": "Framework for distributed storage and processing.",
+    "icon": "fa-solid fa-server",
+    "visible": true
+  },
+  {
+    "name": "Tableau",
+    "level": "BEGINNER",
+    "category": "Data Science",
+    "description": "Data visualization tool for creating dashboards.",
+    "icon": "fa-solid fa-chart-bar",
+    "visible": true
+  },
+  {
+    "name": "Power BI",
+    "level": "BEGINNER",
+    "category": "Data Science",
+    "description": "Microsoft tool for business intelligence and visualization.",
+    "icon": "fa-solid fa-chart-bar",
+    "visible": true
+  },
+  {
+    "name": "Blockchain",
+    "level": "BEGINNER",
+    "category": "Technology",
+    "description": "Decentralized ledger technology for secure transactions.",
+    "icon": "fa-solid fa-link",
+    "visible": true
+  },
+  {
+    "name": "Ethereum",
+    "level": "BEGINNER",
+    "category": "Technology",
+    "description": "Blockchain platform for smart contracts.",
+    "icon": "fa-solid fa-coins",
+    "visible": true
+  },
+  {
+    "name": "Solidity",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "Language for writing Ethereum smart contracts.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Web3.js",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "JavaScript library for interacting with Ethereum.",
+    "icon": "fa-brands fa-js",
+    "visible": true
+  },
+  {
+    "name": "Cybersecurity",
+    "level": "BEGINNER",
+    "category": "Security",
+    "description": "Protecting systems and data from threats.",
+    "icon": "fa-solid fa-shield-alt",
+    "visible": true
+  },
+  {
+    "name": "Cloud Computing",
+    "level": "BEGINNER",
+    "category": "Technology",
+    "description": "Delivering computing services over the internet.",
+    "icon": "fa-solid fa-cloud",
+    "visible": true
+  },
+  {
+    "name": "Serverless Architecture",
+    "level": "BEGINNER",
+    "category": "Architecture",
+    "description": "Building applications without managing servers.",
+    "icon": "fa-solid fa-cloud",
+    "visible": true
+  },
+  {
+    "name": "Scikit-learn",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Python library for machine learning algorithms.",
+    "icon": "fa-solid fa-brain",
+    "visible": true
+  },
+  {
+    "name": "Matplotlib",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Python library for data visualization.",
+    "icon": "fa-solid fa-chart-line",
+    "visible": true
+  },
+  {
+    "name": "Seaborn",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Python visualization library based on Matplotlib.",
+    "icon": "fa-solid fa-chart-line",
+    "visible": true
+  },
+  {
+    "name": "Prometheus",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Monitoring and alerting toolkit for systems.",
+    "icon": "fa-solid fa-tachometer-alt",
+    "visible": true
+  },
+  {
+    "name": "Grafana",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Platform for monitoring and observability dashboards.",
+    "icon": "fa-solid fa-chart-bar",
+    "visible": true
+  },
+  {
+    "name": "Nginx",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Web server and reverse proxy for high performance.",
+    "icon": "fa-solid fa-server",
+    "visible": true
+  },
+  {
+    "name": "Apache",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Open-source web server software.",
+    "icon": "fa-solid fa-server",
+    "visible": true
+  },
+  {
+    "name": "Maven",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Build automation tool for Java projects.",
+    "icon": "fa-solid fa-hammer",
+    "visible": true
+  },
+  {
+    "name": "Gradle",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Build automation tool for flexible project builds.",
+    "icon": "fa-solid fa-hammer",
+    "visible": true
+  },
+  {
+    "name": "Webpack",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Module bundler for JavaScript applications.",
+    "icon": "fa-solid fa-box",
+    "visible": true
+  },
+  {
+    "name": "Vite",
+    "level": "BEGINNER",
+    "category": "DevOps Tool",
+    "description": "Next-generation frontend tooling for fast builds.",
+    "icon": "fa-solid fa-bolt",
+    "visible": true
+  },
+  {
+    "name": "Next.js",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "React framework for server-side rendering and static sites.",
+    "icon": "fa-brands fa-react",
+    "visible": true
+  },
+  {
+    "name": "Nuxt.js",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Vue.js framework for server-side rendering and static sites.",
+    "icon": "fa-brands fa-vuejs",
+    "visible": true
+  },
+  {
+    "name": "Svelte",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Compiler-based framework for building reactive UIs.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Flutter",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Google's UI toolkit for cross-platform mobile apps.",
+    "icon": "fa-solid fa-mobile",
+    "visible": true
+  },
+  {
+    "name": "React Native",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Framework for building mobile apps with JavaScript.",
+    "icon": "fa-brands fa-react",
+    "visible": true
+  },
+  {
+    "name": "Ionic",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Framework for building cross-platform mobile apps.",
+    "icon": "fa-solid fa-mobile-alt",
+    "visible": true
+  },
+  {
+    "name": "Xcode",
+    "level": "BEGINNER",
+    "category": "Development Tool",
+    "description": "IDE for macOS and iOS app development.",
+    "icon": "fa-solid fa-laptop-code",
+    "visible": true
+  },
+  {
+    "name": "Android Studio",
+    "level": "BEGINNER",
+    "category": "Development Tool",
+    "description": "IDE for Android app development.",
+    "icon": "fa-brands fa-android",
+    "visible": true
+  },
+  {
+    "name": "Visual Studio Code",
+    "level": "BEGINNER",
+    "category": "Development Tool",
+    "description": "Lightweight code editor with extensive plugin support.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "IntelliJ IDEA",
+    "level": "BEGINNER",
+    "category": "Development Tool",
+    "description": "Powerful IDE for Java and other languages.",
+    "icon": "fa-solid fa-laptop-code",
+    "visible": true
+  },
+  {
+    "name": "Eclipse",
+    "level": "BEGINNER",
+    "category": "Development Tool",
+    "description": "Open-source IDE for Java and other languages.",
+    "icon": "fa-solid fa-laptop-code",
+    "visible": true
+  },
+  {
+    "name": "JIRA",
+    "level": "BEGINNER",
+    "category": "Project Management",
+    "description": "Tool for issue tracking and agile project management.",
+    "icon": "fa-brands fa-jira",
+    "visible": true
+  },
+  {
+    "name": "Trello",
+    "level": "BEGINNER",
+    "category": "Project Management",
+    "description": "Board-based tool for organizing tasks and projects.",
+    "icon": "fa-brands fa-trello",
+    "visible": true
+  },
+  {
+    "name": "Asana",
+    "level": "BEGINNER",
+    "category": "Project Management",
+    "description": "Tool for managing tasks and team collaboration.",
+    "icon": "fa-solid fa-tasks",
+    "visible": true
+  },
+  {
+    "name": "Confluence",
+    "level": "BEGINNER",
+    "category": "Project Management",
+    "description": "Collaboration tool for documentation and knowledge sharing.",
+    "icon": "fa-brands fa-confluence",
+    "visible": true
+  },
+  {
+    "name": "Slack",
+    "level": "BEGINNER",
+    "category": "Collaboration Tool",
+    "description": "Platform for team communication and collaboration.",
+    "icon": "fa-brands fa-slack",
+    "visible": true
+  },
+  {
+    "name": "Microsoft Teams",
+    "level": "BEGINNER",
+    "category": "Collaboration Tool",
+    "description": "Platform for team communication and meetings.",
+    "icon": "fa-brands fa-microsoft",
+    "visible": true
+  },
+  {
+    "name": "Zoom",
+    "level": "BEGINNER",
+    "category": "Collaboration Tool",
+    "description": "Video conferencing tool for remote meetings.",
+    "icon": "fa-solid fa-video",
+    "visible": true
+  },
+  {
+    "name": "Negotiation",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Skills for reaching agreements and resolving conflicts.",
+    "icon": "fa-solid fa-handshake",
+    "visible": true
+  },
+  {
+    "name": "Public Speaking",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Delivering engaging presentations to audiences.",
+    "icon": "fa-solid fa-microphone",
+    "visible": true
+  },
+  {
+    "name": "Mentoring",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Guiding and supporting others in their development.",
+    "icon": "fa-solid fa-chalkboard-teacher",
+    "visible": true
+  },
+  {
+    "name": "Project Management",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Planning and overseeing projects to completion.",
+    "icon": "fa-solid fa-tasks",
+    "visible": true
+  },
+  {
+    "name": "Risk Management",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Identifying and mitigating potential risks.",
+    "icon": "fa-solid fa-exclamation-triangle",
+    "visible": true
+  },
+  {
+    "name": "Stakeholder Management",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Engaging and aligning with project stakeholders.",
+    "icon": "fa-solid fa-users",
+    "visible": true
+  },
+  {
+    "name": "Decision Making",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Making informed and effective choices.",
+    "icon": "fa-solid fa-check-circle",
+    "visible": true
+  },
+  {
+    "name": "Strategic Planning",
+    "level": "BEGINNER",
+    "category": "Soft Skill",
+    "description": "Setting long-term goals and strategies.",
+    "icon": "fa-solid fa-chess-board",
+    "visible": true
+  },
+  {
+    "name": "Event Sourcing",
+    "level": "BEGINNER",
+    "category": "Architecture",
+    "description": "Storing state changes as a sequence of events.",
+    "icon": "fa-solid fa-stream",
+    "visible": true
+  },
+  {
+    "name": "CQRS",
+    "level": "BEGINNER",
+    "category": "Architecture",
+    "description": "Separating command and query responsibilities.",
+    "icon": "fa-solid fa-divide",
+    "visible": true
+  },
+  {
+    "name": "Domain-Driven Design",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Designing software based on domain models.",
+    "icon": "fa-solid fa-cube",
+    "visible": true
+  },
+  {
+    "name": "Clean Code",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Writing readable and maintainable code.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "SOLID Principles",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Design principles for object-oriented programming.",
+    "icon": "fa-solid fa-cube",
+    "visible": true
+  },
+  {
+    "name": "Refactoring",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Improving code structure without changing behavior.",
+    "icon": "fa-solid fa-code-compare",
+    "visible": true
+  },
+  {
+    "name": "Continuous Delivery",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Automating deployment of code changes.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  },
+  {
+    "name": "Continuous Integration",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Frequent integration of code changes into a shared repository.",
+    "icon": "fa-solid fa-code-branch",
+    "visible": true
+  },
+  {
+    "name": "API Design",
+    "level": "BEGINNER",
+    "category": "Architecture",
+    "description": "Creating intuitive and scalable APIs.",
+    "icon": "fa-solid fa-link",
+    "visible": true
+  },
+  {
+    "name": "Database Design",
+    "level": "BEGINNER",
+    "category": "Architecture",
+    "description": "Structuring databases for efficiency and scalability.",
+    "icon": "fa-solid fa-database",
+    "visible": true
+  },
+  {
+    "name": "Performance Optimization",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Improving application speed and efficiency.",
+    "icon": "fa-solid fa-tachometer-alt",
+    "visible": true
+  },
+  {
+    "name": "Accessibility",
+    "level": "BEGINNER",
+    "category": "Design",
+    "description": "Designing applications for inclusivity and usability.",
+    "icon": "fa-solid fa-universal-access",
+    "visible": true
+  },
+  {
+    "name": "Responsive Design",
+    "level": "BEGINNER",
+    "category": "Design",
+    "description": "Building UIs that adapt to different devices.",
+    "icon": "fa-solid fa-mobile-alt",
+    "visible": true
+  },
+  {
+    "name": "Web Performance",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Optimizing websites for speed and user experience.",
+    "icon": "fa-solid fa-tachometer-alt",
+    "visible": true
+  },
+  {
+    "name": "SEO",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Optimizing websites for search engine ranking.",
+    "icon": "fa-solid fa-search",
+    "visible": true
+  },
+  {
+    "name": "Content Management",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Managing digital content for websites and applications.",
+    "icon": "fa-solid fa-file-alt",
+    "visible": true
+  },
+  {
+    "name": "WordPress",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Content management system for building websites.",
+    "icon": "fa-brands fa-wordpress",
+    "visible": true
+  },
+  {
+    "name": "Drupal",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Open-source CMS for complex websites.",
+    "icon": "fa-brands fa-drupal",
+    "visible": true
+  },
+  {
+    "name": "Joomla",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Content management system for dynamic websites.",
+    "icon": "fa-solid fa-cms",
+    "visible": true
+  },
+  {
+    "name": "Shopify",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "E-commerce platform for building online stores.",
+    "icon": "fa-solid fa-shopping-cart",
+    "visible": true
+  },
+  {
+    "name": "Magento",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "E-commerce platform for customizable online stores.",
+    "icon": "fa-solid fa-shopping-cart",
+    "visible": true
+  }
+]

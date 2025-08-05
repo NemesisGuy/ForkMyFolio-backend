@@ -1,0 +1,402 @@
+[
+  {
+    "name": "SASS",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "CSS preprocessor for structured and maintainable styles.",
+    "icon": "fa-brands fa-sass",
+    "visible": true
+  },
+  {
+    "name": "LESS",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "CSS preprocessor for dynamic stylesheet generation.",
+    "icon": "fa-solid fa-paintbrush",
+    "visible": true
+  },
+  {
+    "name": "Styled-Components",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "CSS-in-JS library for styling React components.",
+    "icon": "fa-brands fa-react",
+    "visible": true
+  },
+  {
+    "name": "Emotion",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "CSS-in-JS library for flexible component styling.",
+    "icon": "fa-brands fa-react",
+    "visible": true
+  },
+  {
+    "name": "Chakra UI",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "React component library for accessible UI development.",
+    "icon": "fa-brands fa-react",
+    "visible": true
+  },
+  {
+    "name": "BlueprintJS",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "React-based UI toolkit for desktop applications.",
+    "icon": "fa-brands fa-react",
+    "visible": true
+  },
+  {
+    "name": "Semantic UI",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "UI framework for themable and responsive designs.",
+    "icon": "fa-solid fa-paintbrush",
+    "visible": true
+  },
+  {
+    "name": "Bulma",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Lightweight CSS framework for modern web design.",
+    "icon": "fa-solid fa-paintbrush",
+    "visible": true
+  },
+  {
+    "name": "Foundation",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Responsive CSS framework for web development.",
+    "icon": "fa-solid fa-paintbrush",
+    "visible": true
+  },
+  {
+    "name": "Alpine.js",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Lightweight JavaScript framework for reactive UI.",
+    "icon": "fa-brands fa-js",
+    "visible": true
+  },
+  {
+    "name": "Lit",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Library for building fast web components.",
+    "icon": "fa-brands fa-js",
+    "visible": true
+  },
+  {
+    "name": "Preact",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Lightweight alternative to React for frontend development.",
+    "icon": "fa-brands fa-react",
+    "visible": true
+  },
+  {
+    "name": "Astro",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Static site generator for modern frontend frameworks.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  },
+  {
+    "name": "Remix",
+    "level": "BEGINNER",
+    "category": "Framework",
+    "description": "Full-stack React framework for seamless web apps.",
+    "icon": "fa-brands fa-react",
+    "visible": true
+  },
+  {
+    "name": "Vitest",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Fast unit testing framework for Vite projects.",
+    "icon": "fa-solid fa-vial",
+    "visible": true
+  },
+  {
+    "name": "React Testing Library",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Testing library for React component functionality.",
+    "icon": "fa-brands fa-react",
+    "visible": true
+  },
+  {
+    "name": "Enzyme",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "JavaScript testing utility for React components.",
+    "icon": "fa-brands fa-react",
+    "visible": true
+  },
+  {
+    "name": "Playwright",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Tool for end-to-end testing of web applications.",
+    "icon": "fa-solid fa-vial-circle-check",
+    "visible": true
+  },
+  {
+    "name": "Puppeteer",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Node library for controlling headless Chrome browsers.",
+    "icon": "fa-solid fa-robot",
+    "visible": true
+  },
+  {
+    "name": "Web Components",
+    "level": "BEGINNER",
+    "category": "Technology",
+    "description": "Standard for reusable, encapsulated HTML elements.",
+    "icon": "fa-solid fa-cube",
+    "visible": true
+  },
+  {
+    "name": "Shadow DOM",
+    "level": "BEGINNER",
+    "category": "Technology",
+    "description": "Encapsulated DOM for isolated styling and scripting.",
+    "icon": "fa-solid fa-cube",
+    "visible": true
+  },
+  {
+    "name": "CSS Grid",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "CSS layout system for two-dimensional grid designs.",
+    "icon": "fa-solid fa-th",
+    "visible": true
+  },
+  {
+    "name": "Flexbox",
+    "level": "BEGINNER",
+    "category": "Programming Language",
+    "description": "CSS layout model for flexible one-dimensional layouts.",
+    "icon": "fa-solid fa-th-large",
+    "visible": true
+  },
+  {
+    "name": "PostCSS",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Tool for transforming CSS with JavaScript plugins.",
+    "icon": "fa-solid fa-paintbrush",
+    "visible": true
+  },
+  {
+    "name": "Rollup",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Module bundler optimized for JavaScript libraries.",
+    "icon": "fa-solid fa-box",
+    "visible": true
+  },
+  {
+    "name": "Parcel",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Zero-configuration bundler for web applications.",
+    "icon": "fa-solid fa-box",
+    "visible": true
+  },
+  {
+    "name": "ESBuild",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Ultra-fast JavaScript and TypeScript bundler.",
+    "icon": "fa-solid fa-bolt",
+    "visible": true
+  },
+  {
+    "name": "Babel",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "JavaScript compiler for modern syntax compatibility.",
+    "icon": "fa-brands fa-js",
+    "visible": true
+  },
+  {
+    "name": "TypeScript ESLint",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Linting tool for TypeScript code quality.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Prettier",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Code formatter for consistent styling.",
+    "icon": "fa-solid fa-code",
+    "visible": true
+  },
+  {
+    "name": "Storybook",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Tool for developing and documenting UI components.",
+    "icon": "fa-solid fa-book",
+    "visible": true
+  },
+  {
+    "name": "Framer",
+    "level": "BEGINNER",
+    "category": "Design Tool",
+    "description": "Prototyping tool for interactive UI designs.",
+    "icon": "fa-solid fa-pen-ruler",
+    "visible": true
+  },
+  {
+    "name": "Zeplin",
+    "level": "BEGINNER",
+    "category": "Design Tool",
+    "description": "Collaboration tool for designers and developers.",
+    "icon": "fa-solid fa-pen-ruler",
+    "visible": true
+  },
+  {
+    "name": "InVision",
+    "level": "BEGINNER",
+    "category": "Design Tool",
+    "description": "Platform for prototyping and collaborative design.",
+    "icon": "fa-solid fa-pen-ruler",
+    "visible": true
+  },
+  {
+    "name": "Motion Design",
+    "level": "BEGINNER",
+    "category": "Design",
+    "description": "Creating animated UI elements for enhanced user experience.",
+    "icon": "fa-solid fa-film",
+    "visible": true
+  },
+  {
+    "name": "GSAP",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "JavaScript library for high-performance animations.",
+    "icon": "fa-solid fa-film",
+    "visible": true
+  },
+  {
+    "name": "Anime.js",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Lightweight JavaScript animation library.",
+    "icon": "fa-solid fa-film",
+    "visible": true
+  },
+  {
+    "name": "Framer Motion",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "React library for declarative animations.",
+    "icon": "fa-brands fa-react",
+    "visible": true
+  },
+  {
+    "name": "Lottie",
+    "level": "BEGINNER",
+    "category": "Library",
+    "description": "Library for rendering After Effects animations in web apps.",
+    "icon": "fa-solid fa-film",
+    "visible": true
+  },
+  {
+    "name": "Accessibility Testing",
+    "level": "BEGINNER",
+    "category": "Testing",
+    "description": "Ensuring web applications are usable by all users.",
+    "icon": "fa-solid fa-universal-access",
+    "visible": true
+  },
+  {
+    "name": "WCAG Compliance",
+    "level": "BEGINNER",
+    "category": "Methodology",
+    "description": "Adhering to web accessibility guidelines.",
+    "icon": "fa-solid fa-universal-access",
+    "visible": true
+  },
+  {
+    "name": "Progressive Web Apps",
+    "level": "BEGINNER",
+    "category": "Technology",
+    "description": "Building web apps with native-like capabilities.",
+    "icon": "fa-solid fa-mobile-alt",
+    "visible": true
+  },
+  {
+    "name": "Service Workers",
+    "level": "BEGINNER",
+    "category": "Technology",
+    "description": "Scripts for offline support and caching in web apps.",
+    "icon": "fa-solid fa-cogs",
+    "visible": true
+  },
+  {
+    "name": "WebAssembly",
+    "level": "BEGINNER",
+    "category": "Technology",
+    "description": "High-performance code execution in browsers.",
+    "icon": "fa-solid fa-microchip",
+    "visible": true
+  },
+  {
+    "name": "JAMstack",
+    "level": "BEGINNER",
+    "category": "Architecture",
+    "description": "Architecture for fast, secure static websites.",
+    "icon": "fa-solid fa-layer-group",
+    "visible": true
+  },
+  {
+    "name": "Headless CMS",
+    "level": "BEGINNER",
+    "category": "Technology",
+    "description": "Content management without a frontend layer.",
+    "icon": "fa-solid fa-file-alt",
+    "visible": true
+  },
+  {
+    "name": "Contentful",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Headless CMS for managing and delivering content.",
+    "icon": "fa-solid fa-file-alt",
+    "visible": true
+  },
+  {
+    "name": "Strapi",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Open-source headless CMS for customizable APIs.",
+    "icon": "fa-solid fa-file-alt",
+    "visible": true
+  },
+  {
+    "name": "Netlify",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Platform for deploying and managing static websites.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  },
+  {
+    "name": "Vercel",
+    "level": "BEGINNER",
+    "category": "Tool",
+    "description": "Platform for frontend deployment and serverless functions.",
+    "icon": "fa-solid fa-rocket",
+    "visible": true
+  }
+]

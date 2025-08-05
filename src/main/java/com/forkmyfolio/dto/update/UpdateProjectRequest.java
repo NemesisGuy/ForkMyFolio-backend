@@ -8,7 +8,6 @@ import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 
 import java.util.Set;
-import java.util.UUID;
 
 @Data
 @Schema(name = "UpdateProjectRequest", description = "Request body for updating an existing project.")
@@ -44,6 +43,6 @@ public class UpdateProjectRequest {
     @Schema(description = "The order in which to display this project.", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer displayOrder;
 
-    @Schema(description = "A set of UUIDs for the skills used in this project.")
-    private Set<UUID> skillUuids;
+    @Schema(description = "A set of Names for the skills used in this project.")
+    private Set<String> skills;
 }

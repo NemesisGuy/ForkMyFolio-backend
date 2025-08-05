@@ -22,8 +22,7 @@ public class PortfolioBackupDto {
     private List<ProjectDto> projects;
 
     @Schema(description = "A list of all skills.")
-    private List<SkillDto> skills;
-
+    private List<UserSkillDto> skills;
     @Schema(description = "A list of all work experience entries.")
     private List<ExperienceDto> experiences;
 
