@@ -5,10 +5,13 @@ import com.forkmyfolio.dto.response.ProjectDto;
 import com.forkmyfolio.dto.update.UpdateProjectRequest;
 import com.forkmyfolio.model.Project;
 import com.forkmyfolio.model.User;
+import com.forkmyfolio.model.UserSkill;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -23,6 +26,7 @@ public class ProjectMapper {
 
     /**
      * Converts a Project entity to a ProjectDto for API responses.
+     * This version provides basic skill information without user-specific details.
      *
      * @param project The Project entity to convert.
      * @return The corresponding ProjectDto.
@@ -44,7 +48,7 @@ public class ProjectMapper {
         dto.setUpdatedAt(project.getUpdatedAt());
 
         if (project.getSkills() != null) {
-            // This now correctly calls the new toDto(Skill) method in SkillMapper
+            // This now correctly calls the basic toDto(Skill) method in SkillMapper
             dto.setSkills(project.getSkills().stream()
                     .map(skillMapper::toDto)
                     .collect(Collectors.toSet()));
@@ -56,18 +60,62 @@ public class ProjectMapper {
     }
 
     /**
-     * Converts a CreateProjectRequest DTO to a new Project entity.
+     * Converts a Project entity to a ProjectDto, enriching it with user-specific skill data.
+     * This is the preferred method for public portfolio views where detailed skill context is needed.
+     *
+     * @param project     The Project entity to convert.
+     * @param skillLookup A map where the key is the global Skill UUID and the value is the user-specific UserSkill entity.
+     * @return A detailed ProjectDto with user-specific skill information.
+     */
+    public ProjectDto toDto(Project project, Map<UUID, UserSkill> skillLookup) {
+        if (project == null) {
+            return null;
+        }
+        ProjectDto dto = new ProjectDto();
+        dto.setUuid(project.getUuid());
+        dto.setTitle(project.getTitle());
+        dto.setDescription(project.getDescription());
+        dto.setRepoUrl(project.getRepoUrl());
+        dto.setLiveUrl(project.getLiveUrl());
+        dto.setImageUrl(project.getImageUrl());
+        dto.setVisible(project.isVisible());
+        dto.setDisplayOrder(project.getDisplayOrder());
+        dto.setCreatedAt(project.getCreatedAt());
+        dto.setUpdatedAt(project.getUpdatedAt());
+
+        if (project.getSkills() != null) {
+            dto.setSkills(project.getSkills().stream()
+                    .map(skill -> {
+                        // Look up the user-specific skill data from the context map
+                        UserSkill userSkill = skillLookup.get(skill.getUuid());
+                        if (userSkill != null) {
+                            // If found, use the detailed mapper to include level, description, etc.
+                            return skillMapper.toDetailDto(userSkill);
+                        } else {
+                            // Fallback to the basic mapper if no user-specific data is available
+                            return skillMapper.toDto(skill);
+                        }
+                    })
+                    .collect(Collectors.toSet()));
+        } else {
+            dto.setSkills(Collections.emptySet());
+        }
+
+        return dto;
+    }
+
+    /**
+     * Converts a CreateProjectRequest DTO to a new, transient Project entity.
+     * The User is not set here; the controller is responsible for associating the current user.
      *
      * @param request The DTO containing the creation data.
-     * @param user    The user who will own this project.
-     * @return A new Project entity, ready to be persisted.
+     * @return A new Project entity, ready to be configured and persisted.
      */
-    public Project toEntity(CreateProjectRequest request, User user) {
+    public Project toEntity(CreateProjectRequest request) {
         if (request == null) {
             return null;
         }
         Project project = new Project();
-        project.setUser(user);
         project.setTitle(request.getTitle());
         project.setDescription(request.getDescription());
         project.setRepoUrl(request.getRepoUrl());

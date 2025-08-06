@@ -1,16 +1,12 @@
 package com.forkmyfolio.service.impl;
 
-import com.forkmyfolio.dto.request.CreateUserSkillDto;
-import com.forkmyfolio.dto.response.UserSkillResponseDto;
-import com.forkmyfolio.dto.update.UpdateUserSkillRequest;
 import com.forkmyfolio.exception.ResourceAlreadyExistsException;
 import com.forkmyfolio.exception.ResourceNotFoundException;
-import com.forkmyfolio.mapper.UserSkillMapper;
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.model.UserSkill;
-import com.forkmyfolio.repository.SkillRepository;
 import com.forkmyfolio.repository.UserSkillRepository;
+import com.forkmyfolio.service.SkillService;
 import com.forkmyfolio.service.UserSkillService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -23,105 +19,84 @@ import java.util.UUID;
 
 /**
  * Service implementation for managing user-specific skills.
+ * This service operates exclusively on domain entities.
  */
 @Service
 @RequiredArgsConstructor
 public class UserSkillServiceImpl implements UserSkillService {
 
     private final UserSkillRepository userSkillRepository;
-    private final SkillRepository skillRepository;
-    private final UserSkillMapper userSkillMapper;
+    private final SkillService skillService;
 
     @Override
     @Transactional
-    public UserSkillResponseDto createUserSkill(CreateUserSkillDto createDto, User user) {
-        // 1. Find the global Skill entity by name, or create a new one if it doesn't exist.
-        Skill skill = skillRepository.findByName(createDto.getName())
-                .orElseGet(() -> {
-                    Skill newSkill = new Skill();
-                    newSkill.setName(createDto.getName());
-                    newSkill.setCategory(StringUtils.hasText(createDto.getCategory()) ? createDto.getCategory() : "Uncategorized");
-                    newSkill.setIcon(createDto.getIcon());
-                    // The global description for a newly created skill is taken from the DTO.
-                    newSkill.setDescription(createDto.getDescription());
-                    newSkill.setVisible(true);
-                    return skillRepository.save(newSkill);
-                });
+    public UserSkill addSkillToUser(User user, Skill skillDetails, UserSkill userSkillDetails) {
+        // 1. Delegate finding or creating the global Skill to the SkillService.
+        Skill skill = skillService.findOrCreateSkill(skillDetails);
 
-        // Prevent adding a duplicate skill relationship for the same user.
+        // 2. Prevent adding a duplicate skill relationship for the same user.
         if (userSkillRepository.existsByUserAndSkill(user, skill)) {
             throw new ResourceAlreadyExistsException("You have already added the skill: " + skill.getName());
         }
 
-        // 2. Create the new UserSkill relationship entity.
+        // 3. Create the new UserSkill relationship entity.
         UserSkill newUserSkill = new UserSkill();
         newUserSkill.setUser(user);
         newUserSkill.setSkill(skill);
-        newUserSkill.setLevel(createDto.getLevel());
-        newUserSkill.setVisible(createDto.isVisible());
+        newUserSkill.setLevel(userSkillDetails.getLevel());
+        newUserSkill.setVisible(userSkillDetails.isVisible());
 
-        // 3. Apply the description logic.
-        // If the user provided a specific description in the form, use it.
+        // 4. Apply the description logic.
+        // If the user provided a specific description, use it.
         // Otherwise, fall back to the global skill's default description.
-        if (StringUtils.hasText(createDto.getDescription())) {
-            newUserSkill.setDescription(createDto.getDescription());
+        if (StringUtils.hasText(userSkillDetails.getDescription())) {
+            newUserSkill.setDescription(userSkillDetails.getDescription());
         } else {
             newUserSkill.setDescription(skill.getDescription());
         }
 
-        // 4. Save the new relationship to the database.
-        UserSkill savedUserSkill = userSkillRepository.save(newUserSkill);
-
-        // 5. Use the injected mapper to convert the entity to a response DTO.
-        return userSkillMapper.toResponseDto(savedUserSkill);
+        // 5. Save the new relationship to the database.
+        return userSkillRepository.save(newUserSkill);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserSkillResponseDto> getAllUserSkills(User user) {
-        List<UserSkill> userSkills = userSkillRepository.findByUser(user);
-        return userSkillMapper.toResponseDtoList(userSkills);
+    public List<UserSkill> getAllSkillsForUser(User user) {
+        // FIX: Call the new repository method that eagerly fetches the associated Skill entities.
+        // This resolves the LazyInitializationException that occurs in the controller/mapper layer.
+        return userSkillRepository.findByUserWithSkillEagerly(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserSkill getSkillForUser(User user, UUID userSkillUuid) {
+        UserSkill userSkill = userSkillRepository.findByUuid(userSkillUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Skill with ID " + userSkillUuid + " not found."));
+
+        // Security check: ensure the user owns this skill relationship.
+        if (!userSkill.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You do not have permission to access this skill.");
+        }
+        return userSkill;
     }
 
     @Override
     @Transactional
-    public UserSkillResponseDto updateUserSkill(UUID userSkillId, UpdateUserSkillRequest updateDto, User user) {
-        // FIX: Use findByUuid to look up by the public-facing identifier.
-        UserSkill userSkill = userSkillRepository.findByUuid(userSkillId)
-                .orElseThrow(() -> new ResourceNotFoundException("Skill with ID " + userSkillId + " not found."));
+    public UserSkill updateSkillForUser(UUID userSkillUuid, UserSkill userSkillUpdates, User user) {
+        UserSkill existingUserSkill = getSkillForUser(user, userSkillUuid); // Reuse lookup and security check
 
-        // Security check: ensure the user owns this skill relationship.
-        if (!userSkill.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("You do not have permission to update this skill.");
-        }
+        // Apply updates from the transient entity.
+        existingUserSkill.setLevel(userSkillUpdates.getLevel());
+        existingUserSkill.setVisible(userSkillUpdates.isVisible());
+        existingUserSkill.setDescription(userSkillUpdates.getDescription());
 
-        // Apply updates from the DTO.
-        if (updateDto.getLevel() != null) {
-            userSkill.setLevel(updateDto.getLevel());
-        }
-        if (updateDto.getVisible() != null) {
-            userSkill.setVisible(updateDto.getVisible());
-        }
-        if (updateDto.getDescription() != null) {
-            userSkill.setDescription(updateDto.getDescription());
-        }
-
-        UserSkill updatedUserSkill = userSkillRepository.save(userSkill);
-        return userSkillMapper.toResponseDto(updatedUserSkill);
+        return userSkillRepository.save(existingUserSkill);
     }
 
     @Override
     @Transactional
-    public void deleteUserSkill(UUID userSkillId, User user) {
-        // FIX: Use findByUuid to look up by the public-facing identifier.
-        UserSkill userSkill = userSkillRepository.findByUuid(userSkillId)
-                .orElseThrow(() -> new ResourceNotFoundException("Skill with ID " + userSkillId + " not found."));
-
-        // Security check: ensure the user owns this skill relationship.
-        if (!userSkill.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("You do not have permission to delete this skill.");
-        }
-
+    public void removeSkillFromUser(UUID userSkillUuid, User user) {
+        UserSkill userSkill = getSkillForUser(user, userSkillUuid); // Reuse lookup and security check
         userSkillRepository.delete(userSkill);
     }
 }

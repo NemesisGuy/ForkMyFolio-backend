@@ -1,5 +1,6 @@
 package com.forkmyfolio.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -43,6 +44,7 @@ public class UserSetting {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @Schema(hidden = true) // Hide from API docs as it's an internal relationship
+    @JsonBackReference("user-usersettings")
     private User user;
 
     /**

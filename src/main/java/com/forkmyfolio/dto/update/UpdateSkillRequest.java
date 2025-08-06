@@ -1,6 +1,5 @@
 package com.forkmyfolio.dto.update;
 
-import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.enums.SkillLevel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;

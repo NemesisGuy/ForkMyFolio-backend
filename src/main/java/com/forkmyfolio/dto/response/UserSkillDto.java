@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -38,4 +39,7 @@ public class UserSkillDto {
 
     @Schema(description = "The user's personal notes or description for this skill.", example = "Used in several microservice projects.")
     private String description;
+
+    private Instant createdAt;
+    private Instant updatedAt;
 }

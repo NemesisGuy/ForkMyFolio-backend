@@ -1,6 +1,5 @@
 package com.forkmyfolio.dto.create;
 
-import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.enums.SkillLevel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -28,4 +27,13 @@ public class CreateSkillRequest {
     @Size(max = 5000, message = "Description cannot exceed 5000 characters.")
     @Schema(description = "A personal description or notes about this skill.", example = "Used for building interactive UIs.")
     private String description;
+
+    // --- ADDED FIELDS ---
+    @Size(max = 100, message = "Category cannot exceed 100 characters.")
+    @Schema(description = "(Optional) A suggested category for the skill if it's new.", example = "Frontend Framework")
+    private String category;
+
+    @Size(max = 100, message = "Icon cannot exceed 100 characters.")
+    @Schema(description = "(Optional) A suggested icon class for the skill if it's new.", example = "devicon-react-original")
+    private String icon;
 }

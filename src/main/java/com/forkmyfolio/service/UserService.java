@@ -1,10 +1,11 @@
 package com.forkmyfolio.service;
 
-import com.forkmyfolio.model.Role;
+import com.forkmyfolio.model.enums.Role;
 import com.forkmyfolio.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -38,6 +39,14 @@ public interface UserService {
      * @throws org.springframework.security.core.userdetails.UsernameNotFoundException if no user is authenticated.
      */
     User getCurrentAuthenticatedUser();
+
+    /**
+     * FIX: Retrieves the currently authenticated user with all portfolio data eagerly fetched.
+     * This is the required method for generating complete backups to avoid lazy loading issues.
+     *
+     * @return The fully initialized {@link User} object.
+     */
+    User getCurrentAuthenticatedUserWithAllPortfolioData();
 
     /**
      * Updates the profile information for the currently authenticated user.
@@ -86,6 +95,15 @@ public interface UserService {
     Optional<User> findBySlug(String slug);
 
     /**
+     * FIX: Finds a user by slug with all portfolio data eagerly fetched.
+     *
+     * @param slug The slug to search for.
+     * @return An {@link Optional} containing the fully initialized {@link User}.
+     */
+    Optional<User> findBySlugWithAllPortfolioData(String slug);
+
+
+    /**
      * Finds a user by their public UUID.
      *
      * @param uuid The UUID of the user to find.
@@ -104,4 +122,11 @@ public interface UserService {
      * @param lastName  The admin's last name.
      */
     void createOrUpdateAdminUser(String email, String password, String firstName, String lastName);
+
+    /**
+     * Finds all users with their portfolio data eagerly fetched.
+     *
+     * @return A list of fully initialized User entities.
+     */
+    List<User> getAllUsersWithPortfolioData();
 }

@@ -1,5 +1,6 @@
 package com.forkmyfolio.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.forkmyfolio.model.enums.SkillLevel;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -44,9 +45,11 @@ public class Skill {
     private String description; // A global description of the skill
 
     @ManyToMany(mappedBy = "skills")
+    @JsonBackReference("project-skills") // FIX: Added to break the serialization loop.
     private Set<Project> projects = new HashSet<>();
 
     @ManyToMany(mappedBy = "skills")
+    @JsonBackReference("experience-skills") // FIX: Added to break the serialization loop.
     private Set<Experience> experiences = new HashSet<>();
 
     @CreationTimestamp

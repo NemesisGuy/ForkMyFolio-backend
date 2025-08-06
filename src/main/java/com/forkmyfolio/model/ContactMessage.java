@@ -1,5 +1,6 @@
 package com.forkmyfolio.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.forkmyfolio.model.enums.MessagePriority;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -78,6 +79,7 @@ public class ContactMessage {
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference("user-contactmessages")
     private User user;
 
     /**

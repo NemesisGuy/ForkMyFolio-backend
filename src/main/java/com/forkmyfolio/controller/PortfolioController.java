@@ -2,10 +2,11 @@ package com.forkmyfolio.controller;
 
 import com.forkmyfolio.aop.SkipApiResponseWrapper;
 import com.forkmyfolio.aop.TrackVisitor;
-import com.forkmyfolio.dto.response.PortfolioDto;
-import com.forkmyfolio.dto.response.UserSettingDto;
+import com.forkmyfolio.dto.response.*;
 import com.forkmyfolio.exception.ResourceNotFoundException;
+import com.forkmyfolio.mapper.*;
 import com.forkmyfolio.model.User;
+import com.forkmyfolio.model.UserSkill;
 import com.forkmyfolio.model.enums.VisitorStatType;
 import com.forkmyfolio.service.PortfolioService;
 import com.forkmyfolio.service.UserService;
@@ -23,6 +24,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/portfolios")
@@ -30,21 +34,77 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PortfolioController {
 
+    // Services
     private final PortfolioService portfolioService;
+    private final UserService userService;
+    private final UserSettingService userSettingService;
     private final PdfGenerationService pdfGenerationService;
     private final MarkdownGenerationService markdownGenerationService;
     private final VCardService vCardService;
-    private final UserService userService;
-    private final UserSettingService userSettingService;
+
+    // Mappers for DTO conversion
+    private final PublicUserMapper publicUserMapper;
+    private final PortfolioProfileMapper portfolioProfileMapper;
+    private final ProjectMapper projectMapper;
+    private final ExperienceMapper experienceMapper;
+    private final QualificationMapper qualificationMapper;
+    private final TestimonialMapper testimonialMapper;
+    private final UserSkillMapper userSkillMapper;
 
     @GetMapping("/{slug}")
     @Operation(summary = "Get a user's full public portfolio by their slug",
             description = "Retrieves all publicly visible sections of a user's portfolio, such as their profile, projects, skills, and experience.")
+    @TrackVisitor(VisitorStatType.TOTAL_VISITS)
     public ResponseEntity<PortfolioDto> getPortfolioBySlug(
             @Parameter(description = "The unique, URL-friendly slug of the user.", example = "jane-doe")
             @PathVariable String slug) {
-        PortfolioDto portfolioDto = portfolioService.getFullPublicPortfolioBySlug(slug);
-        // The ApiResponseWrapper will be applied automatically by the GlobalExceptionHandler advice
+
+        // 1. The service returns a single, fully-populated User entity. No more repository calls in the controller.
+        User user = portfolioService.getPublicPortfolioUserBySlug(slug);
+
+        // 2. Create the skill lookup map. This provides the necessary context for detailed skill mapping.
+        Map<UUID, UserSkill> skillLookup = user.getUserSkills().stream()
+                .collect(Collectors.toMap(us -> us.getSkill().getUuid(), us -> us));
+
+        // 3. Map entities to DTOs, filtering for visibility and using the context-aware mappers.
+        PublicUserDto userDto = publicUserMapper.toDto(user);
+        PortfolioProfileDto profileDto = portfolioProfileMapper.toDto(user.getPortfolioProfile());
+
+        List<ProjectDto> projectDtos = user.getProjects().stream()
+                .filter(p -> p.isVisible())
+                .map(project -> projectMapper.toDto(project, skillLookup)) // Use the context-aware mapper
+                .collect(Collectors.toList());
+
+        List<ExperienceDto> experienceDtos = user.getExperiences().stream()
+                .filter(e -> e.isVisible())
+                .map(experience -> experienceMapper.toDto(experience, skillLookup)) // Use the context-aware mapper
+                .collect(Collectors.toList());
+
+        List<UserSkillDto> skillDtos = user.getUserSkills().stream()
+                .filter(us -> us.isVisible())
+                .map(userSkillMapper::toDto)
+                .collect(Collectors.toList());
+
+        List<QualificationDto> qualificationDtos = user.getQualifications().stream()
+                .filter(q -> q.isVisible())
+                .map(qualificationMapper::toDto)
+                .collect(Collectors.toList());
+
+        List<TestimonialDto> testimonialDtos = user.getTestimonials().stream()
+                .filter(t -> t.isVisible())
+                .map(testimonialMapper::toDto)
+                .collect(Collectors.toList());
+
+        // 4. Assemble the final DTO for the API response.
+        PortfolioDto portfolioDto = new PortfolioDto();
+        portfolioDto.setUser(userDto);
+        portfolioDto.setProfile(profileDto);
+        portfolioDto.setProjects(projectDtos);
+        portfolioDto.setSkills(skillDtos);
+        portfolioDto.setExperiences(experienceDtos);
+        portfolioDto.setQualifications(qualificationDtos);
+        portfolioDto.setTestimonials(testimonialDtos);
+
         return ResponseEntity.ok(portfolioDto);
     }
 

@@ -42,7 +42,8 @@ public class PortfolioProfileServiceImpl implements PortfolioProfileService {
     @Override
     @Transactional(readOnly = true)
     public PortfolioProfile getProfileBySlug(String slug) {
-        User user = userRepository.findBySlug(slug)
+        // FIX: Changed to use the correct repository method that finds active users by slug.
+        User user = userRepository.findBySlugAndActiveTrue(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with slug: " + slug));
         if (user.getPortfolioProfile() == null) {
             throw new ResourceNotFoundException("PortfolioProfile not found for user with slug: " + slug);

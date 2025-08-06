@@ -1,21 +1,22 @@
 package com.forkmyfolio.service;
 
-import com.forkmyfolio.dto.response.PortfolioDto;
+import com.forkmyfolio.exception.PermissionDeniedException;
+import com.forkmyfolio.model.User;
 import com.forkmyfolio.exception.ResourceNotFoundException;
 
 /**
- * Service for assembling and retrieving full public portfolios.
+ * Service for retrieving user data for public portfolios.
  */
 public interface PortfolioService {
 
     /**
-     * Retrieves a complete, publicly visible portfolio for a user based on their slug.
-     * This method aggregates all visible portfolio components (profile, projects, skills, etc.)
-     * into a single DTO.
+     * Retrieves a user entity for the purpose of building a public portfolio.
+     * This method validates that the user exists and their portfolio is set to public.
      *
      * @param slug The unique, URL-friendly identifier of the user.
-     * @return A {@link PortfolioDto} containing the user's public portfolio data.
+     * @return The {@link User} entity if the portfolio is public.
      * @throws ResourceNotFoundException if no active user with the given slug is found.
+     * @throws PermissionDeniedException if the user's portfolio is private.
      */
-    PortfolioDto getFullPublicPortfolioBySlug(String slug);
+    User getPublicPortfolioUserBySlug(String slug);
 }

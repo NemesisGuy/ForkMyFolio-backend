@@ -1,6 +1,6 @@
 package com.forkmyfolio.mapper;
 
-import com.forkmyfolio.dto.response.UserSkillResponseDto;
+import com.forkmyfolio.dto.response.UserSkillDto;
 import com.forkmyfolio.model.UserSkill;
 import org.springframework.stereotype.Component;
 
@@ -16,19 +16,17 @@ import java.util.stream.Collectors;
 public class UserSkillMapper {
 
     /**
-     * Manually maps a UserSkill entity to its corresponding response DTO.
+     * Manually maps a UserSkill entity to its corresponding DTO.
      *
      * @param userSkill The persisted UserSkill entity.
-     * @return A UserSkillResponseDto.
+     * @return A UserSkillDto.
      */
-    public UserSkillResponseDto toResponseDto(UserSkill userSkill) {
+    public UserSkillDto toDto(UserSkill userSkill) {
         if (userSkill == null) {
             return null;
         }
 
-        UserSkillResponseDto dto = new UserSkillResponseDto();
-        // FIX: Use the public-facing UUID, not the internal Long ID.
-        // This adheres to the architectural rule of never exposing internal database keys.
+        UserSkillDto dto = new UserSkillDto();
         dto.setUserSkillId(userSkill.getUuid());
         dto.setLevel(userSkill.getLevel());
         dto.setVisible(userSkill.isVisible());
@@ -48,17 +46,17 @@ public class UserSkillMapper {
     }
 
     /**
-     * Manually maps a list of UserSkill entities to a list of response DTOs.
+     * Manually maps a list of UserSkill entities to a list of DTOs.
      *
      * @param userSkills The list of persisted UserSkill entities.
-     * @return A list of UserSkillResponseDtos.
+     * @return A list of UserSkillDtos.
      */
-    public List<UserSkillResponseDto> toResponseDtoList(List<UserSkill> userSkills) {
+    public List<UserSkillDto> toDtoList(List<UserSkill> userSkills) {
         if (userSkills == null || userSkills.isEmpty()) {
             return Collections.emptyList();
         }
         return userSkills.stream()
-                .map(this::toResponseDto)
+                .map(this::toDto)
                 .collect(Collectors.toList());
     }
 }

@@ -1,6 +1,8 @@
 package com.forkmyfolio.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.forkmyfolio.model.enums.AuthProvider;
+import com.forkmyfolio.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -105,31 +107,39 @@ public class User implements UserDetails {
     private String providerId;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonManagedReference("user-profile")
     private PortfolioProfile portfolioProfile;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("user-projects")
     private Set<Project> projects = new HashSet<>();
 
-    // CORRECTED: This now points to the UserSkill join table
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("user-userskills")
     private Set<UserSkill> userSkills = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("user-experiences")
     private Set<Experience> experiences = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("user-qualifications")
     private Set<Qualification> qualifications = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("user-testimonials")
     private Set<Testimonial> testimonials = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("user-contactmessages")
     private Set<ContactMessage> contactMessages = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("user-usersettings")
     private Set<UserSetting> userSettings = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("user-refreshtokens")
     private Set<RefreshToken> refreshTokens = new HashSet<>();
 
     /**

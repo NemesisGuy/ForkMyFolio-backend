@@ -6,8 +6,9 @@ import com.forkmyfolio.aop.SkipApiResponseWrapper;
 import com.forkmyfolio.dto.backup.BackupFileDto;
 import com.forkmyfolio.dto.backup.BackupMetaDto;
 import com.forkmyfolio.dto.response.PortfolioBackupDto;
+import com.forkmyfolio.mapper.*;
 import com.forkmyfolio.model.User;
-import com.forkmyfolio.service.BackupService;
+import com.forkmyfolio.model.UserSkill;
 import com.forkmyfolio.service.BackupValidationService;
 import com.forkmyfolio.service.RestoreService;
 import com.forkmyfolio.service.UserService;
@@ -27,6 +28,10 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/me/backup")
@@ -36,21 +41,30 @@ import java.time.format.DateTimeFormatter;
 @SecurityRequirement(name = "bearerAuth")
 public class BackupController {
 
-    private final BackupService backupService;
+    // Services for core logic
     private final RestoreService restoreService;
     private final UserService userService;
-    private final ObjectMapper objectMapper;
-    private final BackupValidationService backupValidationService; // REFACTOR: Inject shared service
+    private final BackupValidationService backupValidationService;
 
-    @Value("${app.version:2.0.0}") // Injected from application.properties
+    // Mappers for DTO conversion (Controller-layer responsibility)
+    private final PortfolioProfileMapper portfolioProfileMapper;
+    private final ProjectMapper projectMapper;
+    private final ExperienceMapper experienceMapper;
+    private final TestimonialMapper testimonialMapper;
+    private final QualificationMapper qualificationMapper;
+    private final UserSkillMapper userSkillMapper;
+    private final ObjectMapper objectMapper;
+
+    @Value("${app.version:2.0.0}")
     private String appVersion;
 
     @GetMapping
     @Operation(summary = "Backup my entire portfolio", description = "Downloads a versioned JSON file containing all of the authenticated user's portfolio data.")
     @SkipApiResponseWrapper
     public ResponseEntity<byte[]> downloadBackup() throws IOException {
-        User currentUser = userService.getCurrentAuthenticatedUser();
-        PortfolioBackupDto backupData = backupService.createBackupForCurrentUser();
+        // FIX: Use the correct service method to fetch the user with all portfolio data eagerly.
+        User currentUser = userService.getCurrentAuthenticatedUserWithAllPortfolioData();
+        PortfolioBackupDto backupData = createBackupDtoForUser(currentUser);
 
         BackupMetaDto meta = BackupMetaDto.builder()
                 .version(appVersion)
@@ -87,13 +101,67 @@ public class BackupController {
 
         BackupFileDto<PortfolioBackupDto> backupFile = objectMapper.readValue(file.getInputStream(), new TypeReference<>() {});
 
-        // REFACTOR: Use the shared service for validation
         backupValidationService.validateBackup(backupFile.getMeta(), "user_backup");
-
         restoreService.restoreFromBackup(backupFile.getData());
 
         return ResponseEntity.noContent().build();
     }
 
-    // REFACTOR: This duplicated method has been removed and its logic moved to BackupValidationService.
+    /**
+     * Private helper method to encapsulate the logic for creating a backup DTO from a User entity.
+     * This logic correctly resides in the controller layer.
+     *
+     * @param user The user for whom to create the backup.
+     * @return A fully populated PortfolioBackupDto.
+     */
+    private PortfolioBackupDto createBackupDtoForUser(User user) {
+        PortfolioBackupDto backupDto = new PortfolioBackupDto();
+
+        Map<UUID, UUID> skillUuidToUserSkillUuidMap = user.getUserSkills().stream()
+                .collect(Collectors.toMap(
+                        userSkill -> userSkill.getSkill().getUuid(),
+                        UserSkill::getUuid,
+                        (uuid1, uuid2) -> uuid1
+                ));
+
+        if (user.getPortfolioProfile() != null) {
+            backupDto.setProfile(portfolioProfileMapper.toDto(user.getPortfolioProfile()));
+        }
+
+        backupDto.setProjects(user.getProjects().stream()
+                .map(project -> {
+                    var projectDto = projectMapper.toDto(project);
+                    if (projectDto.getSkills() != null) {
+                        projectDto.getSkills().forEach(skillDto ->
+                                skillDto.setUserSkillId(skillUuidToUserSkillUuidMap.get(skillDto.getSkillId()))
+                        );
+                    }
+                    return projectDto;
+                })
+                .collect(Collectors.toList()));
+
+        backupDto.setSkills(userSkillMapper.toDtoList(new ArrayList<>(user.getUserSkills())));
+
+        backupDto.setExperiences(user.getExperiences().stream()
+                .map(experience -> {
+                    var experienceDto = experienceMapper.toDto(experience);
+                    if (experienceDto.getSkills() != null) {
+                        experienceDto.getSkills().forEach(skillDto ->
+                                skillDto.setUserSkillId(skillUuidToUserSkillUuidMap.get(skillDto.getSkillId()))
+                        );
+                    }
+                    return experienceDto;
+                })
+                .collect(Collectors.toList()));
+
+        backupDto.setTestimonials(user.getTestimonials().stream()
+                .map(testimonialMapper::toDto)
+                .collect(Collectors.toList()));
+
+        backupDto.setQualifications(user.getQualifications().stream()
+                .map(qualificationMapper::toDto)
+                .collect(Collectors.toList()));
+
+        return backupDto;
+    }
 }

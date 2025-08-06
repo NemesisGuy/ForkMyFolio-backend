@@ -1,6 +1,6 @@
 package com.forkmyfolio.dto.response;
 
-import com.forkmyfolio.model.Role;
+import com.forkmyfolio.model.enums.Role;
 import com.forkmyfolio.model.enums.AuthProvider;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,54 +1,62 @@
 package com.forkmyfolio.repository;
 
-import com.forkmyfolio.model.Role;
 import com.forkmyfolio.model.User;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Spring Data JPA repository for {@link User} entities.
- * Provides standard CRUD operations and custom query methods for users.
+ * Repository for managing User entities.
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    /**
-     * Finds a user by their email address.
-     * Email is a unique identifier for users.
-     *
-     * @param email The email address to search for.
-     * @return An {@link Optional} containing the user if found, or empty if not.
-     */
     Optional<User> findByEmail(String email);
 
-    /**
-     * Checks if a user exists with the given email address.
-     * This is more efficient than fetching the entire entity if only existence is needed.
-     *
-     * @param email The email address to check.
-     * @return {@code true} if a user with the email exists, {@code false} otherwise.
-     */
+    Optional<User> findByUuid(UUID uuid);
+
     Boolean existsByEmail(String email);
 
-    Optional<User> findFirstByOrderByIdAsc();
+    boolean existsBySlug(String slug);
 
-    boolean existsByRolesContains(Role role);
-
-
-    /**
-     * Finds an active user by their slug.
-     *
-     * @param slug The slug of the user.
-     * @return An Optional containing the User if found and active.
-     */
     Optional<User> findBySlugAndActiveTrue(String slug);
 
-    boolean existsBySlug(String candidate);
+    /**
+     * Finds a user by email and eagerly fetches all associated portfolio data
+     * using the 'User.withAllPortfolioData' entity graph. This is the designated method
+     * for use cases like generating a full backup, preventing LazyInitializationException.
+     *
+     * @param email The email of the user to find.
+     * @return An Optional containing the fully initialized User entity.
+     */
+    @EntityGraph(value = "User.withAllPortfolioData")
+    @Query("SELECT u FROM User u WHERE u.email = :email")
+    Optional<User> findByEmailWithAllPortfolioData(String email);
 
-    Optional<User> findBySlug(String slug);
+    /**
+     * Finds all users and eagerly fetches all associated portfolio data for each one
+     * using the 'User.withAllPortfolioData' entity graph. This is used for the
+     * system-wide admin backup.
+     *
+     * @return A list of fully initialized User entities.
+     */
+    @Query("SELECT u FROM User u")
+    @EntityGraph(value = "User.withAllPortfolioData")
+    List<User> findAllWithPortfolioData();
 
-    Optional<User> findByUuid(UUID userId);
+    /**
+     * FIX: Finds a user by slug and eagerly fetches all associated portfolio data.
+     * This is crucial for building the public portfolio DTO without lazy loading issues.
+     *
+     * @param slug The slug of the user to find.
+     * @return An Optional containing the fully initialized User entity.
+     */
+    @EntityGraph(value = "User.withAllPortfolioData")
+    @Query("SELECT u FROM User u WHERE u.slug = :slug AND u.active = true")
+    Optional<User> findBySlugWithAllPortfolioData(String slug);
 }

@@ -14,11 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Responsible for seeding the global 'skills' table from all JSON files
@@ -30,9 +26,9 @@ import java.util.UUID;
 @Slf4j
 public class SkillDataLoader {
 
+    private static final String SKILLS_PATTERN = "classpath:data/skills/*.json";
     private final SkillRepository skillRepository;
     private final ObjectMapper objectMapper;
-    private static final String SKILLS_PATTERN = "classpath:data/skills/*.json";
 
     @PostConstruct
     @Transactional
@@ -57,7 +53,8 @@ public class SkillDataLoader {
             for (Resource resource : resources) {
                 log.info("Reading skills from: {}", resource.getFilename());
                 try (InputStream inputStream = resource.getInputStream()) {
-                    List<Skill> skillsFromFile = objectMapper.readValue(inputStream, new TypeReference<>() {});
+                    List<Skill> skillsFromFile = objectMapper.readValue(inputStream, new TypeReference<>() {
+                    });
                     allSkillsFromJson.addAll(skillsFromFile);
                 } catch (IOException e) {
                     log.error("Failed to read or parse skill file: {}", resource.getFilename(), e);

@@ -1,9 +1,7 @@
 package com.forkmyfolio.model;
 
-// This would be in a new file: com.forkmyfolio.validator.ValidDateRange
-// For now, we just reference it. The next step will be to create it.
-// import com.forkmyfolio.validator.ValidDateRange;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -23,16 +21,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-@NamedEntityGraph(
-        name = "Experience.withSkills",
-        attributeNodes = @NamedAttributeNode("skills")
-)
 @Entity
 @Table(name = "experiences")
 @Getter
 @Setter
 @NoArgsConstructor
-// @ValidDateRange(startDate = "startDate", endDate = "endDate", message = "End date must be after or equal to start date.")
 public class Experience {
 
     @Id
@@ -46,6 +39,7 @@ public class Experience {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference("user-experiences")
     private User user;
 
     @Column(nullable = false)
@@ -101,6 +95,7 @@ public class Experience {
             joinColumns = @JoinColumn(name = "experience_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
+    @JsonManagedReference("experience-skills") // FIX: Added to manage the Experience -> Skill relationship.
     private Set<Skill> skills = new HashSet<>();
 
     @CreationTimestamp

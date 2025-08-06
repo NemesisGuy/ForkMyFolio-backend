@@ -1,5 +1,6 @@
 package com.forkmyfolio.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -35,6 +36,7 @@ public class RefreshToken {
     @ManyToOne(fetch = FetchType.LAZY, optional = false) // Changed to LAZY as per best practice, fetch when needed
     @JoinColumn(name = "user_id", nullable = false)
     @NotNull
+    @JsonBackReference("user-refreshtokens")
     private User user;
 
     /**

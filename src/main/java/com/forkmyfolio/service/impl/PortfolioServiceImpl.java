@@ -1,21 +1,16 @@
 package com.forkmyfolio.service.impl;
 
-import com.forkmyfolio.dto.response.*;
 import com.forkmyfolio.exception.PermissionDeniedException;
 import com.forkmyfolio.exception.ResourceNotFoundException;
-import com.forkmyfolio.mapper.*;
 import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.model.User;
-import com.forkmyfolio.repository.*;
 import com.forkmyfolio.service.PortfolioService;
 import com.forkmyfolio.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,84 +18,50 @@ import java.util.stream.Collectors;
 public class PortfolioServiceImpl implements PortfolioService {
 
     private final UserService userService;
-    private final PortfolioProfileRepository portfolioProfileRepository;
-    private final ProjectRepository projectRepository;
-    private final UserSkillRepository userSkillRepository;
-    private final ExperienceRepository experienceRepository;
-    private final QualificationRepository qualificationRepository;
-    private final TestimonialRepository testimonialRepository;
-
-    // Mappers
-    private final PublicUserMapper publicUserMapper;
-    private final PortfolioProfileMapper portfolioProfileMapper;
-    private final ProjectMapper projectMapper;
-    private final SkillMapper skillMapper;
-    private final ExperienceMapper experienceMapper;
-    private final QualificationMapper qualificationMapper;
-    private final TestimonialMapper testimonialMapper;
 
     @Override
     @Transactional(readOnly = true)
-    public PortfolioDto getFullPublicPortfolioBySlug(String slug) {
+    public User getPublicPortfolioUserBySlug(String slug) {
+        // The error "could not initialize proxy - no Session" occurs when lazy-loaded
+        // collections are accessed after the database transaction has closed.
+        // The fix is to explicitly initialize all necessary collections *within* this
+        // @Transactional method before returning the User object.
+
+        // 1. Fetch the user.
         User user = userService.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("Portfolio with slug: " + slug));
+                .orElseThrow(() -> new ResourceNotFoundException("Portfolio with slug: " + slug + " not found."));
 
-        PortfolioProfile profile = portfolioProfileRepository.findByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("Profile for user with slug: " + slug));
+        // 2. Perform permission checks first to fail fast.
+        PortfolioProfile profile = user.getPortfolioProfile();
+        if (profile == null) {
+            throw new ResourceNotFoundException("Profile for user with slug: " + slug + " not found.");
+        }
 
-        // --- DIAGNOSTIC LOG ---
-        // This will tell us exactly what the backend sees.
         log.info("Checking privacy for slug '{}'. isPublic flag is: {}", slug, profile.isPublic());
-
         if (!profile.isPublic()) {
             log.warn("Access DENIED for slug '{}'. Throwing PermissionDeniedException.", slug);
             throw new PermissionDeniedException("This portfolio is private and cannot be viewed.");
         }
 
-        log.info("Access GRANTED for slug '{}'. Proceeding to build portfolio DTO.", slug);
+        // 3. **THE FIX**: Force initialization of all lazy collections needed for the API response.
+        // By "touching" them here using Hibernate.initialize(), we force them to be loaded from the database
+        // while the session is still open.
+        Hibernate.initialize(user.getPortfolioProfile());
+        Hibernate.initialize(user.getProjects());
+        Hibernate.initialize(user.getUserSkills());
+        Hibernate.initialize(user.getExperiences());
+        Hibernate.initialize(user.getQualifications());
+        Hibernate.initialize(user.getTestimonials());
 
-        // If the check passes, proceed with gathering all public data.
-        PublicUserDto userDto = publicUserMapper.toDto(user);
-        PortfolioProfileDto profileDto = portfolioProfileMapper.toDto(profile);
-        // Ensure the DTO reflects the true state of the entity
-        profileDto.setPublic(profile.isPublic());
+        // Also initialize nested collections to prevent further lazy-loading issues.
+        user.getProjects().forEach(project -> Hibernate.initialize(project.getSkills()));
+        user.getExperiences().forEach(experience -> Hibernate.initialize(experience.getSkills()));
+        // FIX: The previous error was because the Skill object inside UserSkill was not initialized.
+        // This line resolves the "Could not initialize proxy [com.forkmyfolio.model.Skill...]" error.
+        user.getUserSkills().forEach(userSkill -> Hibernate.initialize(userSkill.getSkill()));
 
-        List<ProjectDto> projects = projectRepository.findByUserAndVisibleTrue(user)
-                .stream()
-                .map(projectMapper::toDto)
-                .collect(Collectors.toList());
 
-        // FIX: Use the 'toDetailDto' mapper which correctly includes user-specific
-        // data like proficiency level from the UserSkill entity.
-        List<SkillDto> skills = userSkillRepository.findByUserAndVisibleTrue(user)
-                .stream()
-                .map(skillMapper::toDetailDto)
-                .collect(Collectors.toList());
-
-        List<ExperienceDto> experiences = experienceRepository.findByUserAndVisibleTrue(user)
-                .stream()
-                .map(experienceMapper::toDto)
-                .collect(Collectors.toList());
-
-        List<QualificationDto> qualifications = qualificationRepository.findByUserAndVisibleTrue(user)
-                .stream()
-                .map(qualificationMapper::toDto)
-                .collect(Collectors.toList());
-
-        List<TestimonialDto> testimonials = testimonialRepository.findByUserAndVisibleTrue(user)
-                .stream()
-                .map(testimonialMapper::toDto)
-                .collect(Collectors.toList());
-
-        PortfolioDto portfolioDto = new PortfolioDto();
-        portfolioDto.setUser(userDto);
-        portfolioDto.setProfile(profileDto);
-        portfolioDto.setProjects(projects);
-        portfolioDto.setSkills(skills);
-        portfolioDto.setExperiences(experiences);
-        portfolioDto.setQualifications(qualifications);
-        portfolioDto.setTestimonials(testimonials);
-
-        return portfolioDto;
+        log.info("Access GRANTED for slug '{}'. Returning fully initialized user entity.", slug);
+        return user;
     }
 }

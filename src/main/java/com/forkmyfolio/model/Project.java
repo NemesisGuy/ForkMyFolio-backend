@@ -1,5 +1,7 @@
 package com.forkmyfolio.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -22,10 +24,6 @@ import java.util.UUID;
 /**
  * Represents a project in a user's portfolio.
  */
-@NamedEntityGraph(
-        name = "Project.withSkills",
-        attributeNodes = @NamedAttributeNode("skills")
-)
 @Entity
 @Table(name = "projects")
 @Getter
@@ -74,6 +72,7 @@ public class Project {
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
+    @JsonManagedReference("project-skills") // FIX: Added to manage the Project -> Skill relationship.
     private Set<Skill> skills = new HashSet<>();
 
     /**
@@ -103,6 +102,7 @@ public class Project {
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference("user-projects")
     private User user;
 
     /**

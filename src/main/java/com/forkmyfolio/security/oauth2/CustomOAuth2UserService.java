@@ -1,7 +1,7 @@
 package com.forkmyfolio.security.oauth2;
 
 import com.forkmyfolio.exception.OAuth2AuthenticationProcessingException;
-import com.forkmyfolio.model.Role;
+import com.forkmyfolio.model.enums.Role;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.model.enums.AuthProvider;
 import com.forkmyfolio.repository.UserRepository;

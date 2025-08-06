@@ -16,10 +16,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * Implementation of the {@link ExperienceService} interface.
- * Handles business logic related to work experiences.
- */
 @Service
 @RequiredArgsConstructor
 public class ExperienceServiceImpl implements ExperienceService {
@@ -47,11 +43,15 @@ public class ExperienceServiceImpl implements ExperienceService {
 
     @Override
     @Transactional
-    public Experience createExperience(Experience experience, Set<String> skillNames) {
+    public Experience createExperience(Experience experienceDetails, Set<String> skillNames, User owner) {
+        // Set the owner of the experience, which is a service-layer responsibility.
+        experienceDetails.setUser(owner);
+
         // Delegate to SkillService to find or create the associated global skills.
         Set<Skill> skills = skillService.findOrCreateSkills(skillNames);
-        experience.setSkills(skills);
-        return experienceRepository.save(experience);
+        experienceDetails.setSkills(skills);
+
+        return experienceRepository.save(experienceDetails);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class ExperienceServiceImpl implements ExperienceService {
         existingExperience.setVisible(updatedExperienceData.isVisible());
         existingExperience.setDisplayOrder(updatedExperienceData.getDisplayOrder());
 
-        // Update associated skills by finding or creating them in the global pool.
+        // Update associated skills
         Set<Skill> skillsToAssociate = skillService.findOrCreateSkills(skillNames);
         existingExperience.setSkills(skillsToAssociate);
 

@@ -1,4 +1,4 @@
-package com.forkmyfolio.model;
+package com.forkmyfolio.model.enums;
 
 /**
  * Defines the roles a user can have within the application.

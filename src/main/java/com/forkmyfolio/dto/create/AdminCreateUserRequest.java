@@ -1,6 +1,6 @@
 package com.forkmyfolio.dto.create;
 
-import com.forkmyfolio.model.Role;
+import com.forkmyfolio.model.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
