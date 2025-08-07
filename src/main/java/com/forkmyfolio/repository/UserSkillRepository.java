@@ -5,11 +5,9 @@ import com.forkmyfolio.model.User;
 import com.forkmyfolio.model.UserSkill;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -59,12 +57,12 @@ public interface UserSkillRepository extends JpaRepository<UserSkill, Long> {
     List<UserSkill> findByUserAndVisibleTrue(User user);
 
     /**
-     * FIX: Finds all UserSkill entities for a user, eagerly fetching the associated Skill entity
-     * in a single query. This prevents LazyInitializationException in the controller/mapper layer.
+     * Finds all UserSkills for a given user, eagerly fetching the associated Skill entity
+     * to prevent N+1 query problems and LazyInitializationExceptions.
      *
      * @param user The user whose skills to retrieve.
-     * @return A list of fully initialized UserSkill entities with their associated Skills.
+     * @return A list of UserSkill entities with their associated Skill fully initialized.
      */
     @Query("SELECT us FROM UserSkill us JOIN FETCH us.skill WHERE us.user = :user")
-    List<UserSkill> findByUserWithSkillEagerly(@Param("user") User user);
+    List<UserSkill> findByUserWithSkill(User user);
 }

@@ -1,4 +1,4 @@
-package com.forkmyfolio.controller;
+package com.forkmyfolio.controller.guest;
 
 import com.forkmyfolio.advice.ApiResponseWrapper;
 import com.forkmyfolio.aop.TrackVisitor;

@@ -24,13 +24,14 @@ public class ExperienceMapper {
     private final SkillMapper skillMapper;
 
     /**
-     * Converts an Experience entity to its DTO representation.
-     * This version provides basic skill information without user-specific details.
+     * Converts an Experience entity to a DTO, enriching it with user-specific skill data.
+     * This is the correct way to build a complete Experience DTO for the API.
      *
-     * @param experience The Experience entity.
-     * @return The corresponding ExperienceDto.
+     * @param experience      The Experience entity to convert.
+     * @param userSkillLookup A map of the user's skills to provide full context.
+     * @return A detailed ExperienceDto with user-specific skill information.
      */
-    public ExperienceDto toDto(Experience experience) {
+    public ExperienceDto toDto(Experience experience, Map<UUID, UserSkill> userSkillLookup) {
         if (experience == null) {
             return null;
         }
@@ -54,45 +55,18 @@ public class ExperienceMapper {
         dto.setUpdatedAt(experience.getUpdatedAt());
 
         if (experience.getSkills() != null) {
+            // FIX: Use the lookup map to call the correct skill mapper.
+            // This ensures all user-specific data (ID, level, description) is included.
             dto.setSkills(experience.getSkills().stream()
-                    .map(skillMapper::toDto)
+                    .map(skill -> {
+                        UserSkill userSkill = userSkillLookup.get(skill.getUuid());
+                        // If the user has this skill rated, use the detailed mapper.
+                        // Otherwise, fall back to the basic one.
+                        return (userSkill != null) ? skillMapper.toDetailDto(userSkill) : skillMapper.toBasicDto(skill);
+                    })
                     .collect(Collectors.toSet()));
         } else {
             dto.setSkills(Collections.emptySet());
-        }
-
-        return dto;
-    }
-
-    /**
-     * Converts an Experience entity to a DTO, enriching it with user-specific skill data.
-     * This is the preferred method for public portfolio views where detailed skill context is needed.
-     *
-     * @param experience  The Experience entity to convert.
-     * @param skillLookup A map where the key is the global Skill UUID and the value is the user-specific UserSkill entity.
-     * @return A detailed ExperienceDto with user-specific skill information.
-     */
-    public ExperienceDto toDto(Experience experience, Map<UUID, UserSkill> skillLookup) {
-        if (experience == null) {
-            return null;
-        }
-
-        ExperienceDto dto = toDto(experience); // Start with the basic mapping
-
-        // Now, enrich the skills using the lookup map
-        if (experience.getSkills() != null) {
-            dto.setSkills(experience.getSkills().stream()
-                    .map(skill -> {
-                        UserSkill userSkill = skillLookup.get(skill.getUuid());
-                        if (userSkill != null) {
-                            // If found, use the detailed mapper to include level, description, etc.
-                            return skillMapper.toDetailDto(userSkill);
-                        } else {
-                            // Fallback to the basic mapper if no user-specific data is available
-                            return skillMapper.toDto(skill);
-                        }
-                    })
-                    .collect(Collectors.toSet()));
         }
 
         return dto;

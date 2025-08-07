@@ -1,9 +1,8 @@
 package com.forkmyfolio.service.impl;
 
-import com.forkmyfolio.exception.PermissionDeniedException;
 import com.forkmyfolio.exception.ResourceNotFoundException;
-import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.model.User;
+import com.forkmyfolio.service.PortfolioProfileService;
 import com.forkmyfolio.service.PortfolioService;
 import com.forkmyfolio.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PortfolioServiceImpl implements PortfolioService {
 
     private final UserService userService;
+    private final PortfolioProfileService portfolioProfileService;
 
     @Override
     @Transactional(readOnly = true)
@@ -28,40 +28,31 @@ public class PortfolioServiceImpl implements PortfolioService {
         // @Transactional method before returning the User object.
 
         // 1. Fetch the user.
-        User user = userService.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("Portfolio with slug: " + slug + " not found."));
+        User user = userService.findBySlug(slug).orElseThrow(() -> new ResourceNotFoundException("User with slug '" + slug + "' not found."));
 
-        // 2. Perform permission checks first to fail fast.
-        PortfolioProfile profile = user.getPortfolioProfile();
-        if (profile == null) {
-            throw new ResourceNotFoundException("Profile for user with slug: " + slug + " not found.");
-        }
-
-        log.info("Checking privacy for slug '{}'. isPublic flag is: {}", slug, profile.isPublic());
-        if (!profile.isPublic()) {
-            log.warn("Access DENIED for slug '{}'. Throwing PermissionDeniedException.", slug);
-            throw new PermissionDeniedException("This portfolio is private and cannot be viewed.");
+        // 2. Get the profile and perform permission checks.
+        // Using the service guarantees a non-null profile is returned (it's created if missing).
+        // We only need to check if it's public.
+        if (!portfolioProfileService.getProfileByUser(user).isPublic()) {
+            log.warn("Access denied for portfolio with slug '{}'. Profile is set to private.", slug);
+            throw new ResourceNotFoundException("Public portfolio for user '" + slug + "' is not available or is private.");
         }
 
         // 3. **THE FIX**: Force initialization of all lazy collections needed for the API response.
         // By "touching" them here using Hibernate.initialize(), we force them to be loaded from the database
         // while the session is still open.
         Hibernate.initialize(user.getPortfolioProfile());
-        Hibernate.initialize(user.getProjects());
-        Hibernate.initialize(user.getUserSkills());
-        Hibernate.initialize(user.getExperiences());
         Hibernate.initialize(user.getQualifications());
         Hibernate.initialize(user.getTestimonials());
 
         // Also initialize nested collections to prevent further lazy-loading issues.
         user.getProjects().forEach(project -> Hibernate.initialize(project.getSkills()));
         user.getExperiences().forEach(experience -> Hibernate.initialize(experience.getSkills()));
-        // FIX: The previous error was because the Skill object inside UserSkill was not initialized.
-        // This line resolves the "Could not initialize proxy [com.forkmyfolio.model.Skill...]" error.
         user.getUserSkills().forEach(userSkill -> Hibernate.initialize(userSkill.getSkill()));
 
 
         log.info("Access GRANTED for slug '{}'. Returning fully initialized user entity.", slug);
+
         return user;
     }
 }

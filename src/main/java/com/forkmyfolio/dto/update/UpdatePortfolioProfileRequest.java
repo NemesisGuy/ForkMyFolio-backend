@@ -1,32 +1,36 @@
 package com.forkmyfolio.dto.update;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 
-import java.util.Optional;
-
 @Data
+@Schema(description = "Request body for creating or updating a user's portfolio profile.")
 public class UpdatePortfolioProfileRequest {
 
-    private Optional<@Size(max = 100) String> headline = Optional.empty();
+    @Schema(description = "A professional headline.", example = "Full-Stack Java Developer")
+    @Size(max = 100)
+    private String headline;
 
-    private Optional<@Size(max = 5000) String> summary = Optional.empty();
+    @Schema(description = "A summary of the user's professional background.")
+    private String summary;
 
-    private Optional<@Email @Size(max = 255) String> publicEmail = Optional.empty();
+    @Schema(description = "A public-facing email address.", example = "contact.me@example.com")
+    @Email
+    private String publicEmail;
 
-    private Optional<@Size(max = 50) String> location = Optional.empty();
-
-    private Optional<@URL @Size(max = 255) String> websiteUrl = Optional.empty();
-
-    private Optional<@URL @Size(max = 255) String> linkedinUrl = Optional.empty();
-
-    private Optional<@URL @Size(max = 255) String> githubUrl = Optional.empty();
-
-    private Optional<@URL @Size(max = 255) String> resumeUrl = Optional.empty();
-
-    private Optional<@URL @Size(max = 255) String> resumeImageUrl = Optional.empty();
-
-    private Optional<@Size(max = 10000, message = "Cover letter template must not exceed 10000 characters.") String> coverLetterTemplate = Optional.empty();
+    @URL private String websiteUrl;
+    @URL private String linkedinUrl;
+    @URL private String githubUrl;
+    @URL private String resumeUrl;
+    @URL private String resumeImageUrl;
+    @Size(max = 50) private String location;
+    private String coverLetterTemplate;
+    private boolean visible; // This field does not have the 'is' prefix, so it's fine.
+    // FIX: Explicitly name the JSON property to avoid deserialization issues with the 'is' prefix.
+    @JsonProperty("isPublic")
+    private boolean isPublic;
 }

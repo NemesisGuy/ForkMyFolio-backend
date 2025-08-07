@@ -1,18 +1,12 @@
 package com.forkmyfolio.dto.update;
 
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 public class UpdateProfileVisibilityRequest {
-
-    /**
-     * The desired public visibility state for the entire portfolio.
-     */
-    @NotNull(message = "Visibility status cannot be null.")
-    private Boolean isPublic;
+    @Schema(description = "Set to true to make the portfolio public, false to make it private.", example = "true")
+    @JsonProperty("isPublic")
+    private boolean isPublic;
 }

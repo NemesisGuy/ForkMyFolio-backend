@@ -8,6 +8,7 @@ import com.forkmyfolio.repository.ExperienceRepository;
 import com.forkmyfolio.service.ExperienceService;
 import com.forkmyfolio.service.SkillService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,11 @@ public class ExperienceServiceImpl implements ExperienceService {
     @Override
     @Transactional(readOnly = true)
     public List<Experience> getExperiencesForUser(User user) {
-        return experienceRepository.findByUserOrderByDisplayOrderAsc(user);
+        // The service layer's responsibility is to fetch the domain entities.
+        List<Experience> experiences = experienceRepository.findByUserOrderByDisplayOrderAsc(user);
+        // We initialize the skills collection to prevent LazyInitializationException later in the mapping process.
+        experiences.forEach(exp -> Hibernate.initialize(exp.getSkills()));
+        return experiences;
     }
 
     @Override
@@ -38,6 +43,9 @@ public class ExperienceServiceImpl implements ExperienceService {
         if (!experience.getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException("User does not have permission to access this experience.");
         }
+
+        // Initialize the skills collection to prevent LazyInitializationException in the mapper.
+        Hibernate.initialize(experience.getSkills());
         return experience;
     }
 

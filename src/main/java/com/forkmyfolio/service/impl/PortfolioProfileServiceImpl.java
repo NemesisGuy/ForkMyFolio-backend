@@ -1,73 +1,64 @@
 package com.forkmyfolio.service.impl;
 
-import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.repository.PortfolioProfileRepository;
-import com.forkmyfolio.repository.UserRepository;
 import com.forkmyfolio.service.PortfolioProfileService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
+@RequiredArgsConstructor
+@Slf4j
 public class PortfolioProfileServiceImpl implements PortfolioProfileService {
 
     private final PortfolioProfileRepository portfolioProfileRepository;
-    private final UserRepository userRepository;
-
-    @Autowired
-    public PortfolioProfileServiceImpl(PortfolioProfileRepository portfolioProfileRepository, UserRepository userRepository) {
-        this.portfolioProfileRepository = portfolioProfileRepository;
-        this.userRepository = userRepository;
-    }
 
     @Override
-    @Transactional(readOnly = true)
-    public PortfolioProfile getPublicProfile() {
-        // This method might need to be re-evaluated based on how the "owner" is defined.
-        // For now, assuming it fetches a specific profile, e.g., for the main admin or a default user.
-        // This implementation is a placeholder.
-        return portfolioProfileRepository.findById(1L).orElse(null);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public PortfolioProfile getProfileByUser(User user) {
+        // FIX: Implement a "get-or-create" pattern. If a profile doesn't exist,
+        // create and persist a new, default one. This ensures every user has a
+        // profile record from their first interaction, preventing null pointer issues.
         return portfolioProfileRepository.findByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("PortfolioProfile not found for user with id: " + user.getId()));
+                .orElseGet(() -> {
+                    log.info("No PortfolioProfile found for user ID: {}. Creating and persisting a new default instance.", user.getId());
+                    PortfolioProfile newProfile = new PortfolioProfile();
+                    newProfile.setUser(user);
+                    return portfolioProfileRepository.save(newProfile);
+                });
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public PortfolioProfile getProfileBySlug(String slug) {
-        // FIX: Changed to use the correct repository method that finds active users by slug.
-        User user = userRepository.findBySlugAndActiveTrue(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with slug: " + slug));
-        if (user.getPortfolioProfile() == null) {
-            throw new ResourceNotFoundException("PortfolioProfile not found for user with slug: " + slug);
-        }
-        return user.getPortfolioProfile();
+    @Transactional
+    public PortfolioProfile createOrUpdateProfile(PortfolioProfile profileUpdates, User user) {
+        // This method now safely handles both creation of a new profile and updates to an existing one.
+        PortfolioProfile existingProfile = getProfileByUser(user);
+
+        existingProfile.setHeadline(profileUpdates.getHeadline());
+        existingProfile.setSummary(profileUpdates.getSummary());
+        existingProfile.setPublicEmail(profileUpdates.getPublicEmail());
+        existingProfile.setWebsiteUrl(profileUpdates.getWebsiteUrl());
+        existingProfile.setLinkedinUrl(profileUpdates.getLinkedinUrl());
+        existingProfile.setGithubUrl(profileUpdates.getGithubUrl());
+        existingProfile.setResumeUrl(profileUpdates.getResumeUrl());
+        existingProfile.setResumeImageUrl(profileUpdates.getResumeImageUrl());
+        existingProfile.setLocation(profileUpdates.getLocation());
+        existingProfile.setCoverLetterTemplate(profileUpdates.getCoverLetterTemplate());
+        existingProfile.setVisible(profileUpdates.isVisible());
+        existingProfile.setPublic(profileUpdates.isPublic());
+
+        return portfolioProfileRepository.save(existingProfile);
     }
 
     @Override
-    public PortfolioProfile createProfile(PortfolioProfile portfolioProfile) {
-        if (portfolioProfileRepository.findByUser(portfolioProfile.getUser()).isPresent()) {
-            throw new IllegalStateException("A portfolio profile already exists for this user.");
-        }
-        return portfolioProfileRepository.save(portfolioProfile);
-    }
-
-    @Override
-    public PortfolioProfile save(PortfolioProfile portfolioProfile) {
-        return portfolioProfileRepository.save(portfolioProfile);
-    }
-
-    @Override
+    @Transactional
     public PortfolioProfile updateProfileVisibility(User user, boolean isPublic) {
         PortfolioProfile profile = getProfileByUser(user);
         profile.setPublic(isPublic);
+        log.info("Updating portfolio visibility for user {} to: {}", user.getSlug(), isPublic);
         return portfolioProfileRepository.save(profile);
     }
 }

@@ -1,4 +1,4 @@
-package com.forkmyfolio.controller;
+package com.forkmyfolio.controller.guest;
 
 import com.forkmyfolio.dto.response.SettingDto;
 import com.forkmyfolio.mapper.SettingMapper;

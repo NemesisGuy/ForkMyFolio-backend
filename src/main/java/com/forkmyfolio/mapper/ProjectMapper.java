@@ -25,13 +25,14 @@ public class ProjectMapper {
     private final SkillMapper skillMapper;
 
     /**
-     * Converts a Project entity to a ProjectDto for API responses.
-     * This version provides basic skill information without user-specific details.
+     * Converts a Project entity to a DTO, enriching it with user-specific skill data.
+     * This is the correct way to build a complete Project DTO for the API.
      *
-     * @param project The Project entity to convert.
+     * @param project         The Project entity to convert.
+     * @param userSkillLookup A map of the user's skills to provide full context.
      * @return The corresponding ProjectDto.
      */
-    public ProjectDto toDto(Project project) {
+    public ProjectDto toDto(Project project, Map<UUID, UserSkill> userSkillLookup) {
         if (project == null) {
             return null;
         }
@@ -48,53 +49,13 @@ public class ProjectMapper {
         dto.setUpdatedAt(project.getUpdatedAt());
 
         if (project.getSkills() != null) {
-            // This now correctly calls the basic toDto(Skill) method in SkillMapper
-            dto.setSkills(project.getSkills().stream()
-                    .map(skillMapper::toDto)
-                    .collect(Collectors.toSet()));
-        } else {
-            dto.setSkills(Collections.emptySet());
-        }
-
-        return dto;
-    }
-
-    /**
-     * Converts a Project entity to a ProjectDto, enriching it with user-specific skill data.
-     * This is the preferred method for public portfolio views where detailed skill context is needed.
-     *
-     * @param project     The Project entity to convert.
-     * @param skillLookup A map where the key is the global Skill UUID and the value is the user-specific UserSkill entity.
-     * @return A detailed ProjectDto with user-specific skill information.
-     */
-    public ProjectDto toDto(Project project, Map<UUID, UserSkill> skillLookup) {
-        if (project == null) {
-            return null;
-        }
-        ProjectDto dto = new ProjectDto();
-        dto.setUuid(project.getUuid());
-        dto.setTitle(project.getTitle());
-        dto.setDescription(project.getDescription());
-        dto.setRepoUrl(project.getRepoUrl());
-        dto.setLiveUrl(project.getLiveUrl());
-        dto.setImageUrl(project.getImageUrl());
-        dto.setVisible(project.isVisible());
-        dto.setDisplayOrder(project.getDisplayOrder());
-        dto.setCreatedAt(project.getCreatedAt());
-        dto.setUpdatedAt(project.getUpdatedAt());
-
-        if (project.getSkills() != null) {
+            // FIX: Use the lookup map to call the correct skill mapper.
+            // This ensures all user-specific data (ID, level, description) is included.
             dto.setSkills(project.getSkills().stream()
                     .map(skill -> {
-                        // Look up the user-specific skill data from the context map
-                        UserSkill userSkill = skillLookup.get(skill.getUuid());
-                        if (userSkill != null) {
-                            // If found, use the detailed mapper to include level, description, etc.
-                            return skillMapper.toDetailDto(userSkill);
-                        } else {
-                            // Fallback to the basic mapper if no user-specific data is available
-                            return skillMapper.toDto(skill);
-                        }
+                        UserSkill userSkill = userSkillLookup.get(skill.getUuid());
+                        // If the user has this skill rated, use the detailed mapper. Otherwise, fall back to the basic one.
+                        return (userSkill != null) ? skillMapper.toDetailDto(userSkill) : skillMapper.toBasicDto(skill);
                     })
                     .collect(Collectors.toSet()));
         } else {

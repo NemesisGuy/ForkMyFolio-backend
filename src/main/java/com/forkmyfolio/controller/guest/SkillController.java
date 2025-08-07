@@ -1,4 +1,4 @@
-package com.forkmyfolio.controller;
+package com.forkmyfolio.controller.guest;
 
 import com.forkmyfolio.advice.ApiResponseWrapper;
 import com.forkmyfolio.dto.response.SkillDto;
@@ -34,7 +34,8 @@ public class SkillController {
     public ResponseEntity<ApiResponseWrapper<List<SkillDto>>> getAllPlatformSkills() {
         List<Skill> skills = skillService.getAllPlatformSkills();
         List<SkillDto> skillDtos = skills.stream()
-                .map(skillMapper::toDto)
+                // FIX: Use the correct mapper for global skills that have no user-specific context.
+                .map(skillMapper::toBasicDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new ApiResponseWrapper<>(skillDtos));
     }

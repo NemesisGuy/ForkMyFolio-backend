@@ -35,16 +35,12 @@ public class MarkdownGenerationService {
     /**
      * Generates a portfolio in Markdown format for a specific user.
      *
-     * @param slug The slug of the user whose portfolio is being generated.
+     * @param user The User entity for whom the portfolio is being generated.
      * @return A MarkdownFile record containing the byte content and suggested filename.
      */
     @Transactional(readOnly = true)
-    public MarkdownFile generatePortfolioMarkdown(String slug) {
-        log.info("Starting Markdown generation process for slug '{}'", slug);
-
-        // 1. Fetch the user and their complete portfolio data
-        User user = userRepository.findBySlugAndActiveTrue(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("Portfolio not found for slug: " + slug));
+    public MarkdownFile generatePortfolioMarkdown(User user) {
+        log.info("Starting Markdown generation process for user '{}'", user.getSlug());
 
         PortfolioProfile profile = portfolioProfileRepository.findByUser(user)
                 .orElseThrow(() -> new ResourceNotFoundException("Portfolio profile not found for user: " + user.getEmail()));

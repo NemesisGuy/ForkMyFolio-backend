@@ -1,8 +1,8 @@
 package com.forkmyfolio.service.impl;
 
-import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.model.*;
 import com.forkmyfolio.repository.*;
+import com.forkmyfolio.service.PortfolioProfileService;
 import com.forkmyfolio.service.pdf.PortfolioData;
 import com.forkmyfolio.service.pdf.templates.*;
 import com.itextpdf.io.font.constants.StandardFonts;
@@ -47,11 +47,10 @@ public class PdfGenerationService {
     public static final DeviceRgb SKILL_BEGINNER_COLOR = new DeviceRgb(231, 76, 60);     // #E74C3C (Soft Red)
     private static final Logger log = LoggerFactory.getLogger(PdfGenerationService.class);
     //<editor-fold desc="Repositories">
-    private final UserRepository userRepository;
-    private final PortfolioProfileRepository portfolioProfileRepository;
     private final ExperienceRepository experienceRepository;
     private final ProjectRepository projectRepository;
     private final QualificationRepository qualificationRepository;
+    private final PortfolioProfileService portfolioProfileService;
 
     //</editor-fold>
     // A map to hold available templates. This makes adding new ones easy.
@@ -89,21 +88,17 @@ public class PdfGenerationService {
     /**
      * Generates a portfolio PDF for a specific user using a specified template.
      *
-     * @param slug         The slug of the user whose portfolio is being generated.
+     * @param user         The User entity for whom the portfolio is being generated.
      * @param templateName The name of the template to use (e.g., "modern").
      * @return A PdfFile record containing the byte content and suggested filename.
      */
     @Transactional(readOnly = true)
-    public PdfFile generatePortfolioPdf(String slug, String templateName) {
-        log.info("Starting PDF generation process for slug '{}' with template: {}", slug, templateName);
+    public PdfFile generatePortfolioPdf(User user, String templateName) {
+        log.info("Starting PDF generation process for user '{}' with template: {}", user.getSlug(), templateName);
 
-        // 1. Fetch the user and their data
-        User user = userRepository.findBySlugAndActiveTrue(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("Portfolio not found for slug: " + slug));
-
-        PortfolioProfile profile = portfolioProfileRepository.findByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("Portfolio profile not found for user: " + user.getEmail()));
-
+        // FIX: The 'profile' variable was missing. It needs to be fetched using the
+        // PortfolioProfileService to ensure the get-or-create logic is applied.
+        PortfolioProfile profile = portfolioProfileService.getProfileByUser(user);
         // Fetch all items for the specific user, using sorted methods where appropriate.
         List<Experience> experiences = experienceRepository.findByUserOrderByDisplayOrderAsc(user);
         List<Qualification> qualifications = qualificationRepository.findByUserOrderByCompletionYearDescStartYearDesc(user);

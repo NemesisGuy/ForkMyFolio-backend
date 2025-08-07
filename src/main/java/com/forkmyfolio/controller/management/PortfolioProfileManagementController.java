@@ -1,5 +1,6 @@
 package com.forkmyfolio.controller.management;
 
+import com.forkmyfolio.advice.ApiResponseWrapper;
 import com.forkmyfolio.dto.response.PortfolioProfileDto;
 import com.forkmyfolio.dto.update.UpdatePortfolioProfileRequest;
 import com.forkmyfolio.dto.update.UpdateProfileVisibilityRequest;
@@ -19,60 +20,46 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/me/profile")
-@Tag(name = "Portfolio Profile Management (Me)", description = "Endpoints for the authenticated user to manage their own detailed portfolio profile.")
+@Tag(name = "Profile Management (Me)", description = "Endpoints for the authenticated user to manage their portfolio profile.")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('USER')")
 @SecurityRequirement(name = "bearerAuth")
 public class PortfolioProfileManagementController {
 
-    private final UserService userService;
     private final PortfolioProfileService portfolioProfileService;
+    private final UserService userService;
     private final PortfolioProfileMapper portfolioProfileMapper;
 
     @GetMapping
-    @Operation(summary = "Get my portfolio profile", description = "Retrieves the detailed portfolio profile (headline, summary, links, etc.) for the currently authenticated user.")
-    public ResponseEntity<PortfolioProfileDto> getMyPortfolioProfile() {
+    @Operation(summary = "Get my portfolio profile")
+    public ResponseEntity<ApiResponseWrapper<PortfolioProfileDto>> getMyProfile() {
         User currentUser = userService.getCurrentAuthenticatedUser();
+        // The service now safely returns an existing profile or a new, empty one.
         PortfolioProfile profile = portfolioProfileService.getProfileByUser(currentUser);
         PortfolioProfileDto dto = portfolioProfileMapper.toDto(profile);
-
-        // FIX: Explicitly set the public status to ensure it matches the entity's true state,
-        // overriding any potential inconsistencies in the mapping layer.
-        dto.setPublic(profile.isPublic());
-
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(new ApiResponseWrapper<>(dto));
     }
 
     @PutMapping
-    @Operation(summary = "Update my portfolio profile", description = "Updates the detailed portfolio profile for the currently authenticated user. All fields are optional.")
-    public ResponseEntity<PortfolioProfileDto> updateMyPortfolioProfile(@Valid @RequestBody UpdatePortfolioProfileRequest request) {
+    @Operation(summary = "Create or update my portfolio profile")
+    public ResponseEntity<ApiResponseWrapper<PortfolioProfileDto>> createOrUpdateMyProfile(@Valid @RequestBody UpdatePortfolioProfileRequest request) {
         User currentUser = userService.getCurrentAuthenticatedUser();
-        PortfolioProfile profileToUpdate = portfolioProfileService.getProfileByUser(currentUser);
-
-        // The mapper applies the changes from the DTO to the entity
-        portfolioProfileMapper.applyUpdateFromRequest(request, profileToUpdate);
-
-        // The service saves the updated entity
-        PortfolioProfile updatedProfile = portfolioProfileService.save(profileToUpdate);
-
-        PortfolioProfileDto responseDto = portfolioProfileMapper.toDto(updatedProfile);
-        // FIX: Ensure the returned DTO is consistent with the updated entity's state.
-        responseDto.setPublic(updatedProfile.isPublic());
-
-        return ResponseEntity.ok(responseDto);
+        // The mapper converts the request DTO to a transient entity.
+        PortfolioProfile profileUpdates = portfolioProfileMapper.toEntity(request);
+        // The service handles the create-or-update logic.
+        PortfolioProfile updatedProfile = portfolioProfileService.createOrUpdateProfile(profileUpdates, currentUser);
+        PortfolioProfileDto dto = portfolioProfileMapper.toDto(updatedProfile);
+        return ResponseEntity.ok(new ApiResponseWrapper<>(dto));
     }
 
     @PutMapping("/visibility")
-    @Operation(summary = "Update my portfolio's visibility", description = "Sets the master public/private toggle for the authenticated user's portfolio and returns the updated profile.")
-    public ResponseEntity<PortfolioProfileDto> updateMyPortfolioVisibility(@Valid @RequestBody UpdateProfileVisibilityRequest request) {
+    @Operation(summary = "Update my portfolio's public visibility")
+    public ResponseEntity<ApiResponseWrapper<PortfolioProfileDto>> updateMyProfileVisibility(@Valid @RequestBody UpdateProfileVisibilityRequest request) {
         User currentUser = userService.getCurrentAuthenticatedUser();
-        // The service now returns the updated profile entity
-        PortfolioProfile updatedProfile = portfolioProfileService.updateProfileVisibility(currentUser, request.getIsPublic());
-        // Map the updated entity to a DTO to be sent in the response
-        PortfolioProfileDto responseDto = portfolioProfileMapper.toDto(updatedProfile);
-        // FIX: Ensure the returned DTO is consistent with the updated entity's state.
-        responseDto.setPublic(updatedProfile.isPublic());
-
-        return ResponseEntity.ok(responseDto);
+        // The service handles the update logic.
+        PortfolioProfile updatedProfile = portfolioProfileService.updateProfileVisibility(currentUser, request.isPublic());
+        // The mapper converts the result to a full DTO for the response.
+        PortfolioProfileDto dto = portfolioProfileMapper.toDto(updatedProfile);
+        return ResponseEntity.ok(new ApiResponseWrapper<>(dto));
     }
 }

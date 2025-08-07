@@ -7,6 +7,7 @@ import com.forkmyfolio.mapper.*;
 import com.forkmyfolio.model.*;
 import com.forkmyfolio.model.enums.SkillLevel;
 import com.forkmyfolio.repository.*;
+import com.forkmyfolio.service.PortfolioProfileService;
 import com.forkmyfolio.service.RestoreService;
 import com.forkmyfolio.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class RestoreServiceImpl implements RestoreService {
     private final QualificationRepository qualificationRepository;
     private final PortfolioProfileRepository portfolioProfileRepository;
     private final SkillRepository skillRepository;
+    private final PortfolioProfileService portfolioProfileService;
 
     private final PortfolioProfileMapper portfolioProfileMapper;
     private final ProjectMapper projectMapper;
@@ -77,9 +79,8 @@ public class RestoreServiceImpl implements RestoreService {
 
     private void restoreProfile(PortfolioBackupDto backupDto, User user) {
         if (backupDto.getProfile() != null) {
-            PortfolioProfile profile = portfolioProfileRepository.findByUser(user)
-                    .orElse(new PortfolioProfile());
-            profile.setUser(user);
+            // Use the service to get or create the profile entity.
+            PortfolioProfile profile = portfolioProfileService.getProfileByUser(user);
             portfolioProfileMapper.applyUpdateFromDto(backupDto.getProfile(), profile);
             portfolioProfileRepository.save(profile);
             log.info("Restored profile for user ID: {}", user.getId());

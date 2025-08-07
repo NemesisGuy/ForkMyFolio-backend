@@ -21,23 +21,25 @@ import java.util.stream.Collectors;
 public class SkillMapper {
 
     /**
-     * Converts a global Skill entity to a basic SkillDto.
-     * This version does not include user-specific details like level or visibility.
-     * It's suitable for contexts like listing skills within a project.
+     * Converts a global Skill entity to a basic SkillDto. This should only be used
+     * when no user-specific context is available. It represents a skill without proficiency.
      *
      * @param skill The Skill entity to convert.
      * @return The corresponding basic SkillDto.
      */
-    public SkillDto toDto(Skill skill) {
+    public SkillDto toBasicDto(Skill skill) {
         if (skill == null) {
             return null;
         }
         SkillDto dto = new SkillDto();
+        // No userSkillId because there is no user context
         dto.setSkillId(skill.getUuid());
         dto.setName(skill.getName());
         dto.setCategory(skill.getCategory());
         dto.setIcon(skill.getIcon());
-        // User-specific fields (userSkillId, level, visible, description) are intentionally null.
+        // Level is null because it's user-specific
+        // Description is the global one
+        dto.setDescription(skill.getDescription());
         return dto;
     }
 

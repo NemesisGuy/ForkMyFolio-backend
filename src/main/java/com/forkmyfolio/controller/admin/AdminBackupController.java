@@ -187,41 +187,28 @@ public class AdminBackupController {
     private PortfolioBackupDto createBackupDtoForUser(User user) {
         PortfolioBackupDto backupDto = new PortfolioBackupDto();
 
-        Map<UUID, UUID> skillUuidToUserSkillUuidMap = user.getUserSkills().stream()
+        // Create the lookup map that the mappers need to build complete DTOs.
+        // The key is the global Skill UUID, and the value is the full UserSkill entity.
+        Map<UUID, UserSkill> userSkillLookup = user.getUserSkills().stream()
                 .collect(Collectors.toMap(
                         userSkill -> userSkill.getSkill().getUuid(),
-                        UserSkill::getUuid,
-                        (uuid1, uuid2) -> uuid1
+                        userSkill -> userSkill, // The value is the UserSkill itself
+                        (existing, replacement) -> existing // In case of duplicates, keep the existing one
                 ));
 
         if (user.getPortfolioProfile() != null) {
             backupDto.setProfile(portfolioProfileMapper.toDto(user.getPortfolioProfile()));
         }
 
+        // The mappers now correctly handle the inclusion of all skill details, including user-specific ones.
         backupDto.setProjects(user.getProjects().stream()
-                .map(project -> {
-                    var projectDto = projectMapper.toDto(project);
-                    if (projectDto.getSkills() != null) {
-                        projectDto.getSkills().forEach(skillDto ->
-                                skillDto.setUserSkillId(skillUuidToUserSkillUuidMap.get(skillDto.getSkillId()))
-                        );
-                    }
-                    return projectDto;
-                })
+                .map(project -> projectMapper.toDto(project, userSkillLookup))
                 .collect(Collectors.toList()));
 
         backupDto.setSkills(userSkillMapper.toDtoList(new ArrayList<>(user.getUserSkills())));
 
         backupDto.setExperiences(user.getExperiences().stream()
-                .map(experience -> {
-                    var experienceDto = experienceMapper.toDto(experience);
-                    if (experienceDto.getSkills() != null) {
-                        experienceDto.getSkills().forEach(skillDto ->
-                                skillDto.setUserSkillId(skillUuidToUserSkillUuidMap.get(skillDto.getSkillId()))
-                        );
-                    }
-                    return experienceDto;
-                })
+                .map(experience -> experienceMapper.toDto(experience, userSkillLookup))
                 .collect(Collectors.toList()));
 
         backupDto.setTestimonials(user.getTestimonials().stream()

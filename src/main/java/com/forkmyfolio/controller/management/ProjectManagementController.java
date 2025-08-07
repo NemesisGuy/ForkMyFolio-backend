@@ -7,7 +7,9 @@ import com.forkmyfolio.dto.update.UpdateProjectRequest;
 import com.forkmyfolio.mapper.ProjectMapper;
 import com.forkmyfolio.model.Project;
 import com.forkmyfolio.model.User;
+import com.forkmyfolio.model.UserSkill;
 import com.forkmyfolio.service.ProjectService;
+import com.forkmyfolio.service.UserSkillService;
 import com.forkmyfolio.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -20,12 +22,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/me/projects")
-@Tag(name = "Project Management (Me)", description = "Endpoints for the authenticated user to manage their portfolio projects.")
+@Tag(name = "Project Management (Me)", description = "Endpoints for the authenticated user to manage their own portfolio projects.")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('USER')")
 @SecurityRequirement(name = "bearerAuth")
@@ -33,6 +36,7 @@ public class ProjectManagementController {
 
     private final ProjectService projectService;
     private final UserService userService;
+    private final UserSkillService userSkillService;
     private final ProjectMapper projectMapper;
 
     @GetMapping
@@ -41,59 +45,57 @@ public class ProjectManagementController {
         User currentUser = userService.getCurrentAuthenticatedUser();
         List<Project> projects = projectService.getProjectsForUser(currentUser);
 
-        // Map the list of Project entities to a list of ProjectDtos
+        Map<UUID, UserSkill> skillLookup = userSkillService.getUserSkillLookupMap(currentUser);
+
         List<ProjectDto> projectDtos = projects.stream()
-                .map(projectMapper::toDto)
+                .map(project -> projectMapper.toDto(project, skillLookup))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(new ApiResponseWrapper<>(projectDtos));
     }
 
     @GetMapping("/{uuid}")
-    @Operation(summary = "Get a specific project by its UUID")
-    public ResponseEntity<ApiResponseWrapper<ProjectDto>> getProjectByUuid(@PathVariable UUID uuid) {
+    @Operation(summary = "Get one of my projects by its UUID")
+    public ResponseEntity<ApiResponseWrapper<ProjectDto>> getMyProjectByUuid(@PathVariable UUID uuid) {
         User currentUser = userService.getCurrentAuthenticatedUser();
         Project project = projectService.findProjectByUuidAndUser(uuid, currentUser);
-        ProjectDto projectDto = projectMapper.toDto(project);
+
+        Map<UUID, UserSkill> skillLookup = userSkillService.getUserSkillLookupMap(currentUser);
+        ProjectDto projectDto = projectMapper.toDto(project, skillLookup);
+
         return ResponseEntity.ok(new ApiResponseWrapper<>(projectDto));
     }
 
     @PostMapping
-    @Operation(summary = "Create a new project")
-    public ResponseEntity<ApiResponseWrapper<ProjectDto>> createProject(@Valid @RequestBody CreateProjectRequest request) {
+    @Operation(summary = "Create a new project for myself")
+    public ResponseEntity<ApiResponseWrapper<ProjectDto>> createMyProject(@Valid @RequestBody CreateProjectRequest createRequest) {
         User currentUser = userService.getCurrentAuthenticatedUser();
+        Project newProjectDetails = projectMapper.toEntity(createRequest);
+        newProjectDetails.setUser(currentUser); // Service needs the owner
 
-        // Map the incoming DTO to a Project entity
-        Project projectToCreate = projectMapper.toEntity(request);
-        projectToCreate.setUser(currentUser); // Associate the project with the current user
+        Project createdProject = projectService.createProject(newProjectDetails, createRequest.getSkills());
 
-        // The service layer operates on the pure entity
-        Project createdProject = projectService.createProject(projectToCreate, request.getSkills());
-
-        // Map the resulting entity back to a DTO for the response
-        ProjectDto responseDto = projectMapper.toDto(createdProject);
-        return new ResponseEntity<>(new ApiResponseWrapper<>(responseDto), HttpStatus.CREATED);
+        Map<UUID, UserSkill> skillLookup = userSkillService.getUserSkillLookupMap(currentUser);
+        ProjectDto createdDto = projectMapper.toDto(createdProject, skillLookup);
+        return new ResponseEntity<>(new ApiResponseWrapper<>(createdDto), HttpStatus.CREATED);
     }
 
     @PutMapping("/{uuid}")
-    @Operation(summary = "Update an existing project")
-    public ResponseEntity<ApiResponseWrapper<ProjectDto>> updateProject(@PathVariable UUID uuid, @Valid @RequestBody UpdateProjectRequest request) {
+    @Operation(summary = "Update one of my projects")
+    public ResponseEntity<ApiResponseWrapper<ProjectDto>> updateMyProject(@PathVariable UUID uuid, @Valid @RequestBody UpdateProjectRequest updateRequest) {
         User currentUser = userService.getCurrentAuthenticatedUser();
+        Project updatedProjectData = projectMapper.toEntity(updateRequest);
 
-        // Map the incoming DTO to a Project entity containing the updated data
-        Project projectWithUpdates = projectMapper.toEntity(request);
+        Project updatedProject = projectService.updateProject(uuid, updatedProjectData, updateRequest.getSkills(), currentUser);
 
-        // The service layer handles the update logic using the pure entity
-        Project updatedProject = projectService.updateProject(uuid, projectWithUpdates, request.getSkills(), currentUser);
-
-        // Map the updated entity back to a DTO for the response
-        ProjectDto responseDto = projectMapper.toDto(updatedProject);
-        return ResponseEntity.ok(new ApiResponseWrapper<>(responseDto));
+        Map<UUID, UserSkill> skillLookup = userSkillService.getUserSkillLookupMap(currentUser);
+        ProjectDto updatedDto = projectMapper.toDto(updatedProject, skillLookup);
+        return ResponseEntity.ok(new ApiResponseWrapper<>(updatedDto));
     }
 
     @DeleteMapping("/{uuid}")
-    @Operation(summary = "Delete a project")
-    public ResponseEntity<Void> deleteProject(@PathVariable UUID uuid) {
+    @Operation(summary = "Delete one of my projects")
+    public ResponseEntity<Void> deleteMyProject(@PathVariable UUID uuid) {
         User currentUser = userService.getCurrentAuthenticatedUser();
         projectService.deleteProject(uuid, currentUser);
         return ResponseEntity.noContent().build();

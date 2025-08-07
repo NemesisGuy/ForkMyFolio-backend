@@ -1,10 +1,7 @@
 package com.forkmyfolio.service.impl;
 
-import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.model.PortfolioProfile;
 import com.forkmyfolio.model.User;
-import com.forkmyfolio.repository.PortfolioProfileRepository;
-import com.forkmyfolio.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,16 +21,21 @@ public class VCardService {
 
     private static final Logger log = LoggerFactory.getLogger(VCardService.class);
 
-    private final UserRepository userRepository;
-    private final PortfolioProfileRepository portfolioProfileRepository;
-
-    @Transactional(readOnly = true)
-    public VCardFile generateVCard(String slug) {
-        User user = userRepository.findBySlugAndActiveTrue(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("Portfolio not found for slug: " + slug));
-
-        PortfolioProfile profile = portfolioProfileRepository.findByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("Portfolio profile not found for user: " + user.getEmail()));
+    /**
+     * Generates a vCard file from a user's portfolio profile.
+     * This service method operates on the domain model provided by the controller.
+     *
+     * @param profile The fully populated PortfolioProfile of the user.
+     * @return A record containing the vCard content and a suggested filename.
+     */
+    public VCardFile generateVCard(PortfolioProfile profile) {
+        if (profile == null) {
+            throw new IllegalArgumentException("PortfolioProfile cannot be null when generating a vCard.");
+        }
+        User user = profile.getUser();
+        if (user == null) {
+            throw new IllegalStateException("PortfolioProfile must have an associated User to generate a vCard.");
+        }
 
         String fullName = user.getFirstName() + " " + user.getLastName();
 
@@ -50,9 +52,9 @@ public class VCardService {
             vcfBuilder.append("URL:").append(profile.getWebsiteUrl()).append("\n");
         }
 
-        // --- NEW: Add Photo from URL ---
-        if (profile.getResumeImageUrl() != null && !profile.getResumeImageUrl().isBlank()) {
-            getBase64ImageFromUrl(profile.getResumeImageUrl()).ifPresent(base64Image -> {
+        // Use the user's main profile image for the vCard photo.
+        if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isBlank()) {
+            getBase64ImageFromUrl(user.getProfileImageUrl()).ifPresent(base64Image -> {
                 // Assuming JPEG format, which is common. A more advanced implementation
                 // could inspect the image bytes or URL to determine the type.
                 vcfBuilder.append("PHOTO;TYPE=JPEG;ENCODING=BASE64:").append(base64Image).append("\n");

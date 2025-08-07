@@ -1,5 +1,6 @@
 package com.forkmyfolio.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.forkmyfolio.model.enums.SkillLevel;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -29,7 +30,7 @@ public class UserSkill {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-
+    @JsonBackReference("user-userskills")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)

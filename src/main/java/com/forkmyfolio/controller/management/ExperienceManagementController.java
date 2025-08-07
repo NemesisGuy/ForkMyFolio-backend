@@ -9,6 +9,7 @@ import com.forkmyfolio.model.Experience;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.model.UserSkill;
 import com.forkmyfolio.service.ExperienceService;
+import com.forkmyfolio.service.UserSkillService;
 import com.forkmyfolio.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -35,20 +36,18 @@ public class ExperienceManagementController {
 
     private final ExperienceService experienceService;
     private final UserService userService;
+    private final UserSkillService userSkillService;
     private final ExperienceMapper experienceMapper;
 
     @GetMapping
     @Operation(summary = "Get all of my experiences")
     public ResponseEntity<ApiResponseWrapper<List<ExperienceDto>>> getMyExperiences() {
-        // Fetch the user with all portfolio data to provide context for skill mapping.
-        User currentUser = userService.getCurrentAuthenticatedUserWithAllPortfolioData();
+        User currentUser = userService.getCurrentAuthenticatedUser();
         List<Experience> experiences = experienceService.getExperiencesForUser(currentUser);
 
-        // Create the skill lookup map for context.
-        Map<UUID, UserSkill> skillLookup = currentUser.getUserSkills().stream()
-                .collect(Collectors.toMap(us -> us.getSkill().getUuid(), us -> us));
+        // The controller gets the context map and passes it to the mapper.
+        Map<UUID, UserSkill> skillLookup = userSkillService.getUserSkillLookupMap(currentUser);
 
-        // Use the context-aware mapper to get rich skill details.
         List<ExperienceDto> experienceDtos = experiences.stream()
                 .map(experience -> experienceMapper.toDto(experience, skillLookup))
                 .collect(Collectors.toList());
@@ -59,16 +58,13 @@ public class ExperienceManagementController {
     @GetMapping("/{uuid}")
     @Operation(summary = "Get one of my experiences by its UUID")
     public ResponseEntity<ApiResponseWrapper<ExperienceDto>> getMyExperienceByUuid(@PathVariable UUID uuid) {
-        // Fetch the user with all portfolio data to provide context for skill mapping.
-        User currentUser = userService.getCurrentAuthenticatedUserWithAllPortfolioData();
+        User currentUser = userService.getCurrentAuthenticatedUser();
         Experience experience = experienceService.findExperienceByUuidAndUser(uuid, currentUser);
 
-        // Create the skill lookup map for context.
-        Map<UUID, UserSkill> skillLookup = currentUser.getUserSkills().stream()
-                .collect(Collectors.toMap(us -> us.getSkill().getUuid(), us -> us));
-
-        // Use the context-aware mapper to get rich skill details.
+        // The controller gets the context map and passes it to the mapper.
+        Map<UUID, UserSkill> skillLookup = userSkillService.getUserSkillLookupMap(currentUser);
         ExperienceDto experienceDto = experienceMapper.toDto(experience, skillLookup);
+
         return ResponseEntity.ok(new ApiResponseWrapper<>(experienceDto));
     }
 
@@ -83,8 +79,9 @@ public class ExperienceManagementController {
         // Controller passes the transient entity and owner to the service.
         Experience createdExperience = experienceService.createExperience(newExperienceDetails, createRequest.getSkills(), currentUser);
 
-        // Map the persisted entity back to a DTO for the response.
-        ExperienceDto createdDto = experienceMapper.toDto(createdExperience);
+        // Get the context map to build a complete DTO for the response.
+        Map<UUID, UserSkill> skillLookup = userSkillService.getUserSkillLookupMap(currentUser);
+        ExperienceDto createdDto = experienceMapper.toDto(createdExperience, skillLookup);
         return new ResponseEntity<>(new ApiResponseWrapper<>(createdDto), HttpStatus.CREATED);
     }
 
@@ -99,8 +96,9 @@ public class ExperienceManagementController {
         // Controller passes the transient entity, skills, and owner to the service.
         Experience updatedExperience = experienceService.updateExperience(uuid, updatedExperienceData, updateRequest.getSkills(), currentUser);
 
-        // Map the persisted entity back to a DTO for the response.
-        ExperienceDto updatedDto = experienceMapper.toDto(updatedExperience);
+        // Get the context map to build a complete DTO for the response.
+        Map<UUID, UserSkill> skillLookup = userSkillService.getUserSkillLookupMap(currentUser);
+        ExperienceDto updatedDto = experienceMapper.toDto(updatedExperience, skillLookup);
         return ResponseEntity.ok(new ApiResponseWrapper<>(updatedDto));
     }
 

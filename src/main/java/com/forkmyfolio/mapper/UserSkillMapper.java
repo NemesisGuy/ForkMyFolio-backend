@@ -59,4 +59,31 @@ public class UserSkillMapper {
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Converts a UserSkillDto (typically from a backup) to a new, transient UserSkill entity.
+     * <p>
+     * Note: This method only maps the direct properties from the DTO. The service layer is
+     * responsible for setting the associated {@link com.forkmyfolio.model.User} and
+     * {@link com.forkmyfolio.model.Skill} entities before persisting.
+     *
+     * @param dto The DTO containing the user-skill data.
+     * @return A new, transient UserSkill entity.
+     */
+    public UserSkill toEntity(UserSkillDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        UserSkill userSkill = new UserSkill();
+
+        // Preserve the original UUID from the backup DTO.
+        // The @PrePersist on the entity will generate a new one if this is null.
+        userSkill.setUuid(dto.getUserSkillId());
+
+        userSkill.setLevel(dto.getLevel());
+        userSkill.setVisible(dto.isVisible());
+        userSkill.setDescription(dto.getDescription());
+
+        return userSkill;
+    }
 }

@@ -3,61 +3,59 @@ package com.forkmyfolio.dto.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-/**
- * DTO representing the publicly accessible portfolio profile.
- * This object aggregates all the necessary information for the main profile/about page.
- */
+
 @Data
-@NoArgsConstructor
-@Schema(name = "PortfolioProfileDto", description = "Publicly available profile information for the portfolio owner.")
+@Schema(description = "Represents the user's main portfolio profile, including user details.")
 public class PortfolioProfileDto {
 
-    /**
-     * The master visibility toggle for the entire portfolio.
-     * This is the FIX: This field was missing, causing the frontend to not receive the portfolio's status.
-     */
-    private boolean isPublic;
-    // --- From User Entity ---
-    @Schema(description = "The first name of the portfolio owner.", example = "Jane")
+    @Schema(description = "The user's unique URL slug.", example = "jane-doe")
+    private String slug;
+
+    @Schema(description = "The user's first name.", example = "Jane")
     private String firstName;
 
-    @Schema(description = "The last name of the portfolio owner.", example = "Doe")
+    @Schema(description = "The user's last name.", example = "Doe")
     private String lastName;
 
-    // --- From PortfolioProfile Entity ---
-    @Schema(description = "A professional headline for the profile.", example = "Full-Stack Software Engineer | Java & Vue.js Specialist")
+    @Schema(description = "A professional headline.", example = "Full-Stack Java Developer")
     private String headline;
 
-    @Schema(description = "A detailed summary or biography.", example = "A passionate developer with five years of experience...")
+    @Schema(description = "A summary of the user's professional background.")
     private String summary;
 
-    @Schema(description = "The main profile image URL.", example = "https://example.com/profile.png")
-    @JsonProperty("profileImageUrl") // Ensure consistent naming with other DTOs
-    private String imageUrl;
-
-    @Schema(description = "The user's general location.", example = "San Francisco, CA")
+    @Schema(description = "The user's location.", example = "San Francisco, CA")
     private String location;
 
-    @Schema(description = "A public email address for contact.", example = "contact.jane@example.com")
+    @Schema(description = "A public-facing email address.", example = "contact.me@example.com")
     private String publicEmail;
 
-    @Schema(description = "URL to a personal website or blog.", example = "https://jane-doe-portfolio.com")
+    @Schema(description = "URL to the user's personal or professional website.")
     private String websiteUrl;
 
-    @Schema(description = "URL to the user's LinkedIn profile.", example = "https://linkedin.com/in/janedoe")
+    @Schema(description = "URL to the user's LinkedIn profile.")
     private String linkedinUrl;
 
-    @Schema(description = "URL to the user's GitHub profile.", example = "https://github.com/janedoe")
+    @Schema(description = "URL to the user's GitHub profile.")
     private String githubUrl;
 
-    @Schema(description = "URL to a downloadable PDF version of the user's resume.", example = "https://example.com/jane-doe-resume.pdf")
+    @Schema(description = "URL to the user's downloadable resume file.")
     private String resumeUrl;
 
-    @Schema(description = "URL to a preview image of the resume.", example = "https://example.com/resume-preview.png")
+    @Schema(description = "URL to an image of the user's resume.")
     private String resumeImageUrl;
 
-    @Schema(description = "A generic cover letter template that can be displayed on the portfolio.", example = "Dear Hiring Manager, I am excited to apply for...")
+    @Schema(description = "A template for cover letters.")
     private String coverLetterTemplate;
+
+    @Schema(description = "Master toggle for the entire portfolio's public visibility.")
+    @JsonProperty("isPublic")
+    private boolean isPublic;
+
+    @Schema(description = "URL to the user's main profile image.")
+    private String profileImageUrl;
+
+    @Schema(description = "Toggle for the visibility of the profile summary section.")
+    private boolean visible;
+
 }
