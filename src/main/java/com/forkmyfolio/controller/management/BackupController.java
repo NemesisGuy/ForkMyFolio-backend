@@ -62,8 +62,8 @@ public class BackupController {
     @Operation(summary = "Backup my entire portfolio", description = "Downloads a versioned JSON file containing all of the authenticated user's portfolio data.")
     @SkipApiResponseWrapper
     public ResponseEntity<byte[]> downloadBackup() throws IOException {
-        // FIX: Use the correct service method to fetch the user with all portfolio data eagerly.
-        User currentUser = userService.getCurrentAuthenticatedUserWithAllPortfolioData();
+        // Use the service method that eagerly fetches all portfolio data to prevent LazyInitializationException.
+        User currentUser = userService.getCurrentAuthenticatedUserWithAllPortfolioData(); // This is the fix.
         PortfolioBackupDto backupData = createBackupDtoForUser(currentUser);
 
         BackupMetaDto meta = BackupMetaDto.builder()

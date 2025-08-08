@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
@@ -73,6 +74,9 @@ public class UserDto {
      */
     private boolean active;
 
+
+    private Instant termsAcceptedAt;
+    private String termsVersion;
 
     /**
      * Timestamp of when the user account was created.

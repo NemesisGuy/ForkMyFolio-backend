@@ -1,8 +1,10 @@
 package com.forkmyfolio.service.impl;
 
+import com.forkmyfolio.exception.ResourceNotFoundException;
 import com.forkmyfolio.model.*;
 import com.forkmyfolio.repository.*;
 import com.forkmyfolio.service.PortfolioProfileService;
+import com.forkmyfolio.service.UserService;
 import com.forkmyfolio.service.pdf.PortfolioData;
 import com.forkmyfolio.service.pdf.templates.*;
 import com.itextpdf.io.font.constants.StandardFonts;
@@ -51,6 +53,8 @@ public class PdfGenerationService {
     private final ProjectRepository projectRepository;
     private final QualificationRepository qualificationRepository;
     private final PortfolioProfileService portfolioProfileService;
+    private final SettingRepository settingRepository;
+    private final UserService userService;
 
     //</editor-fold>
     // A map to hold available templates. This makes adding new ones easy.
@@ -94,20 +98,35 @@ public class PdfGenerationService {
      */
     @Transactional(readOnly = true)
     public PdfFile generatePortfolioPdf(User user, String templateName) {
-        log.info("Starting PDF generation process for user '{}' with template: {}", user.getSlug(), templateName);
+        // The user object passed in is detached. We must fetch a fresh, fully-initialized
+        // user within this transaction to avoid LazyInitializationException on collections like 'userSettings'.
+        User freshUser = userService.findBySlugWithAllPortfolioData(user.getSlug())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with slug: " + user.getSlug()));
+
+        // The templateName parameter is now ignored in favor of settings.
+        // This ensures the user's chosen default is always respected for their portfolio.
+        String effectiveTemplateName = freshUser.getUserSettings().stream()
+                .filter(s -> "portfolio.pdf.template".equals(s.getName()))
+                .map(UserSetting::getValue)
+                .findFirst()
+                .orElseGet(() -> settingRepository.findByName("portfolio.pdf.template")
+                        .map(Setting::getValue)
+                        .orElse("modern")); // Final fallback if user and global settings are missing.
+
+        log.info("Starting PDF generation process for user '{}' with effective template: {}", freshUser.getSlug(), effectiveTemplateName);
 
         // FIX: The 'profile' variable was missing. It needs to be fetched using the
         // PortfolioProfileService to ensure the get-or-create logic is applied.
-        PortfolioProfile profile = portfolioProfileService.getProfileByUser(user);
+        PortfolioProfile profile = portfolioProfileService.getProfileByUser(freshUser);
         // Fetch all items for the specific user, using sorted methods where appropriate.
-        List<Experience> experiences = experienceRepository.findByUserOrderByDisplayOrderAsc(user);
-        List<Qualification> qualifications = qualificationRepository.findByUserOrderByCompletionYearDescStartYearDesc(user);
-        List<Project> projects = projectRepository.findByUserOrderByDisplayOrderAsc(user);
+        List<Experience> experiences = experienceRepository.findByUserOrderByDisplayOrderAsc(freshUser);
+        List<Qualification> qualifications = qualificationRepository.findByUserOrderByCompletionYearDescStartYearDesc(freshUser);
+        List<Project> projects = projectRepository.findByUserOrderByDisplayOrderAsc(freshUser);
 
         // The User entity now holds the skill relationships. We must fetch from there.
         // We also need to construct a transient Skill object for the PDF data,
         // combining global skill info with user-specific details.
-        List<Skill> skills = user.getUserSkills().stream()
+        List<Skill> skills = freshUser.getUserSkills().stream()
                 .filter(UserSkill::isVisible) // Only include skills the user wants to show
                 .map(userSkill -> {
                     Skill globalSkill = userSkill.getSkill();
@@ -126,12 +145,12 @@ public class PdfGenerationService {
 
         PortfolioData portfolioData = new PortfolioData(profile, experiences, qualifications, projects, skills);
 
-        log.info("Generating PDF for user: {}", user.getEmail());
+        log.info("Generating PDF for user: {}", freshUser.getEmail());
 
         // 2. Select the template
-        PortfolioPdfTemplate template = templates.get(templateName.toLowerCase());
+        PortfolioPdfTemplate template = templates.get(effectiveTemplateName.toLowerCase());
         if (template == null) {
-            log.error("Requested PDF template '{}' not found. Defaulting to 'modern'.", templateName);
+            log.error("Effective PDF template '{}' not found. Defaulting to 'modern'.", effectiveTemplateName);
             template = templates.get("modern");
         }
 
@@ -154,8 +173,8 @@ public class PdfGenerationService {
 
         log.info("PDF generation complete. Final document size: {} bytes.", baos.size());
         String filename = String.format("%s%s-Resume-%s.pdf",
-                user.getFirstName(),
-                user.getLastName(),
+                freshUser.getFirstName(),
+                freshUser.getLastName(),
                 LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
         );
         return new PdfFile(baos.toByteArray(), filename);

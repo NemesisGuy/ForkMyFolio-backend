@@ -65,12 +65,15 @@ public class SettingServiceImpl implements SettingService {
     public void createDefaultSettings() {
         log.info("Checking and initializing default application settings...");
         createSettingIfNotExists("portfolio.theme", "modern", "The visual theme for the public portfolio.");
-        createSettingIfNotExists("portfolio.contact.enabled", "true", "Enable or disable the contact form on the public portfolio.");
+        // FIX: Normalize setting name from .enabled to .show for consistency.
+        createSettingIfNotExists("portfolio.contact.show", "true", "Show or hide the contact form on the public portfolio.");
         createSettingIfNotExists("portfolio.testimonials.show", "true", "Show or hide the testimonials section.");
         createSettingIfNotExists("portfolio.projects.show", "true", "Show or hide the projects section.");
         createSettingIfNotExists("portfolio.experience.show", "true", "Show or hide the experience section.");
         createSettingIfNotExists("portfolio.qualifications.show", "true", "Show or hide the qualifications section.");
         createSettingIfNotExists("portfolio.skills.show", "true", "Show or hide the skills section.");
+        // Revert default PDF template to 'modern'.
+        createSettingIfNotExists("portfolio.pdf.template", "modern", "The default PDF template for generated resumes. Users can override this in their personal settings.");
         log.info("Default settings initialization complete.");
     }
 

@@ -30,7 +30,7 @@ public class VCardController {
     private final PortfolioService portfolioService;
     private final VisitorStatsService visitorStatsService;
 
-    @GetMapping("/download")
+    @GetMapping()
     @TrackVisitor(VisitorStatType.VCARD_DOWNLOAD)
     @SkipApiResponseWrapper
     public ResponseEntity<byte[]> downloadVCard(@PathVariable String slug) {

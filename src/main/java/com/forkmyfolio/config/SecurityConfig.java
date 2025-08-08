@@ -99,7 +99,9 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/h2-console/**"
+                                "/h2-console/**",
+                                // FIX: Allow public access to policy endpoints for registration and viewing.
+                                "/api/v1/policies/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/settings",

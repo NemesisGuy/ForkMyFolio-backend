@@ -106,6 +106,20 @@ public class User implements UserDetails {
      */
     private String providerId;
 
+    /**
+     * Timestamp of when the user accepted the Terms of Service and Privacy Policy.
+     * Important for POPIA compliance. Can be null for users created before this feature.
+     */
+    @Column(name = "terms_accepted_at")
+    private Instant termsAcceptedAt;
+
+    /**
+     * The version of the terms the user accepted (e.g., a version number or date string 'YYYY-MM-DD').
+     * This provides an auditable record of which policy version was agreed to.
+     */
+    @Column(name = "terms_version")
+    private String termsVersion;
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonManagedReference("user-profile")
     private PortfolioProfile portfolioProfile;

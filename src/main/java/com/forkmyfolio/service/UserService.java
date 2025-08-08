@@ -41,7 +41,7 @@ public interface UserService {
     User getCurrentAuthenticatedUser();
 
     /**
-     * FIX: Retrieves the currently authenticated user with all portfolio data eagerly fetched.
+     * Retrieves the currently authenticated user with all portfolio data eagerly fetched.
      * This is the required method for generating complete backups to avoid lazy loading issues.
      *
      * @return The fully initialized {@link User} object.
@@ -95,7 +95,7 @@ public interface UserService {
     Optional<User> findBySlug(String slug);
 
     /**
-     * FIX: Finds a user by slug with all portfolio data eagerly fetched.
+     * Finds a user by slug with all portfolio data eagerly fetched.
      *
      * @param slug The slug to search for.
      * @return An {@link Optional} containing the fully initialized {@link User}.
@@ -129,4 +129,6 @@ public interface UserService {
      * @return A list of fully initialized User entities.
      */
     List<User> getAllUsersWithPortfolioData();
+
+
 }

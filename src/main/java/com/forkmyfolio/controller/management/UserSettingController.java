@@ -1,4 +1,4 @@
-package com.forkmyfolio.controller;
+package com.forkmyfolio.controller.management;
 
 import com.forkmyfolio.advice.ApiResponseWrapper;
 import com.forkmyfolio.dto.response.UserSettingDto;

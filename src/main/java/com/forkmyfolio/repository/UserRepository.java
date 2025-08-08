@@ -25,21 +25,40 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsBySlug(String candidate);
 
-    @Query("SELECT u FROM User u")
+    // FIX: This query now eagerly fetches all related portfolio collections for all users,
+    // preventing LazyInitializationException and N+1 query problems in the backup process.
+    @Query("SELECT DISTINCT u FROM User u " +
+            "LEFT JOIN FETCH u.portfolioProfile " +
+            "LEFT JOIN FETCH u.projects p LEFT JOIN FETCH p.skills " +
+            "LEFT JOIN FETCH u.userSkills us LEFT JOIN FETCH us.skill " +
+            "LEFT JOIN FETCH u.experiences e LEFT JOIN FETCH e.skills " +
+            "LEFT JOIN FETCH u.qualifications " +
+            "LEFT JOIN FETCH u.testimonials")
     List<User> findAllWithPortfolioData();
 
-    @Query("SELECT u FROM User u WHERE u.slug = :slug")
+    // FIX: This query now eagerly fetches all related portfolio collections for a specific user by slug.
+    @Query("SELECT DISTINCT u FROM User u " +
+            "LEFT JOIN FETCH u.portfolioProfile " +
+            "LEFT JOIN FETCH u.projects p LEFT JOIN FETCH p.skills " +
+            "LEFT JOIN FETCH u.userSkills us LEFT JOIN FETCH us.skill " +
+            "LEFT JOIN FETCH u.experiences e LEFT JOIN FETCH e.skills " +
+            "LEFT JOIN FETCH u.qualifications " +
+            "LEFT JOIN FETCH u.testimonials " +
+            "WHERE u.slug = :slug")
     Optional<User> findBySlugWithAllPortfolioData(@Param("slug") String slug);
 
     Optional<User> findByUuid(UUID uuid);
 
     boolean existsByEmail(String email);
 
-    /**
-     * Finds a user by their email address. The service layer is responsible for initializing any needed portfolio data.
-     * @param email The user's email.
-     * @return An Optional containing the User, if found.
-     */
-    @Query("SELECT u FROM User u WHERE u.email = :email")
+    // FIX: This query now eagerly fetches all related portfolio collections for a specific user by email.
+    @Query("SELECT DISTINCT u FROM User u " +
+            "LEFT JOIN FETCH u.portfolioProfile " +
+            "LEFT JOIN FETCH u.projects p LEFT JOIN FETCH p.skills " +
+            "LEFT JOIN FETCH u.userSkills us LEFT JOIN FETCH us.skill " +
+            "LEFT JOIN FETCH u.experiences e LEFT JOIN FETCH e.skills " +
+            "LEFT JOIN FETCH u.qualifications " +
+            "LEFT JOIN FETCH u.testimonials " +
+            "WHERE u.email = :email")
     Optional<User> findByEmailWithAllPortfolioData(@Param("email") String email);
 }

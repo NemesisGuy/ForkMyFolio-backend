@@ -82,4 +82,32 @@ public class PortfolioProfileMapper {
         entity.setVisible(dto.isVisible());
         entity.setPublic(dto.isPublic());
     }
+
+    /**
+     * Converts a PortfolioProfileDto (from a backup) to a new PortfolioProfile entity.
+     *
+     * @param dto  The DTO with profile data.
+     * @param user The user who will own this profile.
+     * @return A new PortfolioProfile entity.
+     */
+    public PortfolioProfile toEntityFromDto(PortfolioProfileDto dto, User user) {
+        if (dto == null) {
+            return null;
+        }
+        PortfolioProfile profile = new PortfolioProfile();
+        profile.setUser(user);
+        profile.setHeadline(dto.getHeadline());
+        profile.setSummary(dto.getSummary());
+        profile.setPublicEmail(dto.getPublicEmail());
+        profile.setWebsiteUrl(dto.getWebsiteUrl());
+        profile.setLinkedinUrl(dto.getLinkedinUrl());
+        profile.setGithubUrl(dto.getGithubUrl());
+        profile.setResumeUrl(dto.getResumeUrl());
+        profile.setResumeImageUrl(dto.getResumeImageUrl());
+        profile.setLocation(dto.getLocation());
+        profile.setCoverLetterTemplate(dto.getCoverLetterTemplate());
+        profile.setVisible(dto.isVisible());
+        profile.setPublic(dto.isPublic());
+        return profile;
+    }
 }

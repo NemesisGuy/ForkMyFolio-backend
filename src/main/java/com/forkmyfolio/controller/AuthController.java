@@ -10,6 +10,7 @@ import com.forkmyfolio.mapper.UserMapper;
 import com.forkmyfolio.model.RefreshToken;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.security.JwtTokenProvider;
+import com.forkmyfolio.service.AuthService;
 import com.forkmyfolio.service.RefreshTokenService;
 import com.forkmyfolio.service.UserService;
 import com.forkmyfolio.service.impl.VisitorStatsService;
@@ -48,6 +49,7 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
+    private final AuthService authService;
     private final JwtTokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final UserMapper userMapper;
@@ -55,9 +57,10 @@ public class AuthController {
     private final AppProperties appProperties;
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, UserService userService, JwtTokenProvider tokenProvider, RefreshTokenService refreshTokenService, UserMapper userMapper, VisitorStatsService visitorStatsService, AppProperties appProperties) {
+    public AuthController(AuthenticationManager authenticationManager, UserService userService, AuthService authService, JwtTokenProvider tokenProvider, RefreshTokenService refreshTokenService, UserMapper userMapper, VisitorStatsService visitorStatsService, AppProperties appProperties) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
+        this.authService = authService;
         this.tokenProvider = tokenProvider;
         this.refreshTokenService = refreshTokenService;
         this.userMapper = userMapper;
@@ -66,18 +69,11 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    @Operation(summary = "Register a new user")
+    @Operation(summary = "Register a new user", description = "Creates a new user account after they accept the terms of service.")
     public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
         logger.info("Received registration request for email: {}", registerRequest.getEmail());
-        User registeredUser = userService.registerUser(
-                registerRequest.getEmail(),
-                registerRequest.getPassword(),
-                registerRequest.getFirstName(),
-                registerRequest.getLastName(),
-                registerRequest.getProfileImageUrl(),
-                null, // Roles are set by default in the service for public registration
-                null  // Active status is set by default in the service
-        );
+        // The AuthService now handles all registration logic, including setting POPIA compliance fields.
+        User registeredUser = authService.registerUser(registerRequest);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(registeredUser, null, registeredUser.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);

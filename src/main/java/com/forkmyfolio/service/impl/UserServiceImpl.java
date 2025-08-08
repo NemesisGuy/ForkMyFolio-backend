@@ -149,12 +149,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.findBySlugAndActiveTrue(slug);
     }
 
-    /**
-     * FIX: Finds a user by slug with all portfolio data eagerly fetched.
-     *
-     * @param slug The slug to search for.
-     * @return An {@link Optional} containing the fully initialized {@link User}.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<User> findBySlugWithAllPortfolioData(String slug) {
