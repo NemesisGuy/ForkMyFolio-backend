@@ -36,13 +36,10 @@ public class VCardController {
     public ResponseEntity<byte[]> downloadVCard(@PathVariable String slug) {
         log.info("GET /api/v1/portfolios/{}/vcard/download - Received request for vCard", slug);
         try {
-            // FIX: Use the PortfolioService to get the user by their public slug.
-            // This aligns with the RESTful architecture and fixes the compilation error.
+
             User user = portfolioService.getPublicPortfolioUserBySlug(slug);
             PortfolioProfile profile = user.getPortfolioProfile();
 
-            // FIX: The vCard service needs the actual profile data, not its string representation.
-            // The previous implementation `String.valueOf(profile)` was incorrect.
             VCardService.VCardFile vCardFile = vCardService.generateVCard(profile);
 
             HttpHeaders headers = new HttpHeaders();
