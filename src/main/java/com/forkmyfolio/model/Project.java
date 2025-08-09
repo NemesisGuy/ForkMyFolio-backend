@@ -72,7 +72,9 @@ public class Project {
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
-    @JsonManagedReference("project-skills") // FIX: Added to manage the Project -> Skill relationship.
+    // FIX: Removed @JsonManagedReference. This annotation is not suitable for ManyToMany relationships
+    // and was causing an InvalidDefinitionException during startup when deserializing skills.
+    // The manual DTO mappers already handle the relationship correctly, preventing serialization loops.
     private Set<Skill> skills = new HashSet<>();
 
     /**

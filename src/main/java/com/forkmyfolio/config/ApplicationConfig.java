@@ -27,7 +27,6 @@ public class ApplicationConfig {
      */
     @Bean
     public AuthenticationProvider authenticationProvider(
-            // THE FIX IS HERE: Add @Qualifier with the specific bean name
             @Qualifier("userServiceImpl") UserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder
     ) {

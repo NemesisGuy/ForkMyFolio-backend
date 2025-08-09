@@ -8,11 +8,14 @@ import com.forkmyfolio.model.*;
 import com.forkmyfolio.repository.*;
 import com.forkmyfolio.service.RestoreService;
 import com.forkmyfolio.service.UserService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.TreeMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Map;
@@ -27,6 +30,7 @@ public class RestoreServiceImpl implements RestoreService {
 
     // Services
     private final UserService userService;
+    private final EntityManager entityManager;
 
     // Repositories for data manipulation
     private final UserRepository userRepository;
@@ -123,25 +127,59 @@ public class RestoreServiceImpl implements RestoreService {
      */
     private void performRestore(User user, PortfolioBackupDto backupData) {
         // 1. Clear existing portfolio data for the user to ensure a clean restore
-        userSkillRepository.deleteAll(user.getUserSkills());
-        projectRepository.deleteAll(user.getProjects());
-        experienceRepository.deleteAll(user.getExperiences());
+        // FIX: After deleting entities from the database, we must also clear the in-memory
+        // collections on the managed User entity. This prevents Hibernate from having a stale
+        // view of the collections, which can cause data integrity errors during the restore.
+        if (!user.getUserSkills().isEmpty()) {
+            userSkillRepository.deleteAll(user.getUserSkills());
+            user.getUserSkills().clear();
+        }
+        if (!user.getProjects().isEmpty()) {
+            projectRepository.deleteAll(user.getProjects());
+            user.getProjects().clear();
+        }
+        if (!user.getExperiences().isEmpty()) {
+            experienceRepository.deleteAll(user.getExperiences());
+            user.getExperiences().clear();
+        }
         qualificationRepository.deleteAll(user.getQualifications());
         testimonialRepository.deleteAll(user.getTestimonials());
+        user.getQualifications().clear();
+        user.getTestimonials().clear();
+
         if (user.getPortfolioProfile() != null) {
-            portfolioProfileRepository.delete(user.getPortfolioProfile());
+            // FIX: Explicitly break the association from the User side before deleting the profile.
+            // This prevents a DataIntegrityViolationException caused by the persistence context
+            // still thinking the user is linked to a profile when trying to save a new one.
+            PortfolioProfile profileToDelete = user.getPortfolioProfile();
+            user.setPortfolioProfile(null);
+            portfolioProfileRepository.delete(profileToDelete);
         }
+
+        // FIX: Force a flush to execute all pending DELETE statements before we start INSERTing.
+        // This synchronizes the persistence context with the database, resolving the
+        // DataIntegrityViolationException.
+        entityManager.flush();
 
         // 2. Restore Portfolio Profile
         if (backupData.getProfile() != null) {
             // FIX: Use the correct mapper method to create an entity from the backup DTO.
             PortfolioProfile profile = portfolioProfileMapper.toEntityFromDto(backupData.getProfile(), user);
+            user.setPortfolioProfile(profile); // Maintain bidirectional consistency for the managed entity
             portfolioProfileRepository.save(profile);
         }
 
         // 3. Restore Skills
+        // FIX: Use a case-insensitive TreeMap for the skill cache. This prevents duplicate
+        // skill creation attempts if the backup data has different casing (e.g., "java" vs "Java")
+        // than what's already in the database, which often has a case-insensitive unique constraint.
         Map<String, Skill> skillCache = skillRepository.findAll().stream()
-                .collect(Collectors.toMap(Skill::getName, Function.identity()));
+                .collect(Collectors.toMap(
+                        Skill::getName,
+                        Function.identity(),
+                        (existing, replacement) -> existing, // In case of case-insensitive duplicates, keep the first one.
+                        () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)
+                ));
 
         List<UserSkill> restoredUserSkills = backupData.getSkills().stream().map(userSkillDto -> {
             Skill skill = skillCache.computeIfAbsent(userSkillDto.getName(), name -> {
@@ -149,11 +187,22 @@ public class RestoreServiceImpl implements RestoreService {
                 newSkill.setName(name);
                 newSkill.setCategory(userSkillDto.getCategory());
                 newSkill.setIcon(userSkillDto.getIcon());
+                // A new global skill created during a user restore should not have a description
+                // set from a user-specific context. It can be null and updated by an admin later.
                 return skillRepository.save(newSkill);
             });
             UserSkill userSkill = userSkillMapper.toEntity(userSkillDto);
             userSkill.setUser(user);
             userSkill.setSkill(skill);
+
+            // FIX: All skills restored from a backup should default to being visible.
+            userSkill.setVisible(true);
+
+            // If the user-specific description from the backup is empty,
+            // fall back to using the description from the global skill pool.
+            if (!StringUtils.hasText(userSkill.getDescription())) {
+                userSkill.setDescription(skill.getDescription());
+            }
             return userSkill;
         }).collect(Collectors.toList());
         userSkillRepository.saveAll(restoredUserSkills);
@@ -170,7 +219,7 @@ public class RestoreServiceImpl implements RestoreService {
                 // FIX: Use the correct mapper method and pass the user context.
                 Project entity = projectMapper.toEntityFromDto(dto, user);
                 Set<Skill> skills = dto.getSkills().stream()
-                        .map(restoredSkillMap::get)
+                        .map(skillDto -> restoredSkillMap.get(skillDto.getName()))
                         .filter(Objects::nonNull) // Add null check for safety
                         .collect(Collectors.toSet());
                 entity.setSkills(skills);
@@ -184,7 +233,7 @@ public class RestoreServiceImpl implements RestoreService {
                 // FIX: Use the correct mapper method and pass the user context.
                 Experience entity = experienceMapper.toEntityFromDto(dto, user);
                 Set<Skill> skills = dto.getSkills().stream()
-                        .map(restoredSkillMap::get)
+                        .map(skillDto -> restoredSkillMap.get(skillDto.getName()))
                         .filter(Objects::nonNull) // Add null check for safety
                         .collect(Collectors.toSet());
                 entity.setSkills(skills);
