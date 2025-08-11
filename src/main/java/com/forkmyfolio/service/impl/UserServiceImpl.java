@@ -2,9 +2,14 @@ package com.forkmyfolio.service.impl;
 
 import com.forkmyfolio.exception.DuplicateResourceException;
 import com.forkmyfolio.exception.ResourceNotFoundException;
+import com.forkmyfolio.model.PortfolioProfile;
+import com.forkmyfolio.model.ContactMessage;
+import com.forkmyfolio.model.enums.MessagePriority;
 import com.forkmyfolio.model.enums.Role;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.model.enums.AuthProvider;
+import com.forkmyfolio.repository.ContactMessageRepository;
+import com.forkmyfolio.repository.PortfolioProfileRepository;
 import com.forkmyfolio.repository.UserRepository;
 import com.forkmyfolio.service.UserService;
 import com.github.slugify.Slugify;
@@ -20,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +40,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final Slugify slugify;
+    private final ContactMessageRepository contactMessageRepository;
+    private final PortfolioProfileRepository portfolioProfileRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -184,7 +192,84 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             admin.setRoles(new HashSet<>(Set.of(Role.ADMIN, Role.USER)));
             admin.setActive(true);
             admin.setProvider(AuthProvider.LOCAL); // Set provider for admin creation
-            userRepository.save(admin);
+            // passwordLastChangedAt will be null, forcing a password change on first login
+            User savedAdmin = userRepository.save(admin);
+            createDefaultProfileForUser(savedAdmin);
+            sendAdminWelcomeMessage(savedAdmin); // Specific message about changing password
+            sendWelcomeMessage(savedAdmin);      // Standard message about setting up portfolio
         }
+    }
+
+    @Override
+    @Transactional
+    public void changeCurrentUserPassword(String newPassword) {
+        User currentUser = getCurrentAuthenticatedUser();
+        currentUser.setPassword(passwordEncoder.encode(newPassword));
+        currentUser.setPasswordLastChangedAt(Instant.now());
+        userRepository.save(currentUser);
+        log.info("User {} successfully changed their password.", currentUser.getEmail());
+    }
+
+    /**
+     * Creates and saves a welcome message for a new administrator.
+     * This message guides them on the next steps and informs them about the mandatory password change.
+     *
+     * @param admin The newly created admin user.
+     */
+    private void sendAdminWelcomeMessage(User admin) {
+        ContactMessage welcomeMessage = new ContactMessage();
+        welcomeMessage.setUser(admin);
+        welcomeMessage.setName("ForkMyFolio System");
+        welcomeMessage.setEmail("system@forkmyfolio.com");
+        welcomeMessage.setMessage(
+                "Welcome, Administrator!\n\n" +
+                "Your admin account has been successfully set up. For security reasons, you are required to change your temporary password immediately.\n\n" +
+                "Once you've updated your password, you will have full access to the admin dashboard where you can manage users, view system statistics, and perform other administrative tasks.\n\n" +
+                "Thank you for keeping the system secure.\n\n" +
+                "The ForkMyFolio Team"
+        );
+        welcomeMessage.setRead(false);
+        welcomeMessage.setArchived(false);
+        welcomeMessage.setReplied(false);
+        welcomeMessage.setPriority(MessagePriority.HIGH);
+        contactMessageRepository.save(welcomeMessage);
+        log.info("Admin welcome message sent to {}.", admin.getEmail());
+    }
+
+    /**
+     * Creates a default, public-facing portfolio profile for a new user.
+     * This ensures that new users have a profile to edit immediately and that it's visible by default.
+     *
+     * @param user The newly registered user.
+     */
+    private void createDefaultProfileForUser(User user) {
+        PortfolioProfile profile = new PortfolioProfile();
+        profile.setUser(user);
+        profile.setPublic(true); // Make the portfolio public by default.
+        profile.setVisible(true); // Ensure the profile section itself is visible.
+        profile.setHeadline("Welcome to Your New Portfolio!");
+        profile.setSummary("This is your new portfolio summary. You can edit this text to tell visitors about yourself, your skills, and your professional goals. Make it engaging and unique!");
+        portfolioProfileRepository.save(profile);
+        log.info("Created default portfolio profile for user {}.", user.getEmail());
+    }
+
+    /**
+     * Creates and saves a standard welcome message for a new user.
+     * This message guides them on the next steps and informs them about the default public visibility.
+     *
+     * @param user The newly registered user.
+     */
+    private void sendWelcomeMessage(User user) {
+        ContactMessage welcomeMessage = new ContactMessage();
+        welcomeMessage.setUser(user);
+        welcomeMessage.setName("The ForkMyFolio Team");
+        welcomeMessage.setEmail("welcome@forkmyfolio.com");
+        welcomeMessage.setMessage("Welcome to ForkMyFolio! We're excited to have you on board.\n\nYour account has been created successfully. Here are a few next steps to get your portfolio looking great:\n\n1.  **Complete Your Profile:** Navigate to the 'My Portfolio' sections in the dashboard to add your work experience, projects, skills, and more.\n2.  **Customize Your Look:** Check out the settings to choose a theme and personalize your public page.\n\n**Important Note:** Your portfolio is set to **public** by default so you can share it right away. If you're not ready for the world to see it yet, you can easily make it private. Just go to **Display Settings** and toggle the **'Portfolio is Public'** switch to the OFF position.\n\nWe can't wait to see what you create!\n\nBest,\nThe ForkMyFolio Team");
+        welcomeMessage.setRead(false); // Mark as unread
+        welcomeMessage.setArchived(false);
+        welcomeMessage.setReplied(false);
+        welcomeMessage.setPriority(MessagePriority.HIGH);
+        contactMessageRepository.save(welcomeMessage);
+        log.info("Standard welcome message sent to {}.", user.getEmail());
     }
 }

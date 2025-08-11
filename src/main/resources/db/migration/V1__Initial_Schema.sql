@@ -12,6 +12,7 @@ CREATE TABLE users (
                        last_name         VARCHAR(255) NOT NULL,
                        password          VARCHAR(255),
                        profile_image_url VARCHAR(255),
+                       password_last_changed_at DATETIME(6),
                        provider          ENUM('GITHUB', 'GOOGLE', 'LINKEDIN', 'LOCAL') NOT NULL,
                        provider_id       VARCHAR(255),
                        slug              VARCHAR(50) NOT NULL,

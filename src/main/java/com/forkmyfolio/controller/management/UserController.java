@@ -1,5 +1,6 @@
 package com.forkmyfolio.controller.management;
 
+import com.forkmyfolio.dto.request.UpdatePasswordRequest;
 import com.forkmyfolio.dto.response.UserDto;
 import com.forkmyfolio.dto.update.UpdateUserAccountRequest;
 import com.forkmyfolio.mapper.UserMapper;
@@ -47,5 +48,13 @@ public class UserController {
 
         UserDto updatedDto = userMapper.toDto(updatedUser);
         return ResponseEntity.ok(updatedDto);
+    }
+
+    @PostMapping("/password")
+    @Operation(summary = "Change current user's password", description = "Allows the authenticated user to change their own password. This is required for admins on first login.")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<Void> changeMyPassword(@Valid @RequestBody UpdatePasswordRequest request) {
+        userService.changeCurrentUserPassword(request.getNewPassword());
+        return ResponseEntity.ok().build();
     }
 }

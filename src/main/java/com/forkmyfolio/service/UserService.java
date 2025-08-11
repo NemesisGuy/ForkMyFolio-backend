@@ -130,5 +130,11 @@ public interface UserService {
      */
     List<User> getAllUsersWithPortfolioData();
 
+    /**
+     * Changes the password for the currently authenticated user.
+     * Also resets the 'mustChangePassword' flag.
+     * @param newPassword The new raw password.
+     */
+    void changeCurrentUserPassword(String newPassword);
 
 }

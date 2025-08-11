@@ -89,6 +89,11 @@ public class User implements UserDetails {
     private boolean active = true;
 
     /**
+     * Timestamp of when the user last changed their password.
+     * If this is null, it indicates the user has never changed their initial password.
+     */
+    private Instant passwordLastChangedAt;
+    /**
      * Flag indicating if the user's email has been verified.
      */
     @Column(nullable = false)

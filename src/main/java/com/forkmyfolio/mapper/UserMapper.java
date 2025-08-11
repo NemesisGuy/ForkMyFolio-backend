@@ -33,6 +33,7 @@ public class UserMapper {
         dto.setProvider(user.getProvider());
         dto.setProviderId(user.getProviderId());
         dto.setActive(user.isActive());
+        dto.setPasswordLastChangedAt(user.getPasswordLastChangedAt());
         dto.setRoles(user.getRoles());
         // Add compliance fields to the DTO
         dto.setTermsAcceptedAt(user.getTermsAcceptedAt());

@@ -74,7 +74,7 @@ public class UserDto {
      */
     private boolean active;
 
-
+    private Instant passwordLastChangedAt;
     private Instant termsAcceptedAt;
     private String termsVersion;
 

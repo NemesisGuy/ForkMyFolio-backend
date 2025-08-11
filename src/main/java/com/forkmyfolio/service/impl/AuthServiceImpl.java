@@ -61,6 +61,9 @@ public class AuthServiceImpl implements AuthService {
         String fullName = registerRequest.getFirstName() + " " + registerRequest.getLastName();
         user.setSlug(slugService.generateUniqueSlug(fullName));
 
+        // Set the password change timestamp, as this is their first password.
+        user.setPasswordLastChangedAt(Instant.now());
+
         // Set POPIA compliance fields
         user.setTermsAcceptedAt(Instant.now());
         user.setTermsVersion(registerRequest.getTermsVersion());
