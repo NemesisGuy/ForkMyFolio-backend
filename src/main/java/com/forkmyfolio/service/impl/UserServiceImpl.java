@@ -210,6 +210,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         log.info("User {} successfully changed their password.", currentUser.getEmail());
     }
 
+    @Override
+    @Transactional
+    public void acceptTermsForCurrentUser() {
+        User currentUser = getCurrentAuthenticatedUser();
+        currentUser.setTermsAcceptedAt(Instant.now());
+        // For audit purposes, we should store which version of the terms was accepted.
+        // A simple date stamp is a good default. This could be externalized to config later.
+        currentUser.setTermsVersion("v" + java.time.LocalDate.now());
+        userRepository.save(currentUser);
+        log.info("User {} has accepted the terms and conditions.", currentUser.getEmail());
+    }
+
     /**
      * Creates and saves a welcome message for a new administrator.
      * This message guides them on the next steps and informs them about the mandatory password change.

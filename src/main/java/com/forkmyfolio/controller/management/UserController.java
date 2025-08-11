@@ -57,4 +57,12 @@ public class UserController {
         userService.changeCurrentUserPassword(request.getNewPassword());
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/accept-terms")
+    @Operation(summary = "Accept Terms and Conditions", description = "Records that the currently authenticated user has accepted the latest Terms and Conditions. This is required on first login or when terms have been updated.")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<Void> acceptTerms() {
+        userService.acceptTermsForCurrentUser();
+        return ResponseEntity.ok().build();
+    }
 }

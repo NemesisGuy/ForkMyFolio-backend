@@ -137,4 +137,5 @@ public interface UserService {
      */
     void changeCurrentUserPassword(String newPassword);
 
+    void acceptTermsForCurrentUser();
 }
