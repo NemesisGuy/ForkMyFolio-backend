@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - YYYY-MM-DD
 
+### 📚 Documentation
+
+*   **Complete Documentation Overhaul**:
+    *   Rewrote the main `README.md` to be recruiter-friendly, providing a high-level overview of the project's features and tech stack.
+    *   Created a single, comprehensive `docs/TECHNICAL_DOCUMENTATION.md` file that consolidates all technical information, including setup, architecture, and a full API reference.
+    *   Verified all documented API endpoints against the latest controller implementations to ensure 100% accuracy.
+    *   Cleaned up the `/docs` directory by removing over 20 outdated and redundant markdown files.
+
 ### ✨ Features
 
 *   **Full CRUD for Qualifications**: Implemented a complete set of endpoints for users to manage their academic and professional qualifications.
