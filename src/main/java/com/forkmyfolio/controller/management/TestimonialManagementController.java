@@ -66,9 +66,12 @@ public class TestimonialManagementController {
     @Operation(summary = "Update one of my testimonials")
     public ResponseEntity<TestimonialDto> updateMyTestimonial(@PathVariable UUID uuid, @Valid @RequestBody UpdateTestimonialRequest updateRequest) {
         User currentUser = userService.getCurrentAuthenticatedUser();
-        // Fetching the testimonial also verifies ownership
         Testimonial testimonialToUpdate = testimonialService.findTestimonialByUuidAndUser(uuid, currentUser);
-        testimonialMapper.applyUpdateFromRequest(updateRequest, testimonialToUpdate);
+        // Correctly handle optional fields from the request
+        updateRequest.getQuote().ifPresent(testimonialToUpdate::setQuote);
+        updateRequest.getAuthorName().ifPresent(testimonialToUpdate::setAuthorName);
+        updateRequest.getAuthorTitle().ifPresent(testimonialToUpdate::setAuthorTitle);
+        updateRequest.getVisible().ifPresent(testimonialToUpdate::setVisible);
         Testimonial savedTestimonial = testimonialService.save(testimonialToUpdate);
         return ResponseEntity.ok(testimonialMapper.toDto(savedTestimonial));
     }

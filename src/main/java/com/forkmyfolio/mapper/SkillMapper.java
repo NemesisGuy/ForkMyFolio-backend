@@ -2,7 +2,6 @@ package com.forkmyfolio.mapper;
 
 import com.forkmyfolio.dto.create.CreateSkillRequest;
 import com.forkmyfolio.dto.response.SkillDto;
-import com.forkmyfolio.dto.update.UpdateSkillRequest;
 import com.forkmyfolio.dto.update.UpdateUserSkillRequest;
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.UserSkill;
@@ -14,15 +13,18 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * Mapper class responsible for converting between Skill/UserSkill domain models and Skill-related DTOs.
- * This centralizes the conversion logic, keeping it out of the service and controller layers.
+ * Mapper class responsible for converting between Skill/UserSkill domain models
+ * and Skill-related DTOs.
+ * This centralizes the conversion logic, keeping it out of the service and
+ * controller layers.
  */
 @Component
 public class SkillMapper {
 
     /**
      * Converts a global Skill entity to a basic SkillDto. This should only be used
-     * when no user-specific context is available. It represents a skill without proficiency.
+     * when no user-specific context is available. It represents a skill without
+     * proficiency.
      *
      * @param skill The Skill entity to convert.
      * @return The corresponding basic SkillDto.
@@ -45,7 +47,8 @@ public class SkillMapper {
 
     /**
      * Converts a UserSkill entity to a detailed SkillDto.
-     * This version includes all user-specific details like proficiency level and visibility.
+     * This version includes all user-specific details like proficiency level and
+     * visibility.
      * It's suitable for managing a user's own skill list.
      *
      * @param userSkill The UserSkill entity to convert.
@@ -118,19 +121,10 @@ public class SkillMapper {
      * @param request The DTO with update data.
      * @return A transient UserSkill entity with the updated values.
      */
-    public UserSkill toUserSkillEntity(UpdateSkillRequest request) {
-        if (request == null) {
-            return null;
-        }
-        UserSkill userSkill = new UserSkill();
-        userSkill.setLevel(request.getLevel());
-        userSkill.setVisible(request.isVisible());
-        userSkill.setDescription(request.getDescription());
-        return userSkill;
-    }
 
     /**
-     * FIX: Added the missing overloaded method to handle the UpdateUserSkillRequest DTO.
+     * FIX: Added the missing overloaded method to handle the UpdateUserSkillRequest
+     * DTO.
      * Converts an UpdateUserSkillRequest DTO to a transient UserSkill entity.
      *
      * @param request The DTO with update data.
@@ -142,13 +136,14 @@ public class SkillMapper {
         }
         UserSkill userSkill = new UserSkill();
         userSkill.setLevel(request.getLevel());
-        userSkill.setVisible(request.getVisible());
+        userSkill.setVisible(request.isVisible());
         userSkill.setDescription(request.getDescription());
         return userSkill;
     }
 
     /**
-     * Converts a list of UserSkill entities to a list of detailed SkillDtos for backup purposes.
+     * Converts a list of UserSkill entities to a list of detailed SkillDtos for
+     * backup purposes.
      *
      * @param userSkills The list of UserSkill entities to convert.
      * @return A list of detailed SkillDtos.

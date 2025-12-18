@@ -31,7 +31,8 @@ public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
     // --- ResponseBodyAdvice implementation (for success wrapping) ---
 
     /**
-     * Determines if this advice should be applied. It will not be applied to methods
+     * Determines if this advice should be applied. It will not be applied to
+     * methods
      * annotated with @SkipApiResponseWrapper, which is used for file downloads.
      */
     @Override
@@ -40,14 +41,16 @@ public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
     }
 
     /**
-     * Wraps successful responses in the standard ApiResponseWrapper before the body is written.
+     * Wraps successful responses in the standard ApiResponseWrapper before the body
+     * is written.
      */
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
-                                  Class<? extends HttpMessageConverter<?>> selectedConverterType,
-                                  ServerHttpRequest request, ServerHttpResponse response) {
+            Class<? extends HttpMessageConverter<?>> selectedConverterType,
+            ServerHttpRequest request, ServerHttpResponse response) {
 
-        // Do not wrap if the body is already our wrapper, a Spring ProblemDetail, or a file download.
+        // Do not wrap if the body is already our wrapper, a Spring ProblemDetail, or a
+        // file download.
         if (body instanceof ApiResponseWrapper || body instanceof ProblemDetail || body instanceof byte[]) {
             return body;
         }
@@ -106,6 +109,30 @@ public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
     }
 
     /**
+     * Handles illegal argument exceptions.
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResponseWrapper<Object> handleIllegalArgument(IllegalArgumentException ex) {
+        log.warn("Illegal argument: {}", ex.getMessage());
+        List<FieldErrorDto> errors = List.of(new FieldErrorDto("parameter", ex.getMessage()));
+        return new ApiResponseWrapper<>(errors, "invalid_argument");
+    }
+
+    /**
+     * Handles 404 Not Found errors when a resource is not found.
+     * This includes Spring's NoResourceFoundException (Spring Boot 3/Spring 6).
+     */
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiResponseWrapper<Object> handleNoResourceFound(
+            org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+        log.warn("Resource not found: {} {}", ex.getHttpMethod(), ex.getResourcePath());
+        List<FieldErrorDto> errors = List.of(new FieldErrorDto("path", "The requested resource was not found."));
+        return new ApiResponseWrapper<>(errors, "resource_not_found");
+    }
+
+    /**
      * A final catch-all for any unexpected exceptions.
      * Returns a generic error message to avoid leaking implementation details.
      */
@@ -113,7 +140,8 @@ public class GlobalExceptionHandler implements ResponseBodyAdvice<Object> {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiResponseWrapper<Object> handleAllUncaughtException(Exception ex) {
         log.error("An unexpected error occurred: {}", ex.getMessage(), ex);
-        List<FieldErrorDto> errors = List.of(new FieldErrorDto("general", "An unexpected internal server error occurred."));
+        List<FieldErrorDto> errors = List
+                .of(new FieldErrorDto("general", "An unexpected internal server error occurred."));
         return new ApiResponseWrapper<>(errors, "error");
     }
 }

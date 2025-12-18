@@ -1,4 +1,4 @@
-package com.forkmyfolio.dto.request;
+package com.forkmyfolio.dto.create;
 
 import com.forkmyfolio.model.enums.SkillLevel;
 import jakarta.validation.constraints.NotBlank;

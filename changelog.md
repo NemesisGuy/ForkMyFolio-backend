@@ -2,7 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased] - YYYY-MM-DD
+## [Unreleased] - 2025-12-18
+
+### 🧪 Testing & Quality
+
+*   **Test Suite Stabilization**: Successfully stabilized the entire backend test suite, resulting in 94/94 passing tests.
+*   **Enhanced Service Testing**: Fixed multiple `NullPointerException`s in `RestoreServiceImplTest` by ensuring nested collections in DTOs are correctly initialized and all required mappers are mocked.
+*   **Controller Serialization Reliability**: Resolved Jackson serialization errors for `LocalDate` and `Unpaged` objects in `AdminControllerTest` and `ExperienceManagementControllerTest` by explicitly configuring `JavaTimeModule` and using `PageRequest`.
+*   **Standardized API Response Testing**: Updated test assertions to correctly handle the `ApiResponseWrapper` structure, ensuring thorough validation of the unified JSON response format.
+*   **Graceful Exception Assertion**: Improved `BackupControllerTest` to verify that invalid file type uploads are handled by the `GlobalExceptionHandler`, returning a consistent `400 Bad Request` instead of allowing `ServletException` to propagate.
+
+### 🚀 Infrastructure & Reliability
+
+*   **Cross-Platform Flyway Support**: Disabled Flyway checksum validation to allow seamless deployment between Windows development environments and Linux Docker containers, bypassing line-ending mismatches.
+*   **Idempotent Database Migrations**: Implemented a robust, idempotent migration strategy for MySQL 8.0 using stored procedures. New columns are now added safely only if they do not already exist.
+*   **Automatic Schema Repair**: Added a `FlywayMigrationStrategy` bean to automatically run `flyway.repair()` on application startup, clearing failed migration states and ensuring system stability.
+*   **Production Configuration Optimization**: Updated `application.properties` to set `hibernate.ddl-auto=none`, delegating all schema management to Flyway for better production reliability.
+
+### 🐛 Bug Fixes
+
+*   **Explicit Password Endpoint Mapping**: Resolved a `NoResourceFoundException` on the password change endpoint by making Controller mappings more explicit.
+*   **Global Exception Handling**: Enhanced the global exception handler to gracefully handle `NoResourceFoundException`, returning `404 Not Found` instead of a `500 Internal Server Error`.
 
 ### ✨ Features
 

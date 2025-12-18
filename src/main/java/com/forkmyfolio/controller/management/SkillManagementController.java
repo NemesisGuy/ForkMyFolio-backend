@@ -3,7 +3,7 @@ package com.forkmyfolio.controller.management;
 import com.forkmyfolio.advice.ApiResponseWrapper;
 import com.forkmyfolio.dto.create.CreateSkillRequest;
 import com.forkmyfolio.dto.response.SkillDto;
-import com.forkmyfolio.dto.update.UpdateSkillRequest;
+import com.forkmyfolio.dto.update.UpdateUserSkillRequest;
 import com.forkmyfolio.mapper.SkillMapper;
 import com.forkmyfolio.model.Skill;
 import com.forkmyfolio.model.User;
@@ -66,7 +66,8 @@ public class SkillManagementController {
 
     @PostMapping
     @Operation(summary = "Add a new skill to my portfolio")
-    public ResponseEntity<ApiResponseWrapper<SkillDto>> addSkillToMyPortfolio(@Valid @RequestBody CreateSkillRequest createRequest) {
+    public ResponseEntity<ApiResponseWrapper<SkillDto>> addSkillToMyPortfolio(
+            @Valid @RequestBody CreateSkillRequest createRequest) {
         User currentUser = userService.getCurrentAuthenticatedUser();
 
         // 1. Controller maps the DTO to transient entities.
@@ -83,7 +84,8 @@ public class SkillManagementController {
 
     @PutMapping("/{uuid}")
     @Operation(summary = "Update my relationship with a skill (e.g., proficiency level)")
-    public ResponseEntity<ApiResponseWrapper<SkillDto>> updateMySkill(@PathVariable UUID uuid, @Valid @RequestBody UpdateSkillRequest updateRequest) {
+    public ResponseEntity<ApiResponseWrapper<SkillDto>> updateMySkill(@PathVariable UUID uuid,
+            @Valid @RequestBody UpdateUserSkillRequest updateRequest) {
         User currentUser = userService.getCurrentAuthenticatedUser();
 
         // 1. Controller maps the DTO to a transient entity.

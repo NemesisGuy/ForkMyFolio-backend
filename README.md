@@ -4,7 +4,7 @@ ForkMyFolio is a digital portfolio platform designed to help developers and crea
 
 The platform provides a dynamic, single-page application experience for public visitors, and a comprehensive admin panel for content management, live site configuration, and visitor analytics.
 
-For detailed technical information, setup instructions, and API documentation, please see our [**Technical Documentation**](docs/TECHNICAL_DOCUMENTATION.md).
+For detailed technical information, setup instructions, and API documentation, please see our [**Technical Documentation**](docs/old-docs/TECHNICAL_DOCUMENTATION.md) and our [**Testing Guide**](docs/TESTING.md).
 
 ---
 
@@ -42,7 +42,7 @@ For detailed technical information, setup instructions, and API documentation, p
 ## 🛠️ Built With
 
 *   **Backend**: Java 21, Spring Boot 3, Spring Security, Spring Data JPA
-*   **Database**: PostgreSQL (Production), H2 (Development)
+*   **Database**: MySQL (Production), H2 (Development)
 *   **API Documentation**: Springdoc OpenAPI (Swagger UI)
 *   **Containerization**: Docker
 *   **Authentication**: JWT (JSON Web Tokens)

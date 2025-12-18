@@ -319,10 +319,14 @@ The project follows a standard Maven project structure:
 
 ## Testing
 
+### Running Tests
+
 To run all unit and integration tests, use the following Maven command from the project root:
 ```bash
 mvn test
 ```
+For more detailed information on our testing strategy, best practices, and configurations (like JSON serialization for dates), please refer to our dedicated [**Testing Guide**](../../docs/TESTING.md).
+
 Test reports can be found in the `target/surefire-reports` directory.
 
 ---

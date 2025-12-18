@@ -123,6 +123,18 @@
             <artifactId>jakarta.validation-api</artifactId>
         </dependency>
 
+        <!-- Jackson JDK8 Datatype Support -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+        </dependency>
+
+        <!-- Jackson JSR310 (Java 8 Date/Time) Support -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+
         <!-- iText 7 Core -->
         <dependency>
             <groupId>com.itextpdf</groupId>
@@ -147,6 +159,11 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

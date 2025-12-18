@@ -1,0 +1,335 @@
+create table flyway_schema_history
+(
+    installed_rank int                                 not null
+        primary key,
+    version        varchar(50)                         null,
+    description    varchar(200)                        not null,
+    type           varchar(20)                         not null,
+    script         varchar(1000)                       not null,
+    checksum       int                                 null,
+    installed_by   varchar(100)                        not null,
+    installed_on   timestamp default CURRENT_TIMESTAMP not null,
+    execution_time int                                 not null,
+    success        tinyint(1)                          not null
+);
+
+create index flyway_schema_history_s_idx
+    on flyway_schema_history (success);
+
+create table settings
+(
+    id          bigint auto_increment
+        primary key,
+    description varchar(512) null,
+    name        varchar(255) not null,
+    uuid        varchar(36)  not null,
+    value       varchar(255) not null,
+    constraint name
+        unique (name),
+    constraint uuid
+        unique (uuid)
+);
+
+create table skills
+(
+    id          bigint auto_increment
+        primary key,
+    category    varchar(255)                                            null,
+    created_at  datetime(6)                                             null,
+    description longtext                                                null,
+    icon        varchar(255)                                            null,
+    level       enum ('ADVANCED', 'BEGINNER', 'EXPERT', 'INTERMEDIATE') null,
+    name        varchar(255)                                            not null,
+    updated_at  datetime(6)                                             null,
+    uuid        binary(16)                                              not null,
+    visible     bit                                                     not null,
+    constraint name
+        unique (name),
+    constraint uuid
+        unique (uuid)
+);
+
+create table users
+(
+    id                       bigint auto_increment
+        primary key,
+    active                   bit                                            not null,
+    created_at               datetime(6)                                    not null,
+    email                    varchar(255)                                   not null,
+    email_verified           bit                                            not null,
+    first_name               varchar(255)                                   not null,
+    last_name                varchar(255)                                   not null,
+    password                 varchar(255)                                   null,
+    profile_image_url        varchar(255)                                   null,
+    password_last_changed_at datetime(6)                                    null,
+    provider                 enum ('GITHUB', 'GOOGLE', 'LINKEDIN', 'LOCAL') not null,
+    provider_id              varchar(255)                                   null,
+    slug                     varchar(50)                                    not null,
+    updated_at               datetime(6)                                    not null,
+    uuid                     binary(16)                                     not null,
+    terms_accepted_at        datetime(6)                                    null,
+    terms_version            varchar(255)                                   null,
+    constraint email
+        unique (email),
+    constraint slug
+        unique (slug),
+    constraint uuid
+        unique (uuid)
+);
+
+create table contact_messages
+(
+    id          bigint auto_increment
+        primary key,
+    created_at  datetime(6)                    not null,
+    email       varchar(255)                   not null,
+    is_archived bit                            not null,
+    is_read     bit                            not null,
+    is_replied  bit                            not null,
+    message     text                           not null,
+    name        varchar(100)                   not null,
+    priority    enum ('HIGH', 'LOW', 'MEDIUM') not null,
+    uuid        varchar(36)                    not null,
+    user_id     bigint                         not null,
+    constraint uuid
+        unique (uuid),
+    constraint contact_messages_ibfk_1
+        foreign key (user_id) references users (id)
+);
+
+create index user_id
+    on contact_messages (user_id);
+
+create table experiences
+(
+    id               bigint auto_increment
+        primary key,
+    achievements     text                                                                                     null,
+    company_logo_url varchar(255)                                                                             null,
+    company_name     varchar(100)                                                                             not null,
+    company_url      varchar(255)                                                                             null,
+    created_at       datetime(6)                                                                              null,
+    description      text                                                                                     null,
+    display_order    int                                                                                      not null,
+    employment_type  enum ('APPRENTICESHIP', 'CONTRACT', 'FREELANCE', 'FULL_TIME', 'INTERNSHIP', 'PART_TIME') null,
+    end_date         date                                                                                     null,
+    job_title        varchar(100)                                                                             not null,
+    location         varchar(100)                                                                             null,
+    location_type    enum ('HYBRID', 'ON_SITE', 'REMOTE')                                                     null,
+    start_date       date                                                                                     not null,
+    updated_at       datetime(6)                                                                              null,
+    uuid             varchar(36)                                                                              not null,
+    visible          bit                                                                                      not null,
+    user_id          bigint                                                                                   not null,
+    constraint uuid
+        unique (uuid),
+    constraint experiences_ibfk_1
+        foreign key (user_id) references users (id)
+);
+
+create table experience_skills
+(
+    experience_id bigint not null,
+    skill_id      bigint not null,
+    primary key (experience_id, skill_id),
+    constraint experience_skills_ibfk_1
+        foreign key (experience_id) references experiences (id),
+    constraint experience_skills_ibfk_2
+        foreign key (skill_id) references skills (id)
+);
+
+create index skill_id
+    on experience_skills (skill_id);
+
+create index user_id
+    on experiences (user_id);
+
+create table portfolio_profiles
+(
+    id                    bigint auto_increment
+        primary key,
+    cover_letter_template text         null,
+    created_at            datetime(6)  null,
+    github_url            varchar(255) null,
+    headline              varchar(100) null,
+    linkedin_url          varchar(255) null,
+    location              varchar(50)  null,
+    public_email          varchar(255) null,
+    resume_image_url      varchar(255) null,
+    resume_url            varchar(255) null,
+    summary               text         null,
+    updated_at            datetime(6)  null,
+    visible               bit          not null,
+    website_url           varchar(255) null,
+    user_id               bigint       not null,
+    is_public             bit          not null,
+    constraint user_id
+        unique (user_id),
+    constraint portfolio_profiles_ibfk_1
+        foreign key (user_id) references users (id)
+);
+
+create table projects
+(
+    id            bigint auto_increment
+        primary key,
+    created_at    datetime(6)  not null,
+    description   text         not null,
+    display_order int          not null,
+    image_url     varchar(255) null,
+    live_url      varchar(255) null,
+    repo_url      varchar(255) null,
+    title         varchar(100) not null,
+    updated_at    datetime(6)  not null,
+    uuid          varchar(36)  not null,
+    visible       bit          not null,
+    user_id       bigint       not null,
+    constraint uuid
+        unique (uuid),
+    constraint projects_ibfk_1
+        foreign key (user_id) references users (id)
+);
+
+create table project_skills
+(
+    project_id bigint not null,
+    skill_id   bigint not null,
+    primary key (project_id, skill_id),
+    constraint project_skills_ibfk_1
+        foreign key (project_id) references projects (id),
+    constraint project_skills_ibfk_2
+        foreign key (skill_id) references skills (id)
+);
+
+create index skill_id
+    on project_skills (skill_id);
+
+create index user_id
+    on projects (user_id);
+
+create table qualifications
+(
+    id                   bigint auto_increment
+        primary key,
+    completion_year      int                                                                                                                                                               null,
+    created_at           datetime(6)                                                                                                                                                       null,
+    credential_url       varchar(512)                                                                                                                                                      null,
+    field_of_study       varchar(255)                                                                                                                                                      null,
+    grade                varchar(255)                                                                                                                                                      null,
+    institution_logo_url varchar(512)                                                                                                                                                      null,
+    institution_name     varchar(255)                                                                                                                                                      not null,
+    institution_website  varchar(255)                                                                                                                                                      null,
+    level                enum ('ADVANCED_DIPLOMA', 'ASSOCIATE', 'BACHELORS', 'BTECH', 'CERTIFICATE', 'DIPLOMA', 'DOCTORATE', 'HIGH_SCHOOL', 'HONOURS', 'MASTERS', 'POST_GRADUATE_DIPLOMA') null,
+    qualification_name   varchar(255)                                                                                                                                                      not null,
+    start_year           int                                                                                                                                                               null,
+    still_studying       bit                                                                                                                                                               not null,
+    updated_at           datetime(6)                                                                                                                                                       null,
+    uuid                 varchar(36)                                                                                                                                                       not null,
+    visible              bit                                                                                                                                                               not null,
+    user_id              bigint                                                                                                                                                            not null,
+    constraint uuid
+        unique (uuid),
+    constraint qualifications_ibfk_1
+        foreign key (user_id) references users (id)
+);
+
+create index user_id
+    on qualifications (user_id);
+
+create table refresh_tokens
+(
+    id          bigint auto_increment
+        primary key,
+    expiry_date datetime(6)  not null,
+    token       varchar(512) not null,
+    user_id     bigint       not null,
+    constraint token
+        unique (token),
+    constraint refresh_tokens_ibfk_1
+        foreign key (user_id) references users (id)
+);
+
+create index user_id
+    on refresh_tokens (user_id);
+
+create table testimonials
+(
+    id           bigint auto_increment
+        primary key,
+    author_name  varchar(100) not null,
+    author_title varchar(100) null,
+    created_at   datetime(6)  null,
+    quote        text         not null,
+    updated_at   datetime(6)  null,
+    uuid         varchar(36)  not null,
+    visible      bit          not null,
+    user_id      bigint       not null,
+    constraint uuid
+        unique (uuid),
+    constraint testimonials_ibfk_1
+        foreign key (user_id) references users (id)
+);
+
+create index user_id
+    on testimonials (user_id);
+
+create table user_roles
+(
+    user_id bigint                 not null,
+    role    enum ('ADMIN', 'USER') not null,
+    primary key (user_id, role),
+    constraint user_roles_ibfk_1
+        foreign key (user_id) references users (id)
+);
+
+create table user_settings
+(
+    id      bigint auto_increment
+        primary key,
+    name    varchar(255) not null,
+    uuid    binary(16)   not null,
+    value   varchar(255) not null,
+    user_id bigint       not null,
+    constraint user_id
+        unique (user_id, name),
+    constraint uuid
+        unique (uuid),
+    constraint user_settings_ibfk_1
+        foreign key (user_id) references users (id)
+);
+
+create table user_skills
+(
+    id          bigint auto_increment
+        primary key,
+    created_at  datetime(6)                                             not null,
+    description longtext                                                null,
+    level       enum ('ADVANCED', 'BEGINNER', 'EXPERT', 'INTERMEDIATE') not null,
+    updated_at  datetime(6)                                             not null,
+    uuid        binary(16)                                              not null,
+    visible     bit                                                     not null,
+    skill_id    bigint                                                  not null,
+    user_id     bigint                                                  not null,
+    constraint user_id
+        unique (user_id, skill_id),
+    constraint uuid
+        unique (uuid),
+    constraint user_skills_ibfk_1
+        foreign key (skill_id) references skills (id),
+    constraint user_skills_ibfk_2
+        foreign key (user_id) references users (id)
+);
+
+create index skill_id
+    on user_skills (skill_id);
+
+create table visitor_stats
+(
+    id         bigint auto_increment
+        primary key,
+    count      bigint                                                                                                                                                                                                                                                                                                                not null,
+    ref_id     varchar(255)                                                                                                                                                                                                                                                                                                          not null,
+    type       enum ('CONTACT_MESSAGE_SUBMISSION', 'EXPERIENCE_SECTION_VIEW', 'LOGIN_FAILURE', 'LOGIN_SUCCESS', 'LOGOUT_SUCCESS', 'MARKDOWN_DOWNLOAD', 'PDF_DOWNLOAD', 'PROJECTS_SECTION_VIEW', 'PROJECT_VIEW', 'QUALIFICATIONS_SECTION_VIEW', 'SKILLS_SECTION_VIEW', 'TESTIMONIALS_SECTION_VIEW', 'TOTAL_VISITS', 'VCARD_DOWNLOAD') not null,
+    updated_at datetime(6)                                                                                                                                                                                                                                                                                                           null
+);
+

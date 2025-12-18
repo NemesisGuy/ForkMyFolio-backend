@@ -32,6 +32,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Controller for handling all administrative tasks.
+ * All endpoints in this controller require ADMIN role privileges.
+ * It covers user management, application settings, statistics, and system-wide message management.
+ */
 @RestController
 @RequestMapping("/api/v1/admin")
 @Tag(name = "Admin Management", description = "Endpoints for administrative tasks.")
@@ -49,6 +54,12 @@ public class AdminController {
 
     // --- User Management ---
 
+    /**
+     * Retrieves a paginated list of all users in the system.
+     *
+     * @param pageable Pagination information (page, size, sort).
+     * @return A {@link ResponseEntity} containing a {@link Page} of {@link UserDto} objects.
+     */
     @GetMapping("/users")
     @Operation(summary = "Get all users with pagination")
     public ResponseEntity<Page<UserDto>> getAllUsers(Pageable pageable) {
@@ -57,6 +68,11 @@ public class AdminController {
         return ResponseEntity.ok(userDtoPage);
     }
 
+    /**
+     * Creates a new user with specified roles and activation status.
+     * @param request The request body containing the new user's details.
+     * @return A {@link ResponseEntity} with the created {@link UserDto} and HTTP status 201 (Created).
+     */
     @PostMapping("/users")
     @Operation(summary = "Create a new user (Admin)")
     public ResponseEntity<ApiResponseWrapper<UserDto>> createAdminUser(@Valid @RequestBody AdminCreateUserRequest request) {
@@ -72,6 +88,12 @@ public class AdminController {
         return new ResponseEntity<>(new ApiResponseWrapper<>(userMapper.toDto(newUser)), HttpStatus.CREATED);
     }
 
+    /**
+     * Retrieves a single user by their unique identifier (UUID).
+     *
+     * @param userId The UUID of the user to retrieve.
+     * @return A {@link ResponseEntity} containing the {@link UserDto}.
+     */
     @GetMapping("/users/{userId}")
     @Operation(summary = "Get a single user by UUID")
     public ResponseEntity<ApiResponseWrapper<UserDto>> getUserByUuid(@PathVariable UUID userId) {
@@ -79,6 +101,12 @@ public class AdminController {
         return ResponseEntity.ok(new ApiResponseWrapper<>(userMapper.toDto(user)));
     }
 
+    /**
+     * Updates an existing user's details, such as name, slug, roles, and activation status.
+     * @param userId The UUID of the user to update.
+     * @param request The request body containing the fields to update.
+     * @return A {@link ResponseEntity} with the updated {@link UserDto}.
+     */
     @PutMapping("/users/{userId}")
     @Operation(summary = "Update a user's details (Admin)")
     public ResponseEntity<ApiResponseWrapper<UserDto>> updateUserByAdmin(@PathVariable UUID userId, @Valid @RequestBody AdminUpdateUserRequest request) {
@@ -93,6 +121,11 @@ public class AdminController {
         return ResponseEntity.ok(new ApiResponseWrapper<>(userMapper.toDto(updatedUser)));
     }
 
+    /**
+     * Deactivates a user, performing a soft delete. The user is marked as inactive but not removed from the database.
+     * @param userId The UUID of the user to deactivate.
+     * @return A {@link ResponseEntity} with a success message.
+     */
     @DeleteMapping("/users/{userId}")
     @Operation(summary = "Deactivate a user (Soft Delete)")
     public ResponseEntity<ApiResponseWrapper<Map<String, String>>> deactivateUser(@PathVariable UUID userId) {
@@ -101,14 +134,25 @@ public class AdminController {
         return ResponseEntity.ok(new ApiResponseWrapper<>(response));
     }
 
-    // --- Stats Management ---
+    // --- Statistics Management ---
+
+    /**
+     * Retrieves aggregated visitor and application statistics.
+     *
+     * @return A {@link ResponseEntity} containing the {@link AdminStatsDto}.
+     */
     @GetMapping("/stats")
     @Operation(summary = "Get all visitor statistics")
     public ResponseEntity<ApiResponseWrapper<AdminStatsDto>> getVisitorStats() {
         return ResponseEntity.ok(new ApiResponseWrapper<>(visitorStatsService.getStats()));
     }
 
-    // --- Settings Management ---
+    // --- Application Settings Management ---
+
+    /**
+     * Retrieves a list of all global application settings.
+     * @return A {@link ResponseEntity} containing a list of {@link SettingDto} objects.
+     */
     @GetMapping("/settings")
     @Operation(summary = "Get all application settings")
     public ResponseEntity<ApiResponseWrapper<List<SettingDto>>> getAllSettings() {
@@ -116,6 +160,11 @@ public class AdminController {
         return ResponseEntity.ok(new ApiResponseWrapper<>(settingMapper.toDtoList(settings)));
     }
 
+    /**
+     * Updates multiple application settings in a single batch operation.
+     * @param updateRequests A list of setting update requests, each containing a UUID and a new value.
+     * @return A {@link ResponseEntity} with the list of updated {@link SettingDto} objects.
+     */
     @PutMapping("/settings")
     @Operation(summary = "Update multiple application settings")
     public ResponseEntity<ApiResponseWrapper<List<SettingDto>>> updateSettings(@RequestBody @Valid List<UpdateSettingRequest> updateRequests) {
@@ -125,7 +174,12 @@ public class AdminController {
         return ResponseEntity.ok(new ApiResponseWrapper<>(settingMapper.toDtoList(updatedSettings)));
     }
 
-    // --- Contact Message Management ---
+    // --- System-wide Contact Message Management ---
+
+    /**
+     * Retrieves all contact messages received by all users across the platform.
+     * @return A {@link ResponseEntity} containing a list of all {@link ContactMessageDto} objects.
+     */
     @GetMapping("/contact-messages")
     @Operation(summary = "Get all contact messages from all users")
     public ResponseEntity<ApiResponseWrapper<List<ContactMessageDto>>> getAllContactMessages() {
@@ -133,6 +187,11 @@ public class AdminController {
         return ResponseEntity.ok(new ApiResponseWrapper<>(messages));
     }
 
+    /**
+     * Deletes any contact message from the system by its unique identifier (UUID).
+     * @param uuid The UUID of the contact message to delete.
+     * @return A {@link ResponseEntity} with a success message.
+     */
     @DeleteMapping("/contact-messages/{uuid}")
     @Operation(summary = "Delete any contact message by its UUID")
     public ResponseEntity<ApiResponseWrapper<Map<String, String>>> deleteContactMessage(@PathVariable UUID uuid) {

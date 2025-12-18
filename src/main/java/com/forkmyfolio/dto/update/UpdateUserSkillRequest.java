@@ -7,8 +7,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-@Schema(name = "UpdateSkillRequest", description = "Data required to update the current user's relationship with a skill.")
-public class UpdateSkillRequest {
+@Schema(name = "UpdateUserSkillRequest", description = "Data required to update the current user's relationship with a skill.")
+public class UpdateUserSkillRequest {
 
     @NotNull(message = "Skill level cannot be null.")
     @Schema(description = "The user's updated proficiency level with this skill.", example = "EXPERT", requiredMode = Schema.RequiredMode.REQUIRED)
