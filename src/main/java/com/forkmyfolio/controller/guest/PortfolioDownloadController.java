@@ -22,53 +22,55 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class PortfolioDownloadController {
 
-    private final PdfGenerationService pdfGenerationService;
-    private final MarkdownGenerationService markdownGenerationService;
-    private final PortfolioService portfolioService;
+        private final PdfGenerationService pdfGenerationService;
+        private final MarkdownGenerationService markdownGenerationService;
+        private final PortfolioService portfolioService;
 
-    @GetMapping("/{slug}/pdf")
-    @Operation(summary = "Download a user's portfolio as a PDF",
-            description = "Generates and downloads a PDF version of the user's portfolio using a specified template.")
-    @SkipApiResponseWrapper // This response is a file stream, not JSON, so we skip the standard wrapper.
-    @TrackVisitor(VisitorStatType.PDF_DOWNLOAD)
-    public ResponseEntity<byte[]> downloadPortfolioAsPdf(
-            @Parameter(description = "The unique, URL-friendly slug of the user.", example = "jane-doe")
-            @PathVariable String slug,
-            @Parameter(description = "The name of the PDF template to use.", example = "modern")
-            @RequestParam(defaultValue = "modern") String template) {
+        @GetMapping("/{slug}/pdf")
+        @Operation(summary = "Download a user's portfolio as a PDF", description = "Generates and downloads a PDF version of the user's portfolio using a specified template.")
+        @SkipApiResponseWrapper // This response is a file stream, not JSON, so we skip the standard wrapper.
+        @TrackVisitor(VisitorStatType.PDF_DOWNLOAD)
+        public ResponseEntity<byte[]> downloadPortfolioAsPdf(
+                        @Parameter(description = "The unique, URL-friendly slug of the user.", example = "jane-doe") @PathVariable String slug,
+                        @Parameter(description = "The name of the PDF template to use.", example = "modern") @RequestParam(defaultValue = "modern") String template) {
 
-        // FIX: Adhere to architectural rules. Controller fetches the entity, service operates on it.
-        User user = portfolioService.getPublicPortfolioUserBySlug(slug);
-        PdfGenerationService.PdfFile pdfFile = pdfGenerationService.generatePortfolioPdf(user, template);
+                // FIX: Adhere to architectural rules. Controller fetches the entity, service
+                // operates on it.
+                User user = portfolioService.getPublicPortfolioUserBySlug(slug);
+                PdfGenerationService.PdfFile pdfFile = pdfGenerationService.generatePortfolioPdf(user, template);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", pdfFile.suggestedFilename());
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_PDF);
+                headers.setContentDisposition(org.springframework.http.ContentDisposition.attachment()
+                                .filename(pdfFile.suggestedFilename())
+                                .build());
 
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(pdfFile.content());
-    }
+                return ResponseEntity.ok()
+                                .headers(headers)
+                                .body(pdfFile.content());
+        }
 
-    @GetMapping("/{slug}/markdown")
-    @Operation(summary = "Download a user's portfolio as a Markdown file",
-            description = "Generates and downloads a GitHub-friendly Markdown (.md) version of the user's portfolio.")
-    @SkipApiResponseWrapper // This response is a file stream, not JSON
-    @TrackVisitor(VisitorStatType.MARKDOWN_DOWNLOAD)
-    public ResponseEntity<byte[]> downloadPortfolioAsMarkdown(
-            @Parameter(description = "The unique, URL-friendly slug of the user.", example = "jane-doe")
-            @PathVariable String slug) {
+        @GetMapping("/{slug}/markdown")
+        @Operation(summary = "Download a user's portfolio as a Markdown file", description = "Generates and downloads a GitHub-friendly Markdown (.md) version of the user's portfolio.")
+        @SkipApiResponseWrapper // This response is a file stream, not JSON
+        @TrackVisitor(VisitorStatType.MARKDOWN_DOWNLOAD)
+        public ResponseEntity<byte[]> downloadPortfolioAsMarkdown(
+                        @Parameter(description = "The unique, URL-friendly slug of the user.", example = "jane-doe") @PathVariable String slug) {
 
-        // FIX: Adhere to architectural rules. Controller fetches the entity, service operates on it.
-        User user = portfolioService.getPublicPortfolioUserBySlug(slug);
-        MarkdownGenerationService.MarkdownFile mdFile = markdownGenerationService.generatePortfolioMarkdown(user);
+                // FIX: Adhere to architectural rules. Controller fetches the entity, service
+                // operates on it.
+                User user = portfolioService.getPublicPortfolioUserBySlug(slug);
+                MarkdownGenerationService.MarkdownFile mdFile = markdownGenerationService
+                                .generatePortfolioMarkdown(user);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType("text/markdown;charset=UTF-8"));
-        headers.setContentDispositionFormData("attachment", mdFile.suggestedFilename());
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.parseMediaType("text/markdown;charset=UTF-8"));
+                headers.setContentDisposition(org.springframework.http.ContentDisposition.attachment()
+                                .filename(mdFile.suggestedFilename())
+                                .build());
 
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(mdFile.content());
-    }
+                return ResponseEntity.ok()
+                                .headers(headers)
+                                .body(mdFile.content());
+        }
 }

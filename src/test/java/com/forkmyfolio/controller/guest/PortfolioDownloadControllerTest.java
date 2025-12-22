@@ -1,4 +1,4 @@
-/*
+
 package com.forkmyfolio.controller.guest;
 
 import com.forkmyfolio.model.User;
@@ -52,7 +52,7 @@ class PortfolioDownloadControllerTest {
         user.setFirstName("John");
         user.setLastName("Doe");
         byte[] pdfContent = "test-pdf-content".getBytes(StandardCharsets.UTF_8);
-        PdfGenerationService.PdfFile pdfFile = new PdfGenerationService.PdfFile("portfolio.pdf", pdfContent);
+        PdfGenerationService.PdfFile pdfFile = new PdfGenerationService.PdfFile(pdfContent, "portfolio.pdf");
 
         when(portfolioService.getPublicPortfolioUserBySlug(anyString())).thenReturn(user);
         when(pdfGenerationService.generatePortfolioPdf(any(User.class), anyString())).thenReturn(pdfFile);
@@ -61,7 +61,7 @@ class PortfolioDownloadControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_PDF))
                 .andExpect(header().string("Content-Disposition", "attachment; filename=\"portfolio.pdf\""))
-                .andExpect(content().string(is(new String(pdfContent, StandardCharsets.UTF_8))));
+                .andExpect(content().bytes(pdfContent));
     }
 
     @Test
@@ -70,7 +70,8 @@ class PortfolioDownloadControllerTest {
         user.setFirstName("Jane");
         user.setLastName("Doe");
         byte[] mdContent = "test-md-content".getBytes(StandardCharsets.UTF_8);
-        MarkdownGenerationService.MarkdownFile mdFile = new MarkdownGenerationService.MarkdownFile("portfolio.md", mdContent);
+        MarkdownGenerationService.MarkdownFile mdFile = new MarkdownGenerationService.MarkdownFile(mdContent,
+                "portfolio.md");
 
         when(portfolioService.getPublicPortfolioUserBySlug(anyString())).thenReturn(user);
         when(markdownGenerationService.generatePortfolioMarkdown(any(User.class))).thenReturn(mdFile);
@@ -82,4 +83,3 @@ class PortfolioDownloadControllerTest {
                 .andExpect(content().string(is(new String(mdContent, StandardCharsets.UTF_8))));
     }
 }
-*/
