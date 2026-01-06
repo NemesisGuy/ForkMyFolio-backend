@@ -52,7 +52,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional
-    public User registerUser(String email, String password, String firstName, String lastName, String profileImageUrl, Set<Role> roles, Boolean active) {
+    public User registerUser(String email, String password, String firstName, String lastName, String profileImageUrl,
+            Set<Role> roles, Boolean active) {
         if (userRepository.existsByEmail(email)) {
             throw new DuplicateResourceException("Email is already in use: " + email);
         }
@@ -102,7 +103,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         } else {
             email = principal.toString();
         }
-        return userRepository.findByEmailWithAllPortfolioData(email)
+        return userRepository.findByEmailWithProfile(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
 
@@ -126,12 +127,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public List<User> getAllUsersWithPortfolioData() {
-        return userRepository.findAllWithPortfolioData();
+        return userRepository.findAllForBackup();
     }
 
     @Override
     @Transactional
-    public User updateUserByAdmin(UUID uuid, String firstName, String lastName, String slug, Set<Role> roles, Boolean active) {
+    public User updateUserByAdmin(UUID uuid, String firstName, String lastName, String slug, Set<Role> roles,
+            Boolean active) {
         User user = getUserByUuid(uuid);
         user.setFirstName(firstName);
         user.setLastName(lastName);
@@ -160,7 +162,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public Optional<User> findBySlugWithAllPortfolioData(String slug) {
-        return userRepository.findBySlugWithAllPortfolioData(slug);
+        return userRepository.findBySlugWithProfile(slug);
     }
 
     @Override
@@ -196,7 +198,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             User savedAdmin = userRepository.save(admin);
             createDefaultProfileForUser(savedAdmin);
             sendAdminWelcomeMessage(savedAdmin); // Specific message about changing password
-            sendWelcomeMessage(savedAdmin);      // Standard message about setting up portfolio
+            sendWelcomeMessage(savedAdmin); // Standard message about setting up portfolio
         }
     }
 
@@ -216,7 +218,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User currentUser = getCurrentAuthenticatedUser();
         currentUser.setTermsAcceptedAt(Instant.now());
         // For audit purposes, we should store which version of the terms was accepted.
-        // A simple date stamp is a good default. This could be externalized to config later.
+        // A simple date stamp is a good default. This could be externalized to config
+        // later.
         currentUser.setTermsVersion("v" + java.time.LocalDate.now());
         userRepository.save(currentUser);
         log.info("User {} has accepted the terms and conditions.", currentUser.getEmail());
@@ -224,7 +227,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     /**
      * Creates and saves a welcome message for a new administrator.
-     * This message guides them on the next steps and informs them about the mandatory password change.
+     * This message guides them on the next steps and informs them about the
+     * mandatory password change.
      *
      * @param admin The newly created admin user.
      */
@@ -235,11 +239,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         welcomeMessage.setEmail("system@forkmyfolio.com");
         welcomeMessage.setMessage(
                 "Welcome, Administrator!\n\n" +
-                "Your admin account has been successfully set up. For security reasons, you are required to change your temporary password immediately.\n\n" +
-                "Once you've updated your password, you will have full access to the admin dashboard where you can manage users, view system statistics, and perform other administrative tasks.\n\n" +
-                "Thank you for keeping the system secure.\n\n" +
-                "The ForkMyFolio Team"
-        );
+                        "Your admin account has been successfully set up. For security reasons, you are required to change your temporary password immediately.\n\n"
+                        +
+                        "Once you've updated your password, you will have full access to the admin dashboard where you can manage users, view system statistics, and perform other administrative tasks.\n\n"
+                        +
+                        "Thank you for keeping the system secure.\n\n" +
+                        "The ForkMyFolio Team");
         welcomeMessage.setRead(false);
         welcomeMessage.setArchived(false);
         welcomeMessage.setReplied(false);
@@ -250,7 +255,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     /**
      * Creates a default, public-facing portfolio profile for a new user.
-     * This ensures that new users have a profile to edit immediately and that it's visible by default.
+     * This ensures that new users have a profile to edit immediately and that it's
+     * visible by default.
      *
      * @param user The newly registered user.
      */
@@ -260,14 +266,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         profile.setPublic(true); // Make the portfolio public by default.
         profile.setVisible(true); // Ensure the profile section itself is visible.
         profile.setHeadline("Welcome to Your New Portfolio!");
-        profile.setSummary("This is your new portfolio summary. You can edit this text to tell visitors about yourself, your skills, and your professional goals. Make it engaging and unique!");
+        profile.setSummary(
+                "This is your new portfolio summary. You can edit this text to tell visitors about yourself, your skills, and your professional goals. Make it engaging and unique!");
         portfolioProfileRepository.save(profile);
         log.info("Created default portfolio profile for user {}.", user.getEmail());
     }
 
     /**
      * Creates and saves a standard welcome message for a new user.
-     * This message guides them on the next steps and informs them about the default public visibility.
+     * This message guides them on the next steps and informs them about the default
+     * public visibility.
      *
      * @param user The newly registered user.
      */
@@ -276,7 +284,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         welcomeMessage.setUser(user);
         welcomeMessage.setName("The ForkMyFolio Team");
         welcomeMessage.setEmail("welcome@forkmyfolio.com");
-        welcomeMessage.setMessage("Welcome to ForkMyFolio! We're excited to have you on board.\n\nYour account has been created successfully. Here are a few next steps to get your portfolio looking great:\n\n1.  **Complete Your Profile:** Navigate to the 'My Portfolio' sections in the dashboard to add your work experience, projects, skills, and more.\n2.  **Customize Your Look:** Check out the settings to choose a theme and personalize your public page.\n\n**Important Note:** Your portfolio is set to **public** by default so you can share it right away. If you're not ready for the world to see it yet, you can easily make it private. Just go to **Display Settings** and toggle the **'Portfolio is Public'** switch to the OFF position.\n\nWe can't wait to see what you create!\n\nBest,\nThe ForkMyFolio Team");
+        welcomeMessage.setMessage(
+                "Welcome to ForkMyFolio! We're excited to have you on board.\n\nYour account has been created successfully. Here are a few next steps to get your portfolio looking great:\n\n1.  **Complete Your Profile:** Navigate to the 'My Portfolio' sections in the dashboard to add your work experience, projects, skills, and more.\n2.  **Customize Your Look:** Check out the settings to choose a theme and personalize your public page.\n\n**Important Note:** Your portfolio is set to **public** by default so you can share it right away. If you're not ready for the world to see it yet, you can easily make it private. Just go to **Display Settings** and toggle the **'Portfolio is Public'** switch to the OFF position.\n\nWe can't wait to see what you create!\n\nBest,\nThe ForkMyFolio Team");
         welcomeMessage.setRead(false); // Mark as unread
         welcomeMessage.setArchived(false);
         welcomeMessage.setReplied(false);

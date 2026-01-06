@@ -20,7 +20,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "user_settings", uniqueConstraints = {
         // Ensures a user can only have one entry for each setting name.
-        @UniqueConstraint(columnNames = {"user_id", "name"})
+        @UniqueConstraint(columnNames = { "user_id", "name" })
 })
 @Getter
 @Setter

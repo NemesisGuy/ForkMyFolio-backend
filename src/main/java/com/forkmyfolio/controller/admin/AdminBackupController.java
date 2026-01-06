@@ -6,9 +6,7 @@ import com.forkmyfolio.aop.SkipApiResponseWrapper;
 import com.forkmyfolio.dto.backup.BackupFileDto;
 import com.forkmyfolio.dto.backup.BackupMetaDto;
 import com.forkmyfolio.dto.response.PortfolioBackupDto;
-import com.forkmyfolio.dto.response.UserDto;
 import com.forkmyfolio.dto.response.UserFullBackupDto;
-import com.forkmyfolio.mapper.UserMapper;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.service.BackupService;
 import com.forkmyfolio.service.BackupValidationService;
@@ -32,7 +30,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,7 +49,6 @@ public class AdminBackupController {
     private final BackupService backupService;
 
     // Mappers for DTO conversion
-    private final UserMapper userMapper;
     private final ObjectMapper objectMapper;
 
     @Value("${app.version:2.0.0}")
@@ -63,14 +59,10 @@ public class AdminBackupController {
     @SkipApiResponseWrapper
     public ResponseEntity<byte[]> downloadSystemBackup() throws IOException {
         log.info("Admin request for system-wide backup initiated.");
-        List<User> allUsers = userService.getAllUsersWithPortfolioData();
-        List<UserFullBackupDto> systemBackupData = new ArrayList<>();
 
-        for (User user : allUsers) {
-            PortfolioBackupDto portfolioBackup = backupService.createBackupDtoForUser(user);
-            UserDto userDto = userMapper.toDto(user);
-            systemBackupData.add(new UserFullBackupDto(userDto, portfolioBackup));
-        }
+        // Use the service to create a transactional backup of all users.
+        // This avoids LazyInitializationException and Cartesian product OOMs.
+        List<UserFullBackupDto> systemBackupData = backupService.createFullSystemBackup();
 
         log.info("Successfully generated backup data for {} users.", systemBackupData.size());
 
@@ -87,7 +79,8 @@ public class AdminBackupController {
 
         BackupFileDto<List<UserFullBackupDto>> backupFile = new BackupFileDto<>(meta, systemBackupData);
 
-        String filename = String.format("forkmyfolio-system-backup-%s.json", LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        String filename = String.format("forkmyfolio-system-backup-%s.json",
+                LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
         byte[] jsonContent = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(backupFile);
 
         HttpHeaders headers = new HttpHeaders();
@@ -101,11 +94,14 @@ public class AdminBackupController {
     @Operation(summary = "Restore the entire system from a backup", description = "Upload a system backup file. THIS IS A DESTRUCTIVE OPERATION and will wipe all existing data before restoring.")
     public ResponseEntity<Void> restoreSystemFromBackup(@RequestParam("file") MultipartFile file) throws IOException {
         log.warn("Admin request for SYSTEM-WIDE restore initiated. THIS IS A DESTRUCTIVE OPERATION.");
-        if (file.isEmpty() || !MediaType.APPLICATION_JSON.isCompatibleWith(MediaType.parseMediaType(file.getContentType()))) {
+        if (file.isEmpty()
+                || !MediaType.APPLICATION_JSON.isCompatibleWith(MediaType.parseMediaType(file.getContentType()))) {
             throw new IllegalArgumentException("Invalid file. Please upload a valid JSON backup file.");
         }
 
-        BackupFileDto<List<UserFullBackupDto>> backupFile = objectMapper.readValue(file.getInputStream(), new TypeReference<>() {});
+        BackupFileDto<List<UserFullBackupDto>> backupFile = objectMapper.readValue(file.getInputStream(),
+                new TypeReference<>() {
+                });
 
         backupValidationService.validateBackup(backupFile.getMeta(), "system_backup");
         restoreService.restoreSystemFromBackup(backupFile.getData());
@@ -121,12 +117,15 @@ public class AdminBackupController {
             @RequestParam("file") MultipartFile file) throws IOException {
 
         log.warn("Admin request to restore a single user's portfolio for UUID: {}", userUuid);
-        if (file.isEmpty() || !MediaType.APPLICATION_JSON.isCompatibleWith(MediaType.parseMediaType(file.getContentType()))) {
+        if (file.isEmpty()
+                || !MediaType.APPLICATION_JSON.isCompatibleWith(MediaType.parseMediaType(file.getContentType()))) {
             throw new IllegalArgumentException("Invalid file. Please upload a valid JSON backup file.");
         }
 
         User targetUser = userService.getUserByUuid(userUuid);
-        BackupFileDto<PortfolioBackupDto> backupFile = objectMapper.readValue(file.getInputStream(), new TypeReference<>() {});
+        BackupFileDto<PortfolioBackupDto> backupFile = objectMapper.readValue(file.getInputStream(),
+                new TypeReference<>() {
+                });
 
         backupValidationService.validateBackup(backupFile.getMeta(), "user_backup");
         restoreService.restoreUserFromBackup(targetUser, backupFile.getData());

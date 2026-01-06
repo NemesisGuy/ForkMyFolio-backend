@@ -9,6 +9,7 @@ import com.forkmyfolio.dto.response.PortfolioBackupDto;
 import com.forkmyfolio.mapper.*;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.model.UserSkill;
+import com.forkmyfolio.service.BackupService;
 import com.forkmyfolio.service.BackupValidationService;
 import com.forkmyfolio.service.RestoreService;
 import com.forkmyfolio.service.UserService;
@@ -41,114 +42,69 @@ import java.util.stream.Collectors;
 @SecurityRequirement(name = "bearerAuth")
 public class BackupController {
 
-    // Services for core logic
-    private final RestoreService restoreService;
-    private final UserService userService;
-    private final BackupValidationService backupValidationService;
+        private final BackupService backupService;
+        private final UserService userService;
+        private final RestoreService restoreService;
+        private final BackupValidationService backupValidationService;
+        private final ObjectMapper objectMapper;
 
-    // Mappers for DTO conversion (Controller-layer responsibility)
-    private final PortfolioProfileMapper portfolioProfileMapper;
-    private final ProjectMapper projectMapper;
-    private final ExperienceMapper experienceMapper;
-    private final TestimonialMapper testimonialMapper;
-    private final QualificationMapper qualificationMapper;
-    private final UserSkillMapper userSkillMapper;
-    private final ObjectMapper objectMapper;
+        @Value("${app.version:2.0.0}")
+        private String appVersion;
 
-    @Value("${app.version:2.0.0}")
-    private String appVersion;
+        @GetMapping
+        @Operation(summary = "Backup my entire portfolio", description = "Downloads a versioned JSON file containing all of the authenticated user's portfolio data.")
+        @SkipApiResponseWrapper
+        public ResponseEntity<byte[]> downloadBackup() throws IOException {
+                // Fetch the current user
+                User currentUser = userService.getCurrentAuthenticatedUser();
 
-    @GetMapping
-    @Operation(summary = "Backup my entire portfolio", description = "Downloads a versioned JSON file containing all of the authenticated user's portfolio data.")
-    @SkipApiResponseWrapper
-    public ResponseEntity<byte[]> downloadBackup() throws IOException {
-        // Use the service method that eagerly fetches all portfolio data to prevent LazyInitializationException.
-        User currentUser = userService.getCurrentAuthenticatedUserWithAllPortfolioData(); // This is the fix.
-        PortfolioBackupDto backupData = createBackupDtoForUser(currentUser);
+                // Use the transactional service to create the backup DTO by passing the UUID.
+                // This ensures the user is fetched and processed within a single transaction.
+                PortfolioBackupDto backupData = backupService.createBackupDtoForUser(currentUser.getUuid());
 
-        BackupMetaDto meta = BackupMetaDto.builder()
-                .version(appVersion)
-                .exportedAt(ZonedDateTime.now())
-                .type("user_backup")
-                .compatibility(BackupMetaDto.Compatibility.builder()
-                        .minSupportedVersion("2.0.0")
-                        .maxSupportedVersion("2.x")
-                        .build())
-                .exportedBy(currentUser.getSlug())
-                .system("ForkMyFolio")
-                .build();
+                BackupMetaDto meta = BackupMetaDto.builder()
+                                .version(appVersion)
+                                .exportedAt(ZonedDateTime.now())
+                                .type("user_backup")
+                                .compatibility(BackupMetaDto.Compatibility.builder()
+                                                .minSupportedVersion("2.0.0")
+                                                .maxSupportedVersion("2.x")
+                                                .build())
+                                .exportedBy(currentUser.getSlug())
+                                .system("ForkMyFolio")
+                                .build();
 
-        BackupFileDto<PortfolioBackupDto> backupFile = new BackupFileDto<>(meta, backupData);
+                BackupFileDto<PortfolioBackupDto> backupFile = new BackupFileDto<>(meta, backupData);
 
-        String filename = String.format("forkmyfolio-backup-%s-%s.json", currentUser.getSlug(), LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
-        byte[] jsonContent = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(backupFile);
+                String filename = String.format("forkmyfolio-backup-%s-%s.json", currentUser.getSlug(),
+                                LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
+                byte[] jsonContent = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(backupFile);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setContentDispositionFormData("attachment", filename);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.setContentDispositionFormData("attachment", filename);
 
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(jsonContent);
-    }
-
-    @PostMapping("/restore")
-    @Operation(summary = "Restore my portfolio from a backup", description = "Upload a versioned JSON backup file to restore portfolio data. This is a destructive action and will replace existing data.")
-    public ResponseEntity<Void> restoreFromBackup(@RequestParam("file") MultipartFile file) throws IOException {
-        if (file.isEmpty() || !MediaType.APPLICATION_JSON.isCompatibleWith(MediaType.parseMediaType(file.getContentType()))) {
-            throw new IllegalArgumentException("Invalid file. Please upload a valid JSON backup file.");
+                return ResponseEntity.ok()
+                                .headers(headers)
+                                .body(jsonContent);
         }
 
-        BackupFileDto<PortfolioBackupDto> backupFile = objectMapper.readValue(file.getInputStream(), new TypeReference<>() {});
+        @PostMapping("/restore")
+        @Operation(summary = "Restore my portfolio from a backup", description = "Upload a versioned JSON backup file to restore portfolio data. This is a destructive action and will replace existing data.")
+        public ResponseEntity<Void> restoreFromBackup(@RequestParam("file") MultipartFile file) throws IOException {
+                if (file.isEmpty() || !MediaType.APPLICATION_JSON
+                                .isCompatibleWith(MediaType.parseMediaType(file.getContentType()))) {
+                        throw new IllegalArgumentException("Invalid file. Please upload a valid JSON backup file.");
+                }
 
-        backupValidationService.validateBackup(backupFile.getMeta(), "user_backup");
-        restoreService.restoreFromBackup(backupFile.getData());
+                BackupFileDto<PortfolioBackupDto> backupFile = objectMapper.readValue(file.getInputStream(),
+                                new TypeReference<>() {
+                                });
 
-        return ResponseEntity.noContent().build();
-    }
+                backupValidationService.validateBackup(backupFile.getMeta(), "user_backup");
+                restoreService.restoreFromBackup(backupFile.getData());
 
-    /**
-     * Private helper method to encapsulate the logic for creating a backup DTO from a User entity.
-     * This logic correctly resides in the controller layer.
-     *
-     * @param user The user for whom to create the backup.
-     * @return A fully populated PortfolioBackupDto.
-     */
-    private PortfolioBackupDto createBackupDtoForUser(User user) {
-        PortfolioBackupDto backupDto = new PortfolioBackupDto();
-
-        // Create the lookup map that the mappers need to build complete DTOs.
-        // The key is the global Skill UUID, and the value is the full UserSkill entity.
-        Map<UUID, UserSkill> userSkillLookup = user.getUserSkills().stream()
-                .collect(Collectors.toMap(
-                        userSkill -> userSkill.getSkill().getUuid(),
-                        userSkill -> userSkill, // The value is the UserSkill itself
-                        (existing, replacement) -> existing // In case of duplicates, keep the existing one
-                ));
-
-        if (user.getPortfolioProfile() != null) {
-            backupDto.setProfile(portfolioProfileMapper.toDto(user.getPortfolioProfile()));
+                return ResponseEntity.noContent().build();
         }
 
-        // The mappers now correctly handle the inclusion of all skill details, including user-specific ones.
-        backupDto.setProjects(user.getProjects().stream()
-                .map(project -> projectMapper.toDto(project, userSkillLookup))
-                .collect(Collectors.toList()));
-
-        backupDto.setSkills(userSkillMapper.toDtoList(new ArrayList<>(user.getUserSkills())));
-
-        backupDto.setExperiences(user.getExperiences().stream()
-                .map(experience -> experienceMapper.toDto(experience, userSkillLookup))
-                .collect(Collectors.toList()));
-
-        backupDto.setTestimonials(user.getTestimonials().stream()
-                .map(testimonialMapper::toDto)
-                .collect(Collectors.toList()));
-
-        backupDto.setQualifications(user.getQualifications().stream()
-                .map(qualificationMapper::toDto)
-                .collect(Collectors.toList()));
-
-        return backupDto;
-    }
 }

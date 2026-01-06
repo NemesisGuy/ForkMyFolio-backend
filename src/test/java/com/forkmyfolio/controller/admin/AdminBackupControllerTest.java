@@ -1,10 +1,7 @@
 package com.forkmyfolio.controller.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.forkmyfolio.dto.backup.BackupFileDto;
 import com.forkmyfolio.dto.response.PortfolioBackupDto;
-import com.forkmyfolio.dto.response.UserDto;
-import com.forkmyfolio.mapper.UserMapper;
 import com.forkmyfolio.model.User;
 import com.forkmyfolio.service.BackupService;
 import com.forkmyfolio.service.BackupValidationService;
@@ -49,8 +46,6 @@ class AdminBackupControllerTest {
     private UserService userService;
     @Mock
     private BackupService backupService;
-    @Mock
-    private UserMapper userMapper;
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
@@ -65,25 +60,23 @@ class AdminBackupControllerTest {
 
     @Test
     void downloadSystemBackup_shouldReturnBackupFile() throws Exception {
-        User user = new User();
-        user.setId(1L);
-        PortfolioBackupDto portfolioBackupDto = new PortfolioBackupDto();
-        UserDto userDto = new UserDto();
+        com.forkmyfolio.dto.response.UserFullBackupDto backupDto = new com.forkmyfolio.dto.response.UserFullBackupDto();
 
-        when(userService.getAllUsersWithPortfolioData()).thenReturn(Collections.singletonList(user));
-        when(backupService.createBackupDtoForUser(eq(user))).thenReturn(portfolioBackupDto);
-        when(userMapper.toDto(eq(user))).thenReturn(userDto);
+        when(backupService.createFullSystemBackup()).thenReturn(Collections.singletonList(backupDto));
 
         mockMvc.perform(get("/api/v1/admin/backup"))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Type", "application/json"))
                 .andExpect(header().string("Content-Disposition", containsString("forkmyfolio-system-backup-")));
+
+        verify(backupService).createFullSystemBackup();
     }
 
     @Test
     void restoreSystemFromBackup_shouldRestoreSystem() throws Exception {
         String jsonContent = "{\"meta\":{\"version\":\"2.0.0\",\"type\":\"system_backup\"},\"data\":[]}";
-        MockMultipartFile file = new MockMultipartFile("file", "backup.json", MediaType.APPLICATION_JSON_VALUE, jsonContent.getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile file = new MockMultipartFile("file", "backup.json", MediaType.APPLICATION_JSON_VALUE,
+                jsonContent.getBytes(StandardCharsets.UTF_8));
 
         doNothing().when(backupValidationService).validateBackup(any(), eq("system_backup"));
         doNothing().when(restoreService).restoreSystemFromBackup(any());
@@ -98,7 +91,8 @@ class AdminBackupControllerTest {
     void restoreSingleUser_shouldRestoreUser() throws Exception {
         UUID userUuid = UUID.randomUUID();
         String jsonContent = "{\"meta\":{\"version\":\"2.0.0\",\"type\":\"user_backup\"},\"data\":{}}";
-        MockMultipartFile file = new MockMultipartFile("file", "backup.json", MediaType.APPLICATION_JSON_VALUE, jsonContent.getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile file = new MockMultipartFile("file", "backup.json", MediaType.APPLICATION_JSON_VALUE,
+                jsonContent.getBytes(StandardCharsets.UTF_8));
 
         User targetUser = new User();
 

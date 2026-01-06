@@ -8,19 +8,19 @@ import com.forkmyfolio.model.enums.VisitorStatType;
 import com.forkmyfolio.service.PortfolioService;
 import com.forkmyfolio.service.impl.VCardService;
 import com.forkmyfolio.service.impl.VisitorStatsService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/portfolios/{slug}/vcard")
+@CrossOrigin(origins = "${app.cors.allowed-origins}")
+@Tag(name = "Public Portfolios")
 @RequiredArgsConstructor
 public class VCardController {
 
@@ -47,7 +47,10 @@ public class VCardController {
             headers.setContentDispositionFormData("attachment", vCardFile.suggestedFilename());
 
             log.info("Successfully generated vCard for {}. Filename: {}", slug, vCardFile.suggestedFilename());
-            return new ResponseEntity<>(vCardFile.content(), headers, HttpStatus.OK);
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(vCardFile.content().length)
+                    .body(vCardFile.content());
         } catch (Exception e) {
             log.error("Failed to generate vCard for slug: {}", slug, e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

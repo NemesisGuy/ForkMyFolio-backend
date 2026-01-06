@@ -1,0 +1,596 @@
+<!-- ForkMyFolio Backend Architecture Post - NemesisNet-styled HTML Draft -->
+<article>
+
+  <p class="lead">This long-form deep dive unpacks how ForkMyFolio's backend turns a simple personal portfolio into a multi-user, slug-driven, production-ready platform built on Java&nbsp;21 and Spring Boot&nbsp;3.</p>
+
+  <div class="entry-meta">
+    <span><i class="fas fa-calendar-alt"></i> Updated: December 4, 2025</span>
+    <span style="margin-left: 1rem;"><i class="fas fa-code"></i> Tech Stack: Java 21, Spring Boot 3, Spring Security, JPA, Docker</span>
+  </div>
+
+  <h3 style="margin-top: 24px;">What You'll Learn</h3>
+  <ul class="features-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px;">
+      <li class="feature-list-item">
+        <div class="feature-list-icon"><i class="fas fa-layer-group"></i></div>
+        <div class="feature-list-content">
+          <h4 class="feature-list-title">Layered Spring Boot Architecture</h4>
+          <p class="feature-list-description">How controllers, services, repositories, DTOs, and mappers fit together.</p>
+        </div>
+      </li>
+      <li class="feature-list-item">
+        <div class="feature-list-icon"><i class="fas fa-users"></i></div>
+        <div class="feature-list-content">
+          <h4 class="feature-list-title">Multi-User, Slug-Driven Design</h4>
+          <p class="feature-list-description">Designing users, UUIDs, and slugs so one backend can host many portfolios safely.</p>
+        </div>
+      </li>
+      <li class="feature-list-item">
+        <div class="feature-list-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="feature-list-content">
+          <h4 class="feature-list-title">Security and Roles</h4>
+          <p class="feature-list-description">JWT auth with refresh cookies, OAuth2 login, and role-based zones.</p>
+        </div>
+      </li>
+      <li class="feature-list-item">
+        <div class="feature-list-icon"><i class="fas fa-file-pdf"></i></div>
+        <div class="feature-list-content">
+          <h4 class="feature-list-title">Portfolio Features</h4>
+          <p class="feature-list-description">PDF / Markdown / vCard exports, analytics, contact messages, and backups.</p>
+        </div>
+      </li>
+    </ul>
+
+  <h2 style="margin-top: 32px;">1. From "Just a Portfolio" to a Small SaaS</h2>
+  <div class="glass-section">
+    <p>
+      Most developer portfolios start as a static page. Then reality happens: you want a projects gallery, a blog, analytics,
+      a downloadable PDF resume, maybe even multi-user support for friends or clients. At that point you're quietly building
+      a small SaaS whether you meant to or not.
+    </p>
+    <p>
+      <strong>ForkMyFolio</strong> embraces this reality from day one. Instead of hard-coding a single person's site,
+      the backend is designed as a <em>multi-user, slug-driven portfolio backend</em> with:
+    </p>
+  </div>
+  <div class="glass-card">
+    <ul>
+      <li>Multiple users, each with their own portfolio and public slug</li>
+      <li>A clear separation between public, authenticated, and admin APIs</li>
+      <li>JWT authentication with secure refresh tokens in HttpOnly cookies</li>
+      <li>Dynamic portfolio configuration and PDF template selection</li>
+      <li>Non-intrusive visitor analytics and robust backup / restore flows</li>
+    </ul>
+  </div>
+  <div class="glass-section">
+    <p>
+      The frontend is a single-page application (SPA). The backend is a clean, versioned REST API that enforces the rules,
+      handles security, and keeps the data model consistent.
+    </p>
+  </div>
+
+  <h2>2. High-Level Architecture: A Clean, Layered Spring Boot Core</h2>
+  <div class="glass-section">
+    <p>
+      Under the hood, ForkMyFolio is a classic layered Spring Boot application with a strong opinion about boundaries.
+      The documentation in <code>TECHNICAL_DOCUMENTATION.md</code> and <code>ARCHITECTURE_RULES.md</code> formalizes this into
+      project-wide rules, but the core idea is simple:
+    </p>
+  </div>
+
+  <blockquote>
+    <p>Controllers handle HTTP and DTOs. Services handle business logic and entities. Repositories handle persistence. Never mix these responsibilities.</p>
+    <cite>ForkMyFolio Architecture Rules</cite>
+  </blockquote>
+
+  <h3>2.1 Technology Stack</h3>
+  <div>
+    <table>
+        <thead>
+          <tr>
+            <th>Concern</th>
+            <th>Technology</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Language &amp; Runtime</td>
+            <td>Java 21</td>
+          </tr>
+          <tr>
+            <td>Application Framework</td>
+            <td>Spring Boot 3 (Web, Security, Validation, OAuth2 Client)</td>
+          </tr>
+          <tr>
+            <td>Persistence</td>
+            <td>Spring Data JPA, MySQL (with Flyway), H2 for development</td>
+          </tr>
+          <tr>
+            <td>Security</td>
+            <td>Spring Security, JWT via <code>jjwt</code>, OAuth2 Login</td>
+          </tr>
+          <tr>
+            <td>API Documentation</td>
+            <td>Springdoc OpenAPI (Swagger UI)</td>
+          </tr>
+          <tr>
+            <td>PDF Generation</td>
+            <td>iText 7</td>
+          </tr>
+          <tr>
+            <td>Packaging &amp; Deployment</td>
+            <td>Fat JAR via Maven, Dockerfile + docker-compose</td>
+          </tr>
+        </tbody>
+      </table>
+  </div>
+
+  <h3>2.2 Package Layout</h3>
+  <div>
+    <p>
+      The code lives under the root package <code>com.forkmyfolio</code> and is split into focused subpackages:
+    </p>
+    <ul class="features-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px;">
+      <li class="feature-list-item">
+        <div class="feature-list-icon"><i class="fas fa-cog"></i></div>
+        <div class="feature-list-content">
+          <h4 class="feature-list-title"><code>config</code></h4>
+          <p class="feature-list-description">Spring configuration such as <code>SecurityConfig</code>, OpenAPI configuration, etc.</p>
+        </div>
+      </li>
+      <li class="feature-list-item">
+        <div class="feature-list-icon"><i class="fas fa-code-branch"></i></div>
+        <div class="feature-list-content">
+          <h4 class="feature-list-title"><code>controller</code></h4>
+          <p class="feature-list-description">REST controllers grouped by resource: portfolios, auth, admin, user profile.</p>
+        </div>
+      </li>
+      <li class="feature-list-item">
+        <div class="feature-list-icon"><i class="fas fa-database"></i></div>
+        <div class="feature-list-content">
+          <h4 class="feature-list-title"><code>model</code> &amp; <code>repository</code></h4>
+          <p class="feature-list-description">JPA entities and Spring Data JPA repositories that map to the underlying database.</p>
+        </div>
+      </li>
+      <li class="feature-list-item">
+        <div class="feature-list-icon"><i class="fas fa-cubes"></i></div>
+        <div class="feature-list-content">
+          <h4 class="feature-list-title"><code>service</code> &amp; <code>mapper</code></h4>
+          <p class="feature-list-description">Business logic and manual DTO mappers that keep the API surface explicit and stable.</p>
+        </div>
+      </li>
+      <li class="feature-list-item">
+        <div class="feature-list-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="feature-list-content">
+          <h4 class="feature-list-title"><code>security</code></h4>
+          <p class="feature-list-description">JWT filters, authentication entrypoints, OAuth2 integration, and custom user details.</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <h2>3. Layered Design and One-Way Data Flow</h2>
+  <div class="glass-section">
+    <p>
+      The value of the architecture is not just in package names; it's in how requests actually move through the system.
+    </p>
+  </div>
+
+  <h3>3.1 The Three Layers</h3>
+  <div class="glass-card">
+    <ul>
+      <li><strong>Controller Layer</strong> &mdash; <code>@RestController</code> classes that speak HTTP and JSON, accept and return DTOs, and never call the database directly.</li>
+      <li><strong>Service Layer</strong> &mdash; <code>@Service</code> components that encapsulate business rules, operate on JPA entities, and orchestrate multiple repositories.</li>
+      <li><strong>Repository Layer</strong> &mdash; <code>@Repository</code> interfaces powered by Spring Data JPA, responsible only for persistence.</li>
+    </ul>
+  </div>
+
+  <div class="glass-section">
+    <p>
+      A typical request flows like this:
+    </p>
+    <p><strong>Request Flow</strong></p>
+    <p>
+      <code>HTTP Request (JSON DTO)</code> → Controller → Service → Repository → Database → Service → Controller →
+      <code>HTTP Response (DTO wrapped in ApiResponseWrapper)</code>
+    </p>
+    <p>
+      Even for file-heavy features like PDF or vCard downloads, controllers remain thin: they set headers and content type,
+      while services prepare the domain data and call specialized generators.
+    </p>
+  </div>
+
+  <h2>4. Designing for Multi-User Slugs and UUIDs</h2>
+  <div class="glass-section">
+    <p>
+      ForkMyFolio V2 pivots from a single-portfolio mindset to a true multi-user platform. That decision ripples through the
+      data model, URL design, and security rules.
+    </p>
+  </div>
+
+  <h3>4.1 The <code>User</code> Entity as the Anchor</h3>
+  <div class="glass-section">
+    <p>
+      The <code>User</code> entity in <code>com.forkmyfolio.model</code> is more than a login record; it is the root of a user's
+      entire portfolio universe:
+    </p>
+  </div>
+  <div class="glass-card">
+    <ul>
+      <li>Internal primary key: numeric <code>id</code> (never exposed publicly).</li>
+      <li>External identifier: <code>uuid</code>, used in APIs and backups.</li>
+      <li>Public routing identifier: <code>slug</code>, used in URLs like <code>/api/v1/portfolios/{slug}</code>.</li>
+      <li>Authentication details: <code>email</code>, <code>password</code>, <code>AuthProvider</code>, <code>providerId</code>.</li>
+      <li>Lifecycle flags: <code>active</code>, <code>emailVerified</code>, <code>termsAcceptedAt</code>, <code>termsVersion</code>.</li>
+      <li>Relations to portfolio content: profile, projects, experiences, skills, qualifications, testimonials, contact messages, settings, refresh tokens.</li>
+      <li>Roles via <code>Set&lt;Role&gt;</code>, mapped to Spring Security authorities like <code>ROLE_USER</code>, <code>ROLE_ADMIN</code>.</li>
+    </ul>
+  </div>
+
+  <div class="glass-section">
+    <p>
+      Because <code>User</code> implements <code>UserDetails</code>, it plugs directly into Spring Security. The role set becomes a
+      collection of <code>GrantedAuthority</code> instances, which <code>SecurityConfig</code> then uses when enforcing access rules.
+    </p>
+  </div>
+
+  <h3>4.2 UUIDs and Slugs as Public Contracts</h3>
+  <div class="glass-section">
+    <p>
+      The architecture rules explicitly require that raw database IDs never appear in the public API. Instead:
+    </p>
+  </div>
+  <div class="glass-card">
+    <ul>
+      <li>All public-facing references use <strong>UUIDs</strong> for entities.</li>
+      <li>Public portfolio routing uses a human-readable <strong>slug</strong> per user.</li>
+    </ul>
+  </div>
+  <div class="glass-section">
+    <p>
+      This prevents simple enumeration attacks (guessing <code>/users/1</code>, <code>/users/2</code>, etc.) and makes URLs
+      stable across database migrations.
+    </p>
+  </div>
+
+  <h3>4.3 <code>PortfolioService.getPublicPortfolioUserBySlug</code></h3>
+  <div class="glass-section">
+    <p>
+      Public portfolio endpoints never query the <code>User</code> table directly. They instead call a single, well-defined
+      service method:
+    </p>
+    <p><code>User getPublicPortfolioUserBySlug(String slug)</code></p>
+    <p>
+      This method guarantees two things before any data is returned:
+    </p>
+  </div>
+  <div class="glass-card">
+    <ul>
+      <li>The user exists and is active, otherwise a <code>ResourceNotFoundException</code> is thrown.</li>
+      <li>The user's portfolio is public, otherwise a <code>PermissionDeniedException</code> is thrown.</li>
+    </ul>
+  </div>
+  <div class="glass-section">
+    <p>
+      By centralizing that logic, the platform makes it impossible for a controller to accidentally leak private portfolios
+      just by forgetting a filter.
+    </p>
+  </div>
+
+  <h2>5. Public, User, and Admin API Zones</h2>
+  <div class="glass-section">
+    <p>
+      The API surface is deliberately split into three access zones, each with different guarantees and responsibilities.
+    </p>
+  </div>
+
+  <h3>5.1 Public Zone</h3>
+  <div class="glass-card">
+    <p>Base paths like:</p>
+    <ul>
+        <li><code>/api/v1/portfolios/{slug}</code> &ndash; portfolio shell and section summaries</li>
+        <li><code>/api/v1/portfolios/{slug}/projects</code>, <code>/experience</code>, <code>/skills</code>, <code>/qualifications</code>, <code>/testimonials</code></li>
+        <li><code>/api/v1/portfolios/{slug}/pdf</code>, <code>/markdown</code>, <code>/vcard</code> for exports</li>
+        <li><code>/api/v1/portfolios/{slug}/contact-messages</code> for contact form submissions</li>
+        <li><code>/api/v1/settings</code>, <code>/api/v1/settings/pdf-templates</code> for global public settings</li>
+        <li><code>/api/v1/policies/...</code> for privacy policy and terms of service</li>
+      </ul>
+    <p>
+      In <code>SecurityConfig</code>, these routes are explicitly marked <code>permitAll()</code> for the relevant methods (GET for
+      most, POST for contact messages). That makes the public zone browseable without credentials while keeping
+      sensitive actions behind auth.
+    </p>
+  </div>
+
+  <h3>5.2 Authenticated User Zone</h3>
+  <div class="glass-card">
+    <p>
+      Authenticated users operate primarily under <code>/api/v1/me</code> and <code>/api/v1/auth</code>:
+    </p>
+    <ul>
+        <li><code>/api/v1/auth/register</code>, <code>/login</code>, <code>/refresh-token</code>, <code>/logout</code></li>
+        <li><code>/api/v1/me</code> for account details and password changes</li>
+        <li><code>/api/v1/me/profile</code> for portfolio profile</li>
+        <li><code>/api/v1/me/projects</code>, <code>/experiences</code>, <code>/skills</code>, <code>/qualifications</code>, <code>/testimonials</code> for content management</li>
+        <li><code>/api/v1/me/settings</code> for per-user configuration</li>
+        <li><code>/api/v1/me/contact-messages</code> as a personal inbox</li>
+        <li><code>/api/v1/me/backup</code> for self-service backup and restore</li>
+      </ul>
+    <p>
+      These endpoints enforce ownership: a user can only touch their own portfolio data, even if they know someone else's
+      UUID or slug.
+    </p>
+  </div>
+
+  <h3>5.3 Admin Zone</h3>
+  <div class="glass-card">
+    <p>
+      Anything under <code>/api/v1/admin</code> is restricted to <code>ROLE_ADMIN</code> users:
+    </p>
+    <ul>
+        <li>User management (<code>/users</code>)</li>
+        <li>Global settings (<code>/settings</code>)</li>
+        <li>Site-wide contact message moderation</li>
+        <li>Visitor statistics and analytics (<code>/stats</code>)</li>
+        <li>Full-system backup and restore, including per-user restores</li>
+      </ul>
+    <p>
+      This zone is designed with operational tasks in mind: migrations, incident recovery, and platform-wide tuning.
+    </p>
+  </div>
+
+  <h2>6. Security: JWT, Refresh Cookies, and OAuth2</h2>
+  <div class="glass-section">
+    <p>
+      Security is not an afterthought in ForkMyFolio; it's baked into the architecture. The combination of JWTs,
+      HttpOnly cookies, and Spring Security makes authentication predictable and auditable.
+    </p>
+  </div>
+
+  <h3>6.1 JWT and Refresh Flow</h3>
+  <div class="glass-section">
+    <p>
+      The application uses a dual-token strategy:
+    </p>
+  </div>
+  <div class="glass-card">
+    <ul>
+      <li><strong>Access token</strong> &mdash; short-lived JWT sent in the <code>Authorization: Bearer &lt;token&gt;</code> header.</li>
+      <li><strong>Refresh token</strong> &mdash; longer-lived, stored in an HttpOnly, Secure cookie.</li>
+    </ul>
+  </div>
+  <div class="glass-section">
+    <p>
+      When a user authenticates via <code>/auth/login</code> or <code>/auth/register</code>, the backend returns:
+    </p>
+  </div>
+  <div class="glass-card">
+    <ul>
+      <li>A JSON payload with the access token.</li>
+      <li>A <code>Set-Cookie</code> header that stores the refresh token in an HttpOnly cookie.</li>
+    </ul>
+  </div>
+  <div class="glass-section">
+    <p>
+      Once the access token expires, the frontend calls <code>/auth/refresh-token</code>. The browser automatically sends the
+      refresh cookie, the backend validates it, issues a new access token, and rotates the refresh token (rolling tokens).
+    </p>
+  </div>
+
+  <h3>6.2 <code>SecurityConfig</code> in Practice</h3>
+  <div class="glass-section">
+    <p>
+      The <code>SecurityConfig</code> class wires everything together:
+    </p>
+  </div>
+  <div class="glass-card">
+    <ul>
+      <li>Disables CSRF for the pure JSON API surface.</li>
+      <li>Sets session creation policy to stateless.</li>
+      <li>Registers a <code>JwtAuthenticationFilter</code> before the standard username/password filter.</li>
+      <li>Configures an <code>JwtAuthenticationEntryPoint</code> to handle unauthorized errors consistently.</li>
+      <li>Wires up OAuth2 login using <code>CustomOAuth2UserService</code> and custom success/failure handlers.</li>
+    </ul>
+  </div>
+
+  <h3>6.3 CORS and Cookies</h3>
+  <div class="glass-section">
+    <p>
+      Given that the frontend often runs on a different origin (e.g., <code>http://localhost:3000</code> in development),
+      CORS and cookie configuration are crucial. The <code>corsConfigurationSource</code> bean:
+    </p>
+  </div>
+  <div class="glass-card">
+    <ul>
+      <li>Reads allowed origins from <code>app.cors.allowed-origins</code>.</li>
+      <li>Enables credentials so the refresh cookie can be sent.</li>
+      <li>Whitelists the necessary headers and exposes <code>Content-Disposition</code> for file downloads.</li>
+    </ul>
+  </div>
+
+  <h2>7. DTOs, Manual Mappers, and Response Wrappers</h2>
+  <div class="glass-section">
+    <p>
+      Rather than exposing JPA entities directly over the wire, ForkMyFolio embraces DTOs everywhere.
+      The <code>mapper</code> package contains hand-written mappers that translate between
+      entities and API-friendly representations.
+    </p>
+  </div>
+
+  <h3>7.1 Why Manual Mappers?</h3>
+  <div class="glass-card">
+    <ul>
+      <li><strong>Explicitness</strong> &mdash; you see exactly which fields are exposed.</li>
+      <li><strong>Contextual enrichment</strong> &mdash; experience and project DTOs can include computed views like skill proficiency.</li>
+      <li><strong>Controlled evolution</strong> &mdash; as the API evolves, mappers make it obvious what changed and why.</li>
+    </ul>
+  </div>
+
+  <h3>7.2 A Uniform Response Envelope</h3>
+  <div class="glass-section">
+    <p>
+      Every controller returns an <code>ApiResponseWrapper&lt;T&gt;</code>, so the frontend always deals with the same shape.
+    </p>
+    <pre><code class="language-json">{
+  "status": "success",
+  "data": { ... },
+  "errors": []
+}</code></pre>
+    <p>or, on failure:</p>
+    <pre><code class="language-json">{
+  "status": "fail",
+  "data": null,
+  "errors": [
+    { "field": "email", "message": "Email is already in use" }
+  ]
+}</code></pre>
+  </div>
+
+  <h2>8. Portfolio Content, Settings, and Exports</h2>
+  <div class="glass-section">
+    <p>
+      The heart of ForkMyFolio is the portfolio itself. The backend models portfolio data with a set of focused entities:
+    </p>
+  </div>
+  <div class="glass-card">
+    <ul>
+      <li><strong>PortfolioProfile</strong> &mdash; name, headline, summary, social links.</li>
+      <li><strong>Project</strong> &mdash; title, description, tech stack, links, highlights.</li>
+      <li><strong>Experience</strong> &mdash; work or volunteer history.</li>
+      <li><strong>Qualification</strong> &mdash; education and certifications.</li>
+      <li><strong>UserSkill</strong> &mdash; user-specific skill relations often mapped to platform-wide skills.</li>
+      <li><strong>Testimonial</strong> &mdash; quotes from collaborators and clients.</li>
+    </ul>
+  </div>
+
+  <div class="glass-section">
+    <p>
+      Public <code>/portfolios/{slug}/...</code> endpoints aggregate these into read-optimized DTOs, enforcing visibility
+      and sort order. Hidden or draft content stays private.
+    </p>
+  </div>
+
+  <h3>8.1 Dynamic Settings and Feature Flags</h3>
+  <div class="glass-section">
+    <p>
+      Settings exist at two levels:
+    </p>
+  </div>
+  <div class="glass-card">
+    <ul>
+      <li><strong>Global settings</strong> controlled by admins.</li>
+      <li><strong>User settings</strong> that override specific behaviors per portfolio.</li>
+    </ul>
+  </div>
+  <div class="glass-section">
+    <p>
+      The <code>/api/v1/me/settings</code> endpoint returns the <em>effective</em> settings, combining both sources so the frontend
+      doesn't need to merge them manually.
+    </p>
+  </div>
+
+  <h3>8.2 PDF, Markdown, and vCard Downloads</h3>
+  <div class="glass-section">
+    <p>
+      Visitors can export a portfolio in several formats:
+    </p>
+  </div>
+  <div class="glass-card">
+    <ul>
+      <li>PDF &mdash; a resume-style representation powered by iText 7.</li>
+      <li>Markdown &mdash; a portable document format ideal for GitHub READMEs or static site generators.</li>
+      <li>vCard &mdash; a quick import format for contact apps.</li>
+    </ul>
+  </div>
+  <div class="glass-section">
+    <p>
+      Each export endpoint follows the same pattern: controller handles HTTP details, service composes the data and calls
+      a generator, then the controller streams the result.
+    </p>
+  </div>
+
+  <h2>9. Analytics, Contact Messages, and Backups</h2>
+
+  <h3>9.1 Non-Intrusive Analytics</h3>
+  <div class="glass-section">
+    <p>
+      ForkMyFolio tracks key events (page views, project views, engagement) without resorting to invasive tracking.
+      The goal is to give portfolio owners actionable insights while respecting visitor privacy.
+    </p>
+  </div>
+
+  <h3>9.2 Contact Messages</h3>
+  <div class="glass-section">
+    <p>
+      Contact messages start in the public zone:
+    </p>
+  </div>
+  <div class="glass-card">
+    <ul>
+      <li>Visitors submit a message via <code>/api/v1/portfolios/{slug}/contact-messages</code>.</li>
+      <li>The backend resolves the slug, stores a <code>ContactMessage</code> linked to the owning user.</li>
+      <li>The owner reads and manages their inbox via <code>/api/v1/me/contact-messages</code>.</li>
+    </ul>
+  </div>
+
+  <h3>9.3 Backup and Restore</h3>
+  <div class="glass-section">
+    <p>
+      The platform treats portfolios as first-class data that users should be able to take with them:
+    </p>
+  </div>
+  <div class="glass-card">
+    <ul>
+      <li>Users can download a full JSON backup of their portfolio and restore from it later.</li>
+      <li>Admins can generate system-wide backups, restore single users, or restore the entire platform in a disaster scenario.</li>
+    </ul>
+  </div>
+
+  <h2>10. Profiles, Environment Variables, and Docker</h2>
+  <div class="glass-section">
+    <p>
+      Environment-driven configuration ensures the same codebase runs safely in development and production.
+    </p>
+  </div>
+  <div class="glass-card">
+    <ul>
+      <li><strong>Development profile</strong> &mdash; H2 in-memory database, developer-friendly CORS, and a non-sensitive JWT secret.</li>
+      <li><strong>Production profile</strong> &mdash; MySQL/PostgreSQL, strict CORS, secure cookies, and a strong JWT secret from the environment.</li>
+    </ul>
+  </div>
+  <div class="glass-section">
+    <p>
+      Running locally is as simple as <code>mvn spring-boot:run</code>. For production, a Docker image wraps the app with the
+      right environment variables for database, JWT, and CORS settings.
+    </p>
+  </div>
+
+  <h2>11. Lessons Learned</h2>
+  <div class="glass-section">
+    <p>
+      ForkMyFolio's backend shows what happens when you treat a "simple portfolio" as a platform from the start:
+    </p>
+  </div>
+  <div class="glass-card">
+    <ul>
+      <li>Separating public, user, and admin zones keeps permissions comprehensible.</li>
+      <li>Leaning into DTOs and manual mappers makes the API easy to evolve safely.</li>
+      <li>Using UUIDs and slugs avoids migration headaches and security pitfalls.</li>
+      <li>Building backup and export paths in early makes users trust the system with their data.</li>
+      <li>Taking security seriously (JWTs, refresh cookies, OAuth2, proper CORS) makes frontend integration a lot less painful.</li>
+    </ul>
+  </div>
+  <div class="glass-section">
+    <p>
+      If you're designing your own multi-user app on Spring Boot, ForkMyFolio offers a concrete blueprint: start with
+      clean boundaries, respect your users' data, and let your backend grow from "my portfolio" into "our platform" without
+      losing control.
+    </p>
+  </div>
+
+  <div class="glass-card" style="margin-top: 32px;">
+    <p class="entry-meta">
+      <i class="fas fa-lightbulb"></i>
+      Want to go deeper? This article can be split into a mini-series: one part on architecture, one on security, and one on backup/restore and exports.
+    </p>
+  </div>
+</article>

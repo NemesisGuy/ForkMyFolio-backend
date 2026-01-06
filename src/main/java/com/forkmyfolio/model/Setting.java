@@ -13,7 +13,8 @@ import java.util.UUID;
 
 /**
  * Represents a global, system-wide setting.
- * These settings are unique by name and serve as application-level configurations
+ * These settings are unique by name and serve as application-level
+ * configurations
  * or as default values for user-configurable settings.
  * For user-specific overrides, see the {@link UserSetting} entity.
  */

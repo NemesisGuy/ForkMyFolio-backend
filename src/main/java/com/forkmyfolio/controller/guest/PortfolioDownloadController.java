@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/portfolios")
+@CrossOrigin(origins = "${app.cors.allowed-origins}")
 @Tag(name = "Public Portfolios", description = "Endpoints for viewing public user portfolios.")
 @RequiredArgsConstructor
 public class PortfolioDownloadController {
@@ -47,6 +48,7 @@ public class PortfolioDownloadController {
 
                 return ResponseEntity.ok()
                                 .headers(headers)
+                                .contentLength(pdfFile.content().length)
                                 .body(pdfFile.content());
         }
 
@@ -71,6 +73,7 @@ public class PortfolioDownloadController {
 
                 return ResponseEntity.ok()
                                 .headers(headers)
+                                .contentLength(mdFile.content().length)
                                 .body(mdFile.content());
         }
 }

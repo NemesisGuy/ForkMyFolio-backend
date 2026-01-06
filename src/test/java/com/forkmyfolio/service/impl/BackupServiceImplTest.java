@@ -4,6 +4,7 @@ import com.forkmyfolio.dto.response.*;
 import com.forkmyfolio.mapper.*;
 import com.forkmyfolio.model.*;
 import com.forkmyfolio.model.enums.SkillLevel;
+import com.forkmyfolio.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +35,10 @@ class BackupServiceImplTest {
     private QualificationMapper qualificationMapper;
     @Mock
     private UserSkillMapper userSkillMapper;
+    @Mock
+    private UserMapper userMapper;
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private BackupServiceImpl backupService;
@@ -114,5 +119,26 @@ class BackupServiceImplTest {
         assertTrue(backupDto.getTestimonials().isEmpty());
         assertNotNull(backupDto.getQualifications());
         assertTrue(backupDto.getQualifications().isEmpty());
+    }
+
+    @Test
+    void createFullSystemBackup_shouldReturnMappedList() {
+        // Arrange
+        when(userService.getAllUsersWithPortfolioData()).thenReturn(Collections.singletonList(testUser));
+        when(userMapper.toDto(any(User.class))).thenReturn(new UserDto());
+
+        // Mock the internal mappings
+        when(portfolioProfileMapper.toDto(any())).thenReturn(new PortfolioProfileDto());
+        when(projectMapper.toDto(any(), anyMap())).thenReturn(new ProjectDto());
+        when(userSkillMapper.toDtoList(any())).thenReturn(Collections.singletonList(new UserSkillDto()));
+
+        // Act
+        java.util.List<UserFullBackupDto> result = backupService.createFullSystemBackup();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(userService).getAllUsersWithPortfolioData();
+        verify(userMapper).toDto(any(User.class));
     }
 }
